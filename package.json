@@ -31,12 +31,17 @@
   },
   "scripts": {
     "dev": "bun run src/index.ts",
+    "dev:secure": "dotenvx run -- bun run src/index.ts",
     "build": "bun build src/index.ts --compile --outfile asana",
     "test": "bun test",
+    "test:e2e": "bun test tests/e2e",
+    "test:e2e:secure": "dotenvx run -- bun test tests/e2e",
     "test:watch": "bun test --watch",
     "test:coverage": "bun test --coverage",
     "lint": "eslint .",
-    "lint:fix": "eslint . --fix"
+    "lint:fix": "eslint . --fix",
+    "env:encrypt": "dotenvx encrypt",
+    "env:decrypt": "dotenvx decrypt"
   },
   "peerDependencies": {
     "typescript": "^5"
