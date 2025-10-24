@@ -1,6 +1,6 @@
-# gh-please Documentation
+# Asana CLI Documentation
 
-Docus-based documentation site for [@pleaseai/gh-please](https://github.com/pleaseai/gh-please) with English and Korean support.
+Docus-based documentation site for Asana CLI with English and Korean support.
 
 ## Features
 
@@ -20,15 +20,11 @@ docs/
 │   ├── en/               # English documentation
 │   │   ├── index.md      # English home page
 │   │   ├── 1.guide/      # Getting Started guides
-│   │   ├── 2.features/   # Feature documentation
-│   │   ├── 4.workflows/  # Workflow guides
-│   │   └── 5.advanced/   # Advanced topics
+│   │   └── 2.features/   # Feature documentation
 │   └── ko/               # Korean documentation (한국어)
 │       ├── index.md      # Korean home page
 │       ├── 1.guide/      # 시작 가이드
-│       ├── 2.features/   # 기능 문서
-│       ├── 4.workflows/  # 워크플로우 가이드
-│       └── 5.advanced/   # 고급 주제
+│       └── 2.features/   # 기능 문서
 ├── public/               # Static assets
 ├── nuxt.config.ts        # Nuxt configuration with i18n
 └── package.json
@@ -150,6 +146,11 @@ bun run generate
 - [Nuxt UI](https://ui.nuxt.com)
 - [@nuxtjs/i18n](https://i18n.nuxtjs.org)
 
+## Author
+
+이민수 (Minsu Lee)
+- GitHub: [@amondnet](https://github.com/amondnet)
+
 ## License
 
-MIT
+Private

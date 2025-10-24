@@ -22,6 +22,51 @@ bun test --watch
 bun run test
 ```
 
+### Run tests with coverage
+
+```bash
+bun test --coverage
+# or
+bun run test:coverage
+```
+
+## Test Coverage
+
+Current coverage status:
+
+```
+File                     | % Funcs | % Lines | Status
+-------------------------|---------|---------|--------
+All files                |   41.67 |   33.08 | 🟡
+ src/commands/auth.ts    |   25.00 |   22.43 | 🔴
+ src/commands/task.ts    |   16.67 |   26.11 | 🔴
+ src/lib/asana-client.ts |   75.00 |   26.23 | 🟡
+ src/lib/config.ts       |   25.00 |   58.33 | 🟡
+ src/lib/oauth.ts        |   66.67 |   32.31 | 🟡
+```
+
+### Coverage Goals
+
+- **Target**: 80% line coverage
+- **Current**: 33.08% line coverage (↑ from 32.31%)
+- **Status**: In Progress 🚧
+
+### Test Statistics
+
+- **Total Tests**: 65 (↑ from 24)
+- **Test Files**: 5
+- **Assertions**: 91 expect() calls
+- **Status**: All tests passing ✅
+
+### Improving Coverage
+
+Priority areas for additional tests:
+1. ✅ Command structure tests (auth.ts, task.ts) - Basic coverage added
+2. 🔴 Command action handlers - Need integration tests
+3. 🟡 OAuth flow integration - Partial coverage
+4. 🟡 Asana client module - Logic tests added
+5. 🔴 Error handling paths - Needs improvement
+
 ## Test Structure
 
 The test suite is organized in a separate `test/` directory that mirrors the source code structure:
@@ -39,10 +84,12 @@ src/
 
 test/
 ├── lib/
-│   ├── config.test.ts      # Tests for config module
-│   └── oauth.test.ts       # Tests for OAuth module
+│   ├── config.test.ts        # Tests for config module (12 tests)
+│   ├── oauth.test.ts         # Tests for OAuth module (12 tests)
+│   └── asana-client.test.ts  # Tests for Asana client (10 tests)
 └── commands/
-    └── (future command tests)
+    ├── auth.test.ts          # Tests for auth command (11 tests)
+    └── task.test.ts          # Tests for task command (20 tests)
 ```
 
 ## Test Coverage
@@ -80,6 +127,48 @@ Tests the OAuth authentication flow:
 - Request parameter validation
 - Header validation
 - OAuth flow error cases
+
+### Asana Client Module (`test/lib/asana-client.test.ts`)
+
+Tests the Asana client initialization and token management:
+
+- **getAsanaClient**: Client initialization validation
+- **refreshTokenIfNeeded**: Token expiration and refresh logic
+- **resetClient**: Client reset functionality
+
+**Test cases (10 tests)**:
+- Config validation
+- Token storage verification
+- Token expiration logic
+- OAuth refresh conditions
+- Client reset operations
+
+### Auth Command Module (`test/commands/auth.test.ts`)
+
+Tests the authentication command structure:
+
+- Command structure validation
+- Subcommand verification (login, logout, whoami)
+- Option validation
+
+**Test cases (11 tests)**:
+- Command naming and descriptions
+- Subcommand existence
+- Option availability and configuration
+
+### Task Command Module (`test/commands/task.test.ts`)
+
+Tests the task management command structure:
+
+- Command structure validation
+- Subcommand verification (create, list, get, complete, delete)
+- Option and argument validation
+
+**Test cases (20 tests)**:
+- Command naming and descriptions
+- All subcommands present
+- Required and optional options
+- Argument handling
 
 ## Test Utilities
 

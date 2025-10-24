@@ -1,21 +1,34 @@
 ---
-title: gh-please Documentation
+title: Asana CLI
 navigation: false
+layout: page
 ---
 
-# gh-please Documentation
+::u-page-hero
+#title
+Asana CLI Documentation
 
-Choose your language:
+#description
+Choose your language to get started
 
-- [English](/en) - English documentation
-- [한국어](/ko) - 한국어 문서
+#links
+  :::u-button
+  ---
+  color: neutral
+  size: xl
+  to: /en
+  icon: i-lucide-globe
+  ---
+  English
+  :::
 
-GitHub CLI extension for enhanced issue and PR management with AI-powered automation.
-
-## Quick Start
-
-```bash
-gh extension install pleaseai/gh-please
-```
-
-[Get Started →](/en/guide/getting-started) | [시작하기 →](/ko/guide/getting-started)
+  :::u-button
+  ---
+  color: neutral
+  size: xl
+  to: /ko
+  icon: i-lucide-globe
+  ---
+  한국어
+  :::
+::
