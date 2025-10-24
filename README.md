@@ -65,6 +65,7 @@ bun run dev auth login
 브라우저가 자동으로 열리고 Asana 인증 페이지로 이동합니다.
 
 **참고:**
+
 - [OAuth 문서](https://developers.asana.com/docs/getting-started-with-asana-oauth)
 - [인증 개요](https://developers.asana.com/docs/authentication)
 
@@ -197,4 +198,5 @@ Private
 ## 작성자
 
 이민수 (Minsu Lee)
+
 - GitHub: [@amondnet](https://github.com/amondnet)

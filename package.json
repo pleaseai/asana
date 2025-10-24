@@ -1,15 +1,16 @@
 {
   "name": "@pleaseai/asana",
-  "version": "0.1.0",
-  "description": "Asana CLI - Manage your Asana tasks from the command line",
   "type": "module",
+  "version": "0.1.0",
   "private": true,
+  "description": "Asana CLI - Manage your Asana tasks from the command line",
   "author": {
     "name": "Minsu Lee",
     "email": "amond@amond.net",
     "url": "https://github.com/amondnet"
   },
   "license": "MIT",
+  "homepage": "https://github.com/pleaseai/asana#readme",
   "repository": {
     "type": "git",
     "url": "https://github.com/pleaseai/asana.git"
@@ -17,7 +18,6 @@
   "bugs": {
     "url": "https://github.com/pleaseai/asana/issues"
   },
-  "homepage": "https://github.com/pleaseai/asana#readme",
   "keywords": [
     "asana",
     "cli",
@@ -38,12 +38,6 @@
     "lint": "eslint .",
     "lint:fix": "eslint . --fix"
   },
-  "devDependencies": {
-    "@types/bun": "^1.3.1",
-    "@antfu/eslint-config": "^6.0.0",
-    "eslint": "^9.37.0",
-    "eslint-plugin-format": "^1.0.2"
-  },
   "peerDependencies": {
     "typescript": "^5"
   },
@@ -53,5 +47,12 @@
     "chalk": "^5.6.2",
     "commander": "^14.0.1",
     "open": "^10.2.0"
+  },
+  "devDependencies": {
+    "@antfu/eslint-config": "^6.0.0",
+    "@types/bun": "^1.3.1",
+    "eslint": "^9.37.0",
+    "eslint-plugin-format": "^1.0.2",
+    "turbo": "^2.5.8"
   }
 }

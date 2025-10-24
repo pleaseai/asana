@@ -149,6 +149,7 @@ bun run generate
 ## Author
 
 이민수 (Minsu Lee)
+
 - GitHub: [@amondnet](https://github.com/amondnet)
 
 ## License

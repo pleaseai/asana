@@ -1,7 +1,7 @@
+import type { AsanaConfig } from '../types'
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs'
 import { homedir } from 'node:os'
 import { join } from 'node:path'
-import type { AsanaConfig } from '../types'
 
 const CONFIG_DIR = join(homedir(), '.asana-cli')
 const CONFIG_FILE = join(CONFIG_DIR, 'config.json')

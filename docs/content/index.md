@@ -12,23 +12,31 @@ Asana CLI Documentation
 Choose your language to get started
 
 #links
-  :::u-button
-  ---
-  color: neutral
-  size: xl
-  to: /en
-  icon: i-lucide-globe
-  ---
-  English
-  :::
+:::u-button
 
-  :::u-button
-  ---
-  color: neutral
-  size: xl
-  to: /ko
-  icon: i-lucide-globe
-  ---
-  한국어
-  :::
+---
+
+color: neutral
+size: xl
+to: /en
+icon: i-lucide-globe
+
+---
+
+English
+:::
+
+:::u-button
+
+---
+
+color: neutral
+size: xl
+to: /ko
+icon: i-lucide-globe
+
+---
+
+한국어
+:::
 ::

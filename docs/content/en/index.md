@@ -17,26 +17,34 @@ Command line interface for Asana - Manage your tasks efficiently from the termin
 Fast, simple, and powerful task management with OAuth 2.0 and Personal Access Token authentication.
 
 #links
-  :::u-button
-  ---
-  color: neutral
-  size: xl
-  to: /en/guide/getting-started
-  trailing-icon: i-lucide-arrow-right
-  ---
-  Get Started
-  :::
+:::u-button
 
-  :::u-button
-  ---
-  color: neutral
-  icon: simple-icons-github
-  size: xl
-  to: https://github.com/amondnet/asana
-  variant: outline
-  ---
-  Star on GitHub
-  :::
+---
+
+color: neutral
+size: xl
+to: /en/guide/getting-started
+trailing-icon: i-lucide-arrow-right
+
+---
+
+Get Started
+:::
+
+:::u-button
+
+---
+
+color: neutral
+icon: simple-icons-github
+size: xl
+to: https://github.com/amondnet/asana
+variant: outline
+
+---
+
+Star on GitHub
+:::
 ::
 
 ::u-page-section
@@ -44,69 +52,93 @@ Fast, simple, and powerful task management with OAuth 2.0 and Personal Access To
 What's included
 
 #features
-  :::u-page-feature
-  ---
-  icon: i-lucide-key
-  ---
-  #title
-  Flexible Authentication
+:::u-page-feature
 
-  #description
-  Support for both OAuth 2.0 and Personal Access Token authentication. Choose the method that works best for your workflow.
-  :::
+---
 
-  :::u-page-feature
-  ---
-  icon: i-lucide-list-checks
-  ---
-  #title
-  Task Management
+icon: i-lucide-key
 
-  #description
-  Create, list, complete, and delete tasks directly from the command line. Full CRUD operations with filtering and search.
-  :::
+---
 
-  :::u-page-feature
-  ---
-  icon: i-lucide-zap
-  ---
-  #title
-  Built with Bun
+#title
+Flexible Authentication
 
-  #description
-  Lightning-fast execution powered by Bun runtime. Minimal dependencies and optimized performance.
-  :::
+#description
+Support for both OAuth 2.0 and Personal Access Token authentication. Choose the method that works best for your workflow.
+:::
 
-  :::u-page-feature
-  ---
-  icon: i-lucide-refresh-cw
-  ---
-  #title
-  Automatic Token Refresh
+:::u-page-feature
 
-  #description
-  OAuth tokens are automatically refreshed. Never worry about expired authentication during long sessions.
-  :::
+---
 
-  :::u-page-feature
-  ---
-  icon: i-lucide-settings
-  ---
-  #title
-  Default Workspace
+icon: i-lucide-list-checks
 
-  #description
-  Set a default workspace to streamline your workflow. No need to specify workspace ID for every command.
-  :::
+---
 
-  :::u-page-feature
-  ---
-  icon: i-lucide-terminal
-  ---
-  #title
-  Native Binary
+#title
+Task Management
 
-  #description
-  Compile to a standalone executable. Deploy anywhere without installing Node.js or Bun runtime.
-  :::
+#description
+Create, list, complete, and delete tasks directly from the command line. Full CRUD operations with filtering and search.
+:::
+
+:::u-page-feature
+
+---
+
+icon: i-lucide-zap
+
+---
+
+#title
+Built with Bun
+
+#description
+Lightning-fast execution powered by Bun runtime. Minimal dependencies and optimized performance.
+:::
+
+:::u-page-feature
+
+---
+
+icon: i-lucide-refresh-cw
+
+---
+
+#title
+Automatic Token Refresh
+
+#description
+OAuth tokens are automatically refreshed. Never worry about expired authentication during long sessions.
+:::
+
+:::u-page-feature
+
+---
+
+icon: i-lucide-settings
+
+---
+
+#title
+Default Workspace
+
+#description
+Set a default workspace to streamline your workflow. No need to specify workspace ID for every command.
+:::
+
+:::u-page-feature
+
+---
+
+icon: i-lucide-terminal
+
+---
+
+#title
+Native Binary
+
+#description
+Compile to a standalone executable. Deploy anywhere without installing Node.js or Bun runtime.
+:::
 ::

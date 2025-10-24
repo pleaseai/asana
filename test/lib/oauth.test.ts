@@ -1,6 +1,6 @@
+import type { OAuthTokenResponse } from '../../src/lib/oauth'
 import { afterEach, beforeEach, describe, expect, mock, test } from 'bun:test'
 import { refreshAccessToken } from '../../src/lib/oauth'
-import type { OAuthTokenResponse } from '../../src/lib/oauth'
 
 describe('oauth module', () => {
   beforeEach(() => {

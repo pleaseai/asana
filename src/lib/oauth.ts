@@ -1,7 +1,6 @@
 import { createServer } from 'node:http'
-import { parse } from 'node:url'
-import open from 'open'
 import chalk from 'chalk'
+import open from 'open'
 
 // OAuth Configuration
 // Users need to create an OAuth app at https://app.asana.com/0/my-apps
@@ -52,12 +51,12 @@ export async function startOAuthFlow(): Promise<OAuthTokenResponse> {
   // Create local server to handle callback
   return new Promise((resolve, reject) => {
     const server = createServer(async (req, res) => {
-      const url = parse(req.url || '', true)
+      const url = new URL(req.url || '', `http://localhost:8080`)
 
       if (url.pathname === '/callback') {
-        const code = url.query.code as string
-        const returnedState = url.query.state as string
-        const error = url.query.error as string
+        const code = url.searchParams.get('code') || ''
+        const returnedState = url.searchParams.get('state') || ''
+        const error = url.searchParams.get('error') || ''
 
         if (error) {
           res.writeHead(400, { 'Content-Type': 'text/html' })

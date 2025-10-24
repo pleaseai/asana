@@ -61,6 +61,7 @@ All files                |   41.67 |   33.08 | 🟡
 ### Improving Coverage
 
 Priority areas for additional tests:
+
 1. ✅ Command structure tests (auth.ts, task.ts) - Basic coverage added
 2. 🔴 Command action handlers - Need integration tests
 3. 🟡 OAuth flow integration - Partial coverage
@@ -104,6 +105,7 @@ Tests the configuration management functionality:
 - **getAccessToken**: Token retrieval from config and environment variables
 
 **Test cases (12 tests)**:
+
 - Directory creation when it doesn't exist
 - Handling existing directories
 - Saving different configuration types (PAT, OAuth)
@@ -120,6 +122,7 @@ Tests the OAuth authentication flow:
 - **startOAuthFlow**: OAuth flow initialization
 
 **Test cases (12 tests)**:
+
 - Successful token refresh
 - Handling missing credentials
 - Error handling for failed refreshes
@@ -137,6 +140,7 @@ Tests the Asana client initialization and token management:
 - **resetClient**: Client reset functionality
 
 **Test cases (10 tests)**:
+
 - Config validation
 - Token storage verification
 - Token expiration logic
@@ -152,6 +156,7 @@ Tests the authentication command structure:
 - Option validation
 
 **Test cases (11 tests)**:
+
 - Command naming and descriptions
 - Subcommand existence
 - Option availability and configuration
@@ -165,6 +170,7 @@ Tests the task management command structure:
 - Option and argument validation
 
 **Test cases (20 tests)**:
+
 - Command naming and descriptions
 - All subcommands present
 - Required and optional options
@@ -183,6 +189,7 @@ const TEST_CONFIG_DIR = join(tmpdir(), `asana-cli-test-${process.pid}`)
 ### Cleanup
 
 All tests include proper cleanup in `beforeEach` and `afterEach` hooks:
+
 - Removes temporary directories
 - Clears environment variables
 - Resets mocked functions

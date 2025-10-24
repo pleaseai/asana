@@ -1,8 +1,8 @@
-import { afterEach, beforeEach, describe, expect, mock, test } from 'bun:test'
+import type { AsanaConfig } from '../../src/types'
 import { existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
-import type { AsanaConfig } from '../../src/types'
+import { afterEach, beforeEach, describe, expect, mock, test } from 'bun:test'
 
 // Test helper functions that mimic the config module behavior
 const TEST_CONFIG_DIR = join(tmpdir(), `asana-cli-test-${process.pid}`)

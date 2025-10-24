@@ -1,14 +1,8 @@
 #!/usr/bin/env bun
 import { Command } from 'commander'
-import { readFileSync } from 'node:fs'
-import { join } from 'node:path'
 import { createAuthCommand } from './commands/auth'
 import { createTaskCommand } from './commands/task'
-
-// Read version from package.json
-const packageJson = JSON.parse(
-  readFileSync(join(import.meta.dir, '../package.json'), 'utf-8'),
-)
+import packageJson from '../package.json'
 
 const program = new Command()
 

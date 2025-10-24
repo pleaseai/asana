@@ -1,8 +1,8 @@
-import { Command } from 'commander'
-import chalk from 'chalk'
 import asana from 'asana'
-import { loadConfig, saveConfig } from '../lib/config'
+import chalk from 'chalk'
+import { Command } from 'commander'
 import { getAsanaClient, resetClient } from '../lib/asana-client'
+import { loadConfig, saveConfig } from '../lib/config'
 import { startOAuthFlow } from '../lib/oauth'
 
 export function createAuthCommand(): Command {
@@ -109,7 +109,7 @@ export function createAuthCommand(): Command {
           }
         }
       }
-      catch (error) {
+      catch {
         console.error(chalk.red('✗ Not authenticated. Run "asana auth login" first.'))
         process.exit(1)
       }

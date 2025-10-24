@@ -1,8 +1,8 @@
-import { Command } from 'commander'
+import type { TaskListOptions, TaskOptions } from '../types'
 import chalk from 'chalk'
+import { Command } from 'commander'
 import { getAsanaClient } from '../lib/asana-client'
 import { loadConfig } from '../lib/config'
-import type { TaskListOptions, TaskOptions } from '../types'
 
 export function createTaskCommand(): Command {
   const task = new Command('task')
