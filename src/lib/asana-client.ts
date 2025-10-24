@@ -1,12 +1,15 @@
-import asana from 'asana'
+import Asana from 'asana'
 import { loadConfig, saveConfig } from './config'
 import { refreshAccessToken } from './oauth'
 
-let clientInstance: asana.Client | null = null
+let apiClientInstance: typeof Asana.ApiClient.instance | null = null
+let tasksApiInstance: Asana.TasksApi | null = null
+let usersApiInstance: Asana.UsersApi | null = null
+let workspacesApiInstance: Asana.WorkspacesApi | null = null
 
-export function getAsanaClient(): asana.Client {
-  if (clientInstance) {
-    return clientInstance
+function initializeApiClient(): typeof Asana.ApiClient.instance {
+  if (apiClientInstance) {
+    return apiClientInstance
   }
 
   const config = loadConfig()
@@ -22,18 +25,85 @@ export function getAsanaClient(): asana.Client {
     const isExpired = Date.now() >= config.expiresAt
 
     if (isExpired) {
-      // Token is expired, trigger refresh
-      // Note: This is synchronous function, but we need async refresh
-      // In real usage, the token will be refreshed on first API call failure
       console.warn('Token expired, will refresh on next API call')
     }
   }
 
-  clientInstance = asana.Client.create({
-    defaultHeaders: { 'asana-enable': 'new_user_task_lists' },
-  }).useAccessToken(config.accessToken)
+  apiClientInstance = Asana.ApiClient.instance
+  const token = apiClientInstance.authentications.token
+  token.accessToken = config.accessToken
 
-  return clientInstance
+  return apiClientInstance
+}
+
+/**
+ * Get Asana client with legacy-style API wrapper
+ * This provides backward compatibility with the old Client.create() API
+ */
+export function getAsanaClient() {
+  const apiClient = initializeApiClient()
+
+  // Initialize API instances
+  if (!tasksApiInstance) {
+    tasksApiInstance = new Asana.TasksApi()
+  }
+  if (!usersApiInstance) {
+    usersApiInstance = new Asana.UsersApi()
+  }
+  if (!workspacesApiInstance) {
+    workspacesApiInstance = new Asana.WorkspacesApi()
+  }
+
+  // Return a wrapper object that matches the old API structure
+  return {
+    apiClient,
+    tasks: {
+      create: async (taskData: any) => {
+        const body = { data: taskData }
+        const result = await tasksApiInstance!.createTask(body, {})
+        return result.data
+      },
+      findById: async (taskGid: string, opts: any = {}) => {
+        const result = await tasksApiInstance!.getTask(taskGid, opts)
+        return result.data
+      },
+      findAll: async (opts: any = {}) => {
+        // Add limit to avoid pagination errors
+        const optsWithLimit = { limit: 100, ...opts }
+        const result = await tasksApiInstance!.getTasks(optsWithLimit)
+        return result
+      },
+      findByProject: async (projectGid: string, opts: any = {}) => {
+        const result = await tasksApiInstance!.getTasksForProject(projectGid, opts)
+        return result
+      },
+      update: async (taskGid: string, updateData: any) => {
+        const body = { data: updateData }
+        const result = await tasksApiInstance!.updateTask(body, taskGid, {})
+        return result.data
+      },
+      delete: async (taskGid: string) => {
+        const result = await tasksApiInstance!.deleteTask(taskGid)
+        return result.data
+      },
+    },
+    users: {
+      me: async () => {
+        const result = await usersApiInstance!.getUser('me', {})
+        return result.data
+      },
+    },
+    workspaces: {
+      findAll: async () => {
+        const result = await workspacesApiInstance!.getWorkspaces({})
+        return result
+      },
+      findById: async (workspaceGid: string) => {
+        const result = await workspacesApiInstance!.getWorkspace(workspaceGid, {})
+        return result.data
+      },
+    },
+  }
 }
 
 /**
@@ -80,5 +150,8 @@ export async function refreshTokenIfNeeded(): Promise<boolean> {
 }
 
 export function resetClient(): void {
-  clientInstance = null
+  apiClientInstance = null
+  tasksApiInstance = null
+  usersApiInstance = null
+  workspacesApiInstance = null
 }

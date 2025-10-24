@@ -235,11 +235,13 @@ E2E 테스트는 실제 Asana API와 상호작용합니다:
 ## 참고 문서
 
 ### 개발자 문서
+
 - [Asana Node.js Client Documentation](dev-docs/ASANA_NODE_CLIENT.md) - Node.js 클라이언트 API 레퍼런스
 - [Environment Setup Guide](dev-docs/ENVIRONMENT_SETUP.md) - 환경 설정 가이드
 - [E2E Test Guide](tests/e2e/README.md) - E2E 테스트 가이드
 
 ### 공식 Asana 문서
+
 - [Asana API 문서](https://developers.asana.com/docs)
 - [Asana Node.js SDK](https://github.com/Asana/node-asana)
 - [Personal Access Token](https://developers.asana.com/docs/personal-access-token)

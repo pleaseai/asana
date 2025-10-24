@@ -293,7 +293,7 @@ const events = await client.events.getEvents({
 })
 
 // Process events
-events.data.forEach(event => {
+events.data.forEach((event) => {
   console.log(`Event: ${event.action} on ${event.resource.resource_type}`)
 })
 
@@ -332,7 +332,8 @@ const batchResponse = await client.batch.createBatchRequest({
 batchResponse.data.forEach((response, index) => {
   if (response.status_code === 200 || response.status_code === 201) {
     console.log(`Operation ${index} succeeded:`, response.body)
-  } else {
+  }
+  else {
     console.error(`Operation ${index} failed:`, response.body)
   }
 })
@@ -346,7 +347,7 @@ Handle paginated responses for large result sets.
 
 ```typescript
 // Manual pagination
-let offset = undefined
+let offset
 let allTasks = []
 
 do {
@@ -379,15 +380,19 @@ Handle API errors gracefully.
 ```typescript
 try {
   const task = await client.tasks.getTask('invalid_gid')
-} catch (error) {
+}
+catch (error) {
   if (error.status === 404) {
     console.error('Task not found')
-  } else if (error.status === 401) {
+  }
+  else if (error.status === 401) {
     console.error('Authentication failed')
-  } else if (error.status === 429) {
+  }
+  else if (error.status === 429) {
     console.error('Rate limit exceeded')
     // Implement retry with exponential backoff
-  } else {
+  }
+  else {
     console.error('API error:', error.message)
   }
 }
@@ -401,6 +406,7 @@ Asana API has rate limits to ensure service stability:
 - **Premium**: 150,000 requests per hour
 
 Best practices:
+
 - Implement exponential backoff for 429 errors
 - Use batch API for multiple operations
 - Cache frequently accessed data
@@ -462,11 +468,12 @@ async function retryWithBackoff<T>(
   for (let i = 0; i < maxRetries; i++) {
     try {
       return await fn()
-    } catch (error: any) {
+    }
+    catch (error: any) {
       lastError = error
 
       if (error.status === 429) {
-        const delay = Math.pow(2, i) * 1000 // Exponential backoff
+        const delay = 2 ** i * 1000 // Exponential backoff
         await new Promise(resolve => setTimeout(resolve, delay))
         continue
       }
@@ -499,6 +506,7 @@ const client = asana.Client.create({
 ## Complete API Reference
 
 ### Resource APIs
+
 - [TasksApi](https://github.com/Asana/node-asana/blob/master/docs/TasksApi.md) - Task management
 - [ProjectsApi](https://github.com/Asana/node-asana/blob/master/docs/ProjectsApi.md) - Project management
 - [WorkspacesApi](https://github.com/Asana/node-asana/blob/master/docs/WorkspacesApi.md) - Workspace management
@@ -507,6 +515,7 @@ const client = asana.Client.create({
 - [PortfoliosApi](https://github.com/Asana/node-asana/blob/master/docs/PortfoliosApi.md) - Portfolio management
 
 ### Feature APIs
+
 - [CustomFieldsApi](https://github.com/Asana/node-asana/blob/master/docs/CustomFieldsApi.md) - Custom field management
 - [TagsApi](https://github.com/Asana/node-asana/blob/master/docs/TagsApi.md) - Tag management
 - [AttachmentsApi](https://github.com/Asana/node-asana/blob/master/docs/AttachmentsApi.md) - File attachments
@@ -515,6 +524,7 @@ const client = asana.Client.create({
 - [StatusUpdatesApi](https://github.com/Asana/node-asana/blob/master/docs/StatusUpdatesApi.md) - Status updates
 
 ### Advanced APIs
+
 - [WebhooksApi](https://github.com/Asana/node-asana/blob/master/docs/WebhooksApi.md) - Real-time events
 - [EventsApi](https://github.com/Asana/node-asana/blob/master/docs/EventsApi.md) - Event polling
 - [BatchAPIApi](https://github.com/Asana/node-asana/blob/master/docs/BatchAPIApi.md) - Batch operations
