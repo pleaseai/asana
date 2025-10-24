@@ -1,0 +1,82 @@
+name: E2E Tests (Manual)
+
+on:
+  workflow_dispatch:
+    inputs:
+      workspace_gid:
+        description: 'Asana Workspace GID (optional, uses secret if not provided)'
+        required: false
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  e2e-tests:
+    name: End-to-End Tests
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v1
+        with:
+          bun-version: latest
+
+      - name: Install dependencies
+        run: bun install
+
+      - name: Verify Asana credentials
+        run: |
+          if [ -z "${{ secrets.ASANA_ACCESS_TOKEN }}" ]; then
+            echo "❌ ASANA_ACCESS_TOKEN secret is not set"
+            exit 1
+          fi
+          echo "✅ ASANA_ACCESS_TOKEN is configured"
+
+          WORKSPACE="${{ inputs.workspace_gid || secrets.ASANA_WORKSPACE }}"
+          if [ -z "$WORKSPACE" ]; then
+            echo "❌ ASANA_WORKSPACE secret is not set and no workspace_gid input provided"
+            exit 1
+          fi
+          echo "✅ ASANA_WORKSPACE is configured"
+
+      - name: Create .env file
+        run: |
+          cat > .env << EOF
+          ASANA_ACCESS_TOKEN=${{ secrets.ASANA_ACCESS_TOKEN }}
+          ASANA_WORKSPACE=${{ inputs.workspace_gid || secrets.ASANA_WORKSPACE }}
+          EOF
+          echo "✅ .env file created"
+
+      - name: Run E2E Tests
+        run: bun test:e2e
+        env:
+          ASANA_ACCESS_TOKEN: ${{ secrets.ASANA_ACCESS_TOKEN }}
+          ASANA_WORKSPACE: ${{ inputs.workspace_gid || secrets.ASANA_WORKSPACE }}
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: e2e-test-results
+          path: |
+            **/*.log
+          retention-days: 7
+
+      - name: Summary
+        if: always()
+        run: |
+          echo "## E2E Test Results 🧪" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "- **Workspace**: ${{ inputs.workspace_gid || secrets.ASANA_WORKSPACE }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Test Suite**: E2E Integration Tests" >> $GITHUB_STEP_SUMMARY
+          echo "- **Runtime**: Bun" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          if [ "${{ job.status }}" == "success" ]; then
+            echo "✅ All E2E tests passed!" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "❌ Some E2E tests failed. Check the logs above." >> $GITHUB_STEP_SUMMARY
+          fi

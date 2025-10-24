@@ -223,8 +223,16 @@ bun run lint:fix
 
 E2E 테스트는 실제 Asana API와 상호작용합니다:
 
+**로컬 실행:**
+
 1. `.env` 파일에 `ASANA_ACCESS_TOKEN`과 `ASANA_WORKSPACE` 설정
 2. `bun test:e2e` 또는 `bun test:e2e:secure` 실행
+
+**GitHub Actions (Manual):**
+
+- Actions 탭에서 "E2E Tests (Manual)" 워크플로우를 수동으로 실행
+- Repository Secrets에 `ASANA_ACCESS_TOKEN`과 `ASANA_WORKSPACE` 설정 필요
+- [Workflow Guide](.github/workflows/README.md) 참고
 
 자세한 내용은 [E2E Test Guide](tests/e2e/README.md)를 참고하세요.
 
