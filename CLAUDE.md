@@ -2,10 +2,15 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
-@docs-dev/STANDARDS.md
-@docs-dev/commit-convention.md
-@docs-dev/TESTING.md
-@docs-dev/TDD.md
+@dev-docs/STANDARDS.md
+@dev-docs/commit-convention.md
+@dev-docs/TESTING.md
+@dev-docs/TDD.md
+
+## Documentation Structure
+
+- **docs/**: Documentation app files (user-facing documentation)
+- **dev-docs/**: Development documentation (technical documentation for developers)
 
 Default to using Bun instead of Node.js.
 
