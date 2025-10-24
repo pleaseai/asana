@@ -197,16 +197,19 @@ bun run test:e2e:secure
 # 개발 모드 실행
 bun run dev auth login
 
-# 테스트 실행
+# Unit 테스트 실행 (E2E 제외)
 bun test
 
-# E2E 테스트 (실제 Asana API 호출)
+# 모든 테스트 실행 (unit + E2E)
+bun test:all
+
+# E2E 테스트만 실행 (실제 Asana API 호출)
 bun test:e2e
 
-# E2E 테스트 (암호화된 환경)
+# E2E 테스트 (dotenvx 사용, 권장)
 bun test:e2e:secure
 
-# 테스트 커버리지
+# 테스트 커버리지 (unit 테스트만)
 bun test:coverage
 
 # Lint
