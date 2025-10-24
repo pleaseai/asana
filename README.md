@@ -138,6 +138,18 @@ bun run build
 
 ## 환경 변수
 
+이 프로젝트는 [dotenvx](https://dotenvx.com/)를 사용하여 암호화된 환경 변수 관리를 지원합니다.
+
+### 설정 방법
+
+1. `.env` 파일 생성:
+
+```bash
+cp .env.example .env
+```
+
+2. 환경 변수 설정:
+
 ```bash
 # OAuth 인증용 (선택사항)
 ASANA_CLIENT_ID=your_client_id
@@ -149,6 +161,21 @@ ASANA_ACCESS_TOKEN=your_token
 # 기본 workspace (선택사항)
 ASANA_WORKSPACE=workspace_id
 ```
+
+3. (추천) 환경 변수 암호화:
+
+```bash
+bun run env:encrypt
+```
+
+4. 암호화된 환경으로 실행:
+
+```bash
+bun run dev:secure auth login
+bun run test:e2e:secure
+```
+
+자세한 설정 방법은 [Environment Setup Guide](dev-docs/ENVIRONMENT_SETUP.md)를 참고하세요.
 
 ## 설정 파일
 
@@ -170,12 +197,33 @@ ASANA_WORKSPACE=workspace_id
 # 개발 모드 실행
 bun run dev auth login
 
+# 테스트 실행
+bun test
+
+# E2E 테스트 (실제 Asana API 호출)
+bun test:e2e
+
+# E2E 테스트 (암호화된 환경)
+bun test:e2e:secure
+
+# 테스트 커버리지
+bun test:coverage
+
 # Lint
 bun run lint
 
 # Lint 자동 수정
 bun run lint:fix
 ```
+
+### E2E 테스트 설정
+
+E2E 테스트는 실제 Asana API와 상호작용합니다:
+
+1. `.env` 파일에 `ASANA_ACCESS_TOKEN`과 `ASANA_WORKSPACE` 설정
+2. `bun test:e2e` 또는 `bun test:e2e:secure` 실행
+
+자세한 내용은 [E2E Test Guide](tests/e2e/README.md)를 참고하세요.
 
 ## 기술 스택
 
@@ -186,7 +234,14 @@ bun run lint:fix
 
 ## 참고 문서
 
+### 개발자 문서
+- [Asana Node.js Client Documentation](dev-docs/ASANA_NODE_CLIENT.md) - Node.js 클라이언트 API 레퍼런스
+- [Environment Setup Guide](dev-docs/ENVIRONMENT_SETUP.md) - 환경 설정 가이드
+- [E2E Test Guide](tests/e2e/README.md) - E2E 테스트 가이드
+
+### 공식 Asana 문서
 - [Asana API 문서](https://developers.asana.com/docs)
+- [Asana Node.js SDK](https://github.com/Asana/node-asana)
 - [Personal Access Token](https://developers.asana.com/docs/personal-access-token)
 - [OAuth 2.0 가이드](https://developers.asana.com/docs/getting-started-with-asana-oauth)
 - [인증 개요](https://developers.asana.com/docs/authentication)
