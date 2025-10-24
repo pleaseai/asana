@@ -1,0 +1,21 @@
+{
+  "name": "@amondnet/asana-cli-docs",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Documentation for Asana CLI - Manage your Asana tasks from the command line",
+  "scripts": {
+    "dev": "nuxt dev --extends docus",
+    "build": "nuxt build --extends docus",
+    "generate": "nuxt generate",
+    "preview": "nuxt preview"
+  },
+  "dependencies": {
+    "@nuxtjs/i18n": "^9.1.2",
+    "better-sqlite3": "^12.2.0",
+    "docus": "latest",
+    "nuxt": "^4.1.2"
+  },
+  "devDependencies": {
+    "@nuxt/devtools": "latest"
+  }
+}
