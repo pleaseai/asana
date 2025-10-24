@@ -1,8 +1,8 @@
 #!/usr/bin/env bun
 import { Command } from 'commander'
+import packageJson from '../package.json'
 import { createAuthCommand } from './commands/auth'
 import { createTaskCommand } from './commands/task'
-import packageJson from '../package.json'
 
 const program = new Command()
 
