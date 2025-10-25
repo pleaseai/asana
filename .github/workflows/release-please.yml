@@ -131,13 +131,16 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout code
+      - name: Checkout homebrew-tap repository
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0
+          repository: pleaseai/homebrew-tap
+          token: ${{ secrets.GITHUB_TOKEN }}
+          path: homebrew-tap
 
       - name: Configure git
         run: |
+          cd homebrew-tap
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
 
@@ -159,21 +162,72 @@ jobs:
           DARWIN_ARM64_SHA256=$(cat darwin-arm64.sha256 | awk '{print $1}')
           LINUX_X64_SHA256=$(cat linux-x64.sha256 | awk '{print $1}')
 
-          # Update Formula
-          sed -i "s/version \".*\"/version \"${VERSION_NO_V}\"/" Formula/asana-cli.rb
-          sed -i "s/sha256 \".*\" # darwin-x64/sha256 \"${DARWIN_X64_SHA256}\" # darwin-x64/" Formula/asana-cli.rb
-          sed -i "s/sha256 \".*\" # darwin-arm64/sha256 \"${DARWIN_ARM64_SHA256}\" # darwin-arm64/" Formula/asana-cli.rb
-          sed -i "s/sha256 \".*\" # linux-x64/sha256 \"${LINUX_X64_SHA256}\" # linux-x64/" Formula/asana-cli.rb
+          # Create or update Formula
+          cd homebrew-tap
+          cat > asana-cli.rb << 'FORMULA_EOF'
+          class AsanaCli < Formula
+            desc "Manage your Asana tasks from the command line"
+            homepage "https://github.com/pleaseai/asana"
+            version "VERSION_PLACEHOLDER"
+            license "MIT"
+
+            on_macos do
+              if Hardware::CPU.arm?
+                url "https://github.com/pleaseai/asana/releases/download/vVERSION_PLACEHOLDER/asana-darwin-arm64"
+                sha256 "SHA256_DARWIN_ARM64_PLACEHOLDER"
+              else
+                url "https://github.com/pleaseai/asana/releases/download/vVERSION_PLACEHOLDER/asana-darwin-x64"
+                sha256 "SHA256_DARWIN_X64_PLACEHOLDER"
+              end
+            end
+
+            on_linux do
+              if Hardware::CPU.arm?
+                url "https://github.com/pleaseai/asana/releases/download/vVERSION_PLACEHOLDER/asana-linux-arm64"
+                sha256 "SHA256_LINUX_ARM64_PLACEHOLDER"
+              else
+                url "https://github.com/pleaseai/asana/releases/download/vVERSION_PLACEHOLDER/asana-linux-x64"
+                sha256 "SHA256_LINUX_X64_PLACEHOLDER"
+              end
+            end
+
+            def install
+              if OS.mac?
+                if Hardware::CPU.arm?
+                  bin.install "asana-darwin-arm64" => "asana"
+                else
+                  bin.install "asana-darwin-x64" => "asana"
+                end
+              else
+                if Hardware::CPU.arm?
+                  bin.install "asana-linux-arm64" => "asana"
+                else
+                  bin.install "asana-linux-x64" => "asana"
+                end
+              end
+            end
+
+            test do
+              assert_match version.to_s, shell_output("#{bin}/asana --version")
+            end
+          end
+          FORMULA_EOF
+
+          # Replace placeholders
+          sed -i "s/VERSION_PLACEHOLDER/${VERSION_NO_V}/g" asana-cli.rb
+          sed -i "s/SHA256_DARWIN_X64_PLACEHOLDER/${DARWIN_X64_SHA256}/" asana-cli.rb
+          sed -i "s/SHA256_DARWIN_ARM64_PLACEHOLDER/${DARWIN_ARM64_SHA256}/" asana-cli.rb
+          sed -i "s/SHA256_LINUX_X64_PLACEHOLDER/${LINUX_X64_SHA256}/" asana-cli.rb
 
           # Check if there are changes
-          if git diff --quiet Formula/asana-cli.rb; then
+          if git diff --quiet asana-cli.rb 2>/dev/null; then
             echo "No changes to Formula"
             exit 0
           fi
 
           # Commit and push
-          git add Formula/asana-cli.rb
-          git commit -m "chore: update Homebrew formula to ${VERSION}"
+          git add asana-cli.rb
+          git commit -m "chore: update asana-cli to ${VERSION}"
           git push origin main
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

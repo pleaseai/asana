@@ -21,10 +21,11 @@ Asana CLI를 사용하여 명령줄에서 Asana 작업을 관리하세요.
 가장 쉬운 설치 방법입니다:
 
 ```bash
-# Tap 추가
-brew tap pleaseai/tap
+# Tap 추가 및 설치
+brew install pleaseai/tap/asana-cli
 
-# 설치
+# 또는 두 단계로:
+brew tap pleaseai/tap
 brew install asana-cli
 
 # 버전 확인
