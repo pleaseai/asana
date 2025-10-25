@@ -1,0 +1,21 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(tree:*)",
+      "Bash(bun run dev:*)",
+      "Bash(bun test:*)",
+      "Bash(bun run test)",
+      "Bash(bun run lint:fix:*)",
+      "Bash(bun run lint)",
+      "WebSearch",
+      "Bash(touch:*)",
+      "WebFetch(domain:dotenvx.com)",
+      "WebFetch(domain:github.com)",
+      "mcp__plugin_dev-tools_context7__resolve-library-id",
+      "Bash(bun run test:e2e:secure:*)",
+      "Bash(gh repo view:*)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}
