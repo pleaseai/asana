@@ -156,11 +156,14 @@ jobs:
             "https://github.com/${{ github.repository }}/releases/download/${VERSION}/asana-darwin-arm64.sha256"
           curl -L -o linux-x64.sha256 \
             "https://github.com/${{ github.repository }}/releases/download/${VERSION}/asana-linux-x64.sha256"
+          curl -L -o linux-arm64.sha256 \
+            "https://github.com/${{ github.repository }}/releases/download/${VERSION}/asana-linux-arm64.sha256"
 
           # Extract checksums
           DARWIN_X64_SHA256=$(cat darwin-x64.sha256 | awk '{print $1}')
           DARWIN_ARM64_SHA256=$(cat darwin-arm64.sha256 | awk '{print $1}')
           LINUX_X64_SHA256=$(cat linux-x64.sha256 | awk '{print $1}')
+          LINUX_ARM64_SHA256=$(cat linux-arm64.sha256 | awk '{print $1}')
 
           # Create or update Formula
           cd homebrew-tap
@@ -218,6 +221,7 @@ jobs:
           sed -i "s/SHA256_DARWIN_X64_PLACEHOLDER/${DARWIN_X64_SHA256}/" asana-cli.rb
           sed -i "s/SHA256_DARWIN_ARM64_PLACEHOLDER/${DARWIN_ARM64_SHA256}/" asana-cli.rb
           sed -i "s/SHA256_LINUX_X64_PLACEHOLDER/${LINUX_X64_SHA256}/" asana-cli.rb
+          sed -i "s/SHA256_LINUX_ARM64_PLACEHOLDER/${LINUX_ARM64_SHA256}/" asana-cli.rb
 
           # Check if there are changes
           if git diff --quiet asana-cli.rb 2>/dev/null; then
