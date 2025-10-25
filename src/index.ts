@@ -2,6 +2,7 @@
 import { Command } from 'commander'
 import packageJson from '../package.json'
 import { createAuthCommand } from './commands/auth'
+import { createSelfUpdateCommand } from './commands/self-update'
 import { createTaskCommand } from './commands/task'
 
 const program = new Command()
@@ -14,6 +15,7 @@ program
 // Register commands
 program.addCommand(createAuthCommand())
 program.addCommand(createTaskCommand())
+program.addCommand(createSelfUpdateCommand())
 
 // Parse arguments
 program.parse(process.argv)
