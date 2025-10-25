@@ -16,8 +16,54 @@ Asana CLI를 사용하여 명령줄에서 Asana 작업을 관리하세요.
 
 ## 설치
 
+### 방법 1: Homebrew (macOS/Linux - 추천)
+
+가장 쉬운 설치 방법입니다:
+
 ```bash
+# Tap 추가
+brew tap pleaseai/tap
+
+# 설치
+brew install asana-cli
+
+# 버전 확인
+asana --version
+```
+
+### 방법 2: 설치 스크립트 (모든 플랫폼)
+
+한 줄로 설치:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/pleaseai/asana/main/scripts/install.sh | sh
+```
+
+설치 스크립트는 자동으로:
+- OS 및 아키텍처 감지 (macOS/Linux, x64/arm64)
+- 최신 릴리스 다운로드
+- 체크섬 검증
+- `~/.local/bin`에 설치
+
+**참고:** 설치 후 `~/.local/bin`이 PATH에 없다면 추가하세요:
+
+```bash
+# bash
+echo 'export PATH="$PATH:$HOME/.local/bin"' >> ~/.bashrc
+
+# zsh
+echo 'export PATH="$PATH:$HOME/.local/bin"' >> ~/.zshrc
+```
+
+### 방법 3: 개발 환경 (소스에서)
+
+개발이나 기여를 위한 방법:
+
+```bash
+git clone https://github.com/pleaseai/asana.git
+cd asana
 bun install
+bun run dev --help
 ```
 
 ## 인증 설정
@@ -69,72 +115,113 @@ bun run dev auth login
 - [OAuth 문서](https://developers.asana.com/docs/getting-started-with-asana-oauth)
 - [인증 개요](https://developers.asana.com/docs/authentication)
 
+## 업데이트
+
+### Homebrew 사용자
+
+```bash
+brew upgrade asana-cli
+```
+
+### 설치 스크립트 사용자
+
+```bash
+asana self-update
+```
+
+`self-update` 명령어는 자동으로:
+- GitHub Releases에서 최신 버전 확인
+- 새 버전 다운로드 및 체크섬 검증
+- 자동 업데이트 및 실패 시 롤백
+
+### 업데이트 확인만 하기
+
+```bash
+asana self-update --check
+```
+
 ## 사용법
 
 ### 인증 관리
 
 ```bash
 # 로그인 (OAuth)
-bun run dev auth login
+asana auth login
 
-# 로그인 (PAT)
-bun run dev auth login --token YOUR_TOKEN
+# 로그인 (PAT) - 추천
+asana auth login --token YOUR_TOKEN
 
 # 기본 workspace와 함께 로그인
-bun run dev auth login --token YOUR_TOKEN -w WORKSPACE_ID
+asana auth login --token YOUR_TOKEN -w WORKSPACE_ID
 
 # 현재 사용자 정보 확인
-bun run dev auth whoami
+asana auth whoami
 
 # 로그아웃
-bun run dev auth logout
+asana auth logout
 ```
 
 ### 작업 관리
 
 ```bash
 # 작업 생성
-bun run dev task create -n "새로운 작업" -d "작업 설명" -w WORKSPACE_ID
+asana task create -n "새로운 작업" -d "작업 설명" -w WORKSPACE_ID
 
 # 프로젝트에 작업 생성
-bun run dev task create -n "작업 이름" -p PROJECT_ID -w WORKSPACE_ID
+asana task create -n "작업 이름" -p PROJECT_ID -w WORKSPACE_ID
 
 # 담당자와 마감일 지정
-bun run dev task create -n "작업" -a USER_ID --due 2025-12-31 -w WORKSPACE_ID
+asana task create -n "작업" -a USER_ID --due 2025-12-31 -w WORKSPACE_ID
 
 # 작업 목록 조회 (내 작업)
-bun run dev task list -a me -w WORKSPACE_ID
+asana task list -a me -w WORKSPACE_ID
 
 # 프로젝트의 작업 목록
-bun run dev task list -p PROJECT_ID
+asana task list -p PROJECT_ID
 
 # 완료된 작업 포함
-bun run dev task list -a me -c -w WORKSPACE_ID
+asana task list -a me -c -w WORKSPACE_ID
 
 # 작업 상세 정보
-bun run dev task get TASK_ID
+asana task get TASK_ID
 
 # 작업 완료 처리
-bun run dev task complete TASK_ID
+asana task complete TASK_ID
 
 # 작업 삭제
-bun run dev task delete TASK_ID
+asana task delete TASK_ID
 ```
 
-## 빌드
+**개발 모드:** `bun run dev` 명령어를 사용하여 소스에서 직접 실행할 수 있습니다.
 
-실행 파일로 컴파일:
+## 릴리스 및 배포
+
+프로젝트는 GitHub Actions를 통해 자동으로 빌드 및 배포됩니다.
+
+### 로컬 빌드
+
+개발 목적으로 로컬에서 바이너리를 빌드할 수 있습니다:
 
 ```bash
 bun run build
 ```
 
-컴파일된 바이너리 `asana`를 실행:
+컴파일된 바이너리 실행:
 
 ```bash
 ./asana auth login --token YOUR_TOKEN
 ./asana task list -a me
 ```
+
+### 릴리스 프로세스
+
+1. 새 버전 태그 생성: `git tag v0.x.x`
+2. 태그 푸시: `git push --tags`
+3. GitHub Actions가 자동으로:
+   - 멀티 플랫폼 바이너리 빌드 (macOS/Linux, x64/arm64)
+   - 체크섬 생성
+   - GitHub Release 생성
+   - Homebrew Formula 업데이트
 
 ## 환경 변수
 
