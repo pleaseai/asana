@@ -6,6 +6,8 @@
 
 Manage your Asana tasks efficiently from the command line.
 
+> **English** | [한국어](./README.ko.md)
+
 ## Features
 
 - ✅ OAuth 2.0 and Personal Access Token authentication
