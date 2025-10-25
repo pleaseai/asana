@@ -1,9 +1,9 @@
-import chalk from 'chalk'
-import { Command } from 'commander'
 import { execSync } from 'node:child_process'
 import { chmodSync, copyFileSync, existsSync, mkdtempSync, readFileSync, rmSync, unlinkSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
+import chalk from 'chalk'
+import { Command } from 'commander'
 import packageJson from '../../package.json'
 
 const REPO = 'pleaseai/asana'
@@ -86,6 +86,7 @@ async function downloadFile(url: string, destPath: string): Promise<void> {
 
   const buffer = await response.arrayBuffer()
   const fs = await import('node:fs/promises')
+  const { Buffer } = await import('node:buffer')
   await fs.writeFile(destPath, Buffer.from(buffer))
 }
 
