@@ -131,11 +131,20 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      - uses: actions/create-github-app-token@v2
+        id: app-token
+        with:
+          app-id: ${{ secrets.APP_ID }}
+          private-key: ${{ secrets.PRIVATE_KEY }}
+          repositories: |
+            asana
+            homebrew-tap
+
       - name: Checkout homebrew-tap repository
         uses: actions/checkout@v4
         with:
           repository: pleaseai/homebrew-tap
-          token: ${{ secrets.GITHUB_TOKEN }}
+          token: ${{ steps.app-token.outputs.token }}
           path: homebrew-tap
 
       - name: Configure git
@@ -234,4 +243,4 @@ jobs:
           git commit -m "chore: update asana-cli to ${VERSION}"
           git push origin main
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ steps.app-token.outputs.token }}
