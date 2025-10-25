@@ -41,6 +41,7 @@ curl -fsSL https://raw.githubusercontent.com/pleaseai/asana/main/scripts/install
 ```
 
 설치 스크립트는 자동으로:
+
 - OS 및 아키텍처 감지 (macOS/Linux, x64/arm64)
 - 최신 릴리스 다운로드
 - 체크섬 검증
@@ -131,6 +132,7 @@ asana self-update
 ```
 
 `self-update` 명령어는 자동으로:
+
 - GitHub Releases에서 최신 버전 확인
 - 새 버전 다운로드 및 체크섬 검증
 - 자동 업데이트 및 실패 시 롤백
