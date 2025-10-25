@@ -3,7 +3,8 @@ import { Command } from 'commander'
 import { execSync } from 'node:child_process'
 import { chmodSync, copyFileSync, existsSync, mkdtempSync, readFileSync, rmSync, unlinkSync } from 'node:fs'
 import { tmpdir } from 'node:os'
-import { basename, dirname, join } from 'node:path'
+import { join } from 'node:path'
+import packageJson from '../../package.json'
 
 const REPO = 'pleaseai/asana'
 const BINARY_NAME = 'asana'
@@ -22,17 +23,7 @@ interface GitHubRelease {
  * Get current version from package.json
  */
 function getCurrentVersion(): string {
-  try {
-    // When compiled, we embed version as a constant
-    // For development, read from package.json
-    const packageJson = JSON.parse(
-      readFileSync(join(__dirname, '../../package.json'), 'utf-8'),
-    )
-    return packageJson.version
-  }
-  catch {
-    return '0.0.0'
-  }
+  return packageJson.version
 }
 
 /**
@@ -150,11 +141,12 @@ function compareVersions(current: string, latest: string): number {
  */
 function getCurrentBinaryPath(): string {
   // Check if running as compiled binary
-  if (process.pkg) {
+  // Bun.main points to the entry file (*.ts in dev, executable in compiled)
+  if (typeof Bun !== 'undefined' && Bun.main && !Bun.main.endsWith('.ts')) {
     return process.execPath
   }
 
-  // In development, return a placeholder
+  // In development or fallback
   return process.argv[1] || 'asana'
 }
 

@@ -75,7 +75,7 @@ install_asana() {
 
     # Download binary
     echo "Downloading ${BINARY_NAME}..."
-    if ! curl -L -o "${TEMP_DIR}/${BINARY_NAME}" "$DOWNLOAD_URL"; then
+    if ! curl -L --progress-bar -o "${TEMP_DIR}/${BINARY_NAME}" "$DOWNLOAD_URL"; then
         echo -e "${RED}Error: Failed to download binary${NC}"
         rm -rf "$TEMP_DIR"
         exit 1
@@ -83,7 +83,7 @@ install_asana() {
 
     # Download checksum
     echo "Downloading checksum..."
-    if ! curl -L -o "${TEMP_DIR}/${BINARY_NAME}.sha256" "$CHECKSUM_URL"; then
+    if ! curl -L -s -o "${TEMP_DIR}/${BINARY_NAME}.sha256" "$CHECKSUM_URL"; then
         echo -e "${YELLOW}Warning: Could not download checksum, skipping verification${NC}"
     else
         # Verify checksum
