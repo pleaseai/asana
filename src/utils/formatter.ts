@@ -111,7 +111,8 @@ function formatPlainArray(data: any[], colors: boolean): string {
   for (const item of data) {
     if (typeof item === 'object' && item !== null) {
       lines.push(formatPlainObject(item, colors))
-    } else {
+    }
+    else {
       lines.push(String(item))
     }
   }
@@ -129,8 +130,9 @@ function formatPlainObject(data: Record<string, any>, colors: boolean): string {
     const keyLabel = colors ? chalk.bold(key) : key
     if (Array.isArray(value)) {
       lines.push(`${keyLabel}:`)
-      lines.push(...value.map((item) => `  ${formatPlainValue(item, colors)}`))
-    } else {
+      lines.push(...value.map(item => `  ${formatPlainValue(item, colors)}`))
+    }
+    else {
       lines.push(`${keyLabel}: ${formatPlainValue(value, colors)}`)
     }
   }

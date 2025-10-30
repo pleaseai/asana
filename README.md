@@ -84,16 +84,17 @@ asana task list -a me --format plain
 
 **Format Comparison:**
 
-| Format | Use Case | Token Efficiency | Machine Readable |
-|--------|----------|------------------|------------------|
-| **TOON** | LLM interactions, sharing outputs | ⭐⭐⭐⭐⭐ | ✅ |
-| **JSON** | Scripts, automation, parsing | ⭐⭐⭐ | ✅ |
-| **Plain** | Terminal viewing, traditional CLI | ⭐⭐ | ❌ |
+| Format    | Use Case                          | Token Efficiency | Machine Readable |
+| --------- | --------------------------------- | ---------------- | ---------------- |
+| **TOON**  | LLM interactions, sharing outputs | ⭐⭐⭐⭐⭐       | ✅               |
+| **JSON**  | Scripts, automation, parsing      | ⭐⭐⭐           | ✅               |
+| **Plain** | Terminal viewing, traditional CLI | ⭐⭐             | ❌               |
 
 <details>
 <summary>📊 Example Outputs</summary>
 
 **TOON Format** (default):
+
 ```
 tasks[3]{gid,name,completed}:
   "1234567890",Setup authentication,true
@@ -102,6 +103,7 @@ tasks[3]{gid,name,completed}:
 ```
 
 **JSON Format**:
+
 ```json
 {
   "tasks": [
@@ -113,6 +115,7 @@ tasks[3]{gid,name,completed}:
 ```
 
 **Plain Format**:
+
 ```
 Tasks (3):
 

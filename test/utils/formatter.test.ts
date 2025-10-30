@@ -1,5 +1,6 @@
+import type { OutputFormat } from '../../src/utils/formatter'
 import { describe, expect, test } from 'bun:test'
-import { formatOutput, type OutputFormat } from '../../src/utils/formatter'
+import { formatOutput } from '../../src/utils/formatter'
 
 describe('formatOutput', () => {
   describe('TOON format', () => {
@@ -25,7 +26,7 @@ describe('formatOutput', () => {
       // cli-toolkit uses tab delimiter (not comma) for 58.9% token savings
       expect(result).toContain('\t')
       // Should have tabular structure with field names separated by tabs
-      expect(result).toMatch(/\{[^\}]*\t[^\}]*\}/)
+      expect(result).toMatch(/\{[^\t}]*\t[^}]*\}/)
     })
 
     test('should format array of objects as TOON with tabular structure', () => {
