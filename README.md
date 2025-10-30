@@ -28,7 +28,7 @@ brew install pleaseai/tap/asana-cli
 ### Install Script (All Platforms)
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/pleaseai/asana/main/scripts/install.sh | sh
+curl -fsSL https://raw.githubusercontent.com/pleaseai/asana/main/scripts/install.sh | bash
 ```
 
 **Note:** Add `~/.local/bin` to your PATH if needed.
