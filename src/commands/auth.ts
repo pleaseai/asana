@@ -1,10 +1,11 @@
+import type { OutputFormat } from '../utils/formatter'
 import asana from 'asana'
 import chalk from 'chalk'
 import { Command } from 'commander'
 import { getAsanaClient, resetClient } from '../lib/asana-client'
 import { loadConfig, saveConfig } from '../lib/config'
 import { startOAuthFlow } from '../lib/oauth'
-import { formatOutput, type OutputFormat } from '../utils/formatter'
+import { formatOutput } from '../utils/formatter'
 
 export function createAuthCommand(): Command {
   const auth = new Command('auth')

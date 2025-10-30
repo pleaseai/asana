@@ -1,9 +1,10 @@
 import type { TaskListOptions, TaskOptions } from '../types'
+import type { OutputFormat } from '../utils/formatter'
 import chalk from 'chalk'
 import { Command } from 'commander'
 import { getAsanaClient } from '../lib/asana-client'
 import { loadConfig } from '../lib/config'
-import { formatOutput, type OutputFormat } from '../utils/formatter'
+import { formatOutput } from '../utils/formatter'
 
 export function createTaskCommand(): Command {
   const task = new Command('task')

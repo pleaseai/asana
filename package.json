@@ -49,8 +49,8 @@
     "typescript": "^5"
   },
   "dependencies": {
-    "@byjohann/toon": "^0.4.1",
     "@dotenvx/dotenvx": "^1.51.0",
+    "@pleaseai/cli-toolkit": "^0.2.0",
     "asana": "^3.1.2",
     "chalk": "^5.6.2",
     "commander": "^14.0.1",

@@ -4,7 +4,6 @@ import packageJson from '../package.json'
 import { createAuthCommand } from './commands/auth'
 import { createSelfUpdateCommand } from './commands/self-update'
 import { createTaskCommand } from './commands/task'
-import type { OutputFormat } from './utils/formatter'
 
 const program = new Command()
 

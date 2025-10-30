@@ -1,4 +1,4 @@
-import { encode } from '@byjohann/toon'
+import { encodeToon } from '@pleaseai/cli-toolkit/output'
 import chalk from 'chalk'
 
 /**
@@ -29,9 +29,9 @@ export interface FormatterOptions {
  * @returns Formatted string ready for output
  *
  * @example
- * // TOON format (default)
+ * // TOON format (default) - uses tab delimiter for 58.9% token savings
  * formatOutput({ tasks: [{ id: 1, name: 'Task 1' }] }, { format: 'toon' })
- * // Output: tasks[1]{id,name}:\n  1,Task 1
+ * // Output: tasks[1<TAB>]{id<TAB>name}:\n  1<TAB>Task 1
  *
  * @example
  * // JSON format
@@ -61,14 +61,14 @@ export function formatOutput(data: any, options: FormatterOptions): string {
 /**
  * Format data as TOON (Token-Oriented Object Notation)
  *
+ * Uses tab delimiter for maximum token efficiency (58.9% savings vs JSON).
+ * Powered by @pleaseai/cli-toolkit.
+ *
  * @param data - The data to format
- * @returns TOON-formatted string
+ * @returns TOON-formatted string with tab delimiters
  */
 function formatToon(data: any): string {
-  return encode(data, {
-    indent: 2,
-    delimiter: ',',
-  })
+  return encodeToon(data)
 }
 
 /**
@@ -111,7 +111,8 @@ function formatPlainArray(data: any[], colors: boolean): string {
   for (const item of data) {
     if (typeof item === 'object' && item !== null) {
       lines.push(formatPlainObject(item, colors))
-    } else {
+    }
+    else {
       lines.push(String(item))
     }
   }
@@ -129,8 +130,9 @@ function formatPlainObject(data: Record<string, any>, colors: boolean): string {
     const keyLabel = colors ? chalk.bold(key) : key
     if (Array.isArray(value)) {
       lines.push(`${keyLabel}:`)
-      lines.push(...value.map((item) => `  ${formatPlainValue(item, colors)}`))
-    } else {
+      lines.push(...value.map(item => `  ${formatPlainValue(item, colors)}`))
+    }
+    else {
       lines.push(`${keyLabel}: ${formatPlainValue(value, colors)}`)
     }
   }

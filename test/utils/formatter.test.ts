@@ -1,5 +1,6 @@
+import type { OutputFormat } from '../../src/utils/formatter'
 import { describe, expect, test } from 'bun:test'
-import { formatOutput, type OutputFormat } from '../../src/utils/formatter'
+import { formatOutput } from '../../src/utils/formatter'
 
 describe('formatOutput', () => {
   describe('TOON format', () => {
@@ -13,6 +14,21 @@ describe('formatOutput', () => {
       expect(result).toContain('30')
     })
 
+    test('should use tab delimiter for maximum token efficiency', () => {
+      const data = {
+        tasks: [
+          { gid: '123', name: 'Task 1' },
+          { gid: '456', name: 'Task 2' },
+        ],
+      }
+      const result = formatOutput(data, { format: 'toon' })
+
+      // cli-toolkit uses tab delimiter (not comma) for 58.9% token savings
+      expect(result).toContain('\t')
+      // Should have tabular structure with field names separated by tabs
+      expect(result).toMatch(/\{[^\t}]*\t[^}]*\}/)
+    })
+
     test('should format array of objects as TOON with tabular structure', () => {
       const data = {
         tasks: [
@@ -22,8 +38,8 @@ describe('formatOutput', () => {
       }
       const result = formatOutput(data, { format: 'toon' })
 
-      // TOON should show array length marker
-      expect(result).toContain('[2]')
+      // TOON should show array length marker with tab delimiter
+      expect(result).toMatch(/\[2\t?\]/)
       // Should contain field names
       expect(result).toContain('gid')
       expect(result).toContain('name')
@@ -37,7 +53,8 @@ describe('formatOutput', () => {
       const data = { tasks: [] }
       const result = formatOutput(data, { format: 'toon' })
 
-      expect(result).toContain('[0]')
+      // Empty array with tab delimiter
+      expect(result).toMatch(/\[0\t?\]/)
     })
 
     test('should format nested objects as TOON', () => {
