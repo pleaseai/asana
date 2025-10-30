@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.4.0](https://github.com/pleaseai/asana/compare/v0.3.0...v0.4.0) (2025-10-30)
+
+
+### Features
+
+* Phase 2 - Project and Section Management ([#21](https://github.com/pleaseai/asana/issues/21)) ([ce6627c](https://github.com/pleaseai/asana/commit/ce6627c88ab804b6165beec3c14466bc29f15576))
+
 ## [0.3.0](https://github.com/pleaseai/asana/compare/v0.2.0...v0.3.0) (2025-10-30)
 
 
