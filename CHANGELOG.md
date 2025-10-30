@@ -1,5 +1,23 @@
 # Changelog
 
+## [0.3.0](https://github.com/pleaseai/asana/compare/v0.2.0...v0.3.0) (2025-10-30)
+
+
+### Features
+
+* integrate @pleaseai/cli-toolkit for enhanced TOON output ([#13](https://github.com/pleaseai/asana/issues/13)) ([cbb7f20](https://github.com/pleaseai/asana/commit/cbb7f2081043b9ff897d4cdda7eac64d09119fc1))
+* Phase 1 - Task Update and Move Commands ([#20](https://github.com/pleaseai/asana/issues/20)) ([158369d](https://github.com/pleaseai/asana/commit/158369dcc32722734a03f2b9005f9e4886bd72e5))
+
+
+### Bug Fixes
+
+* use GitHub App token for Homebrew formula updates ([36d202d](https://github.com/pleaseai/asana/commit/36d202d32067a43a8dd8e6f78eace21dc2c36ef9))
+
+
+### Documentation
+
+* rewrite README in English with documentation links ([#5](https://github.com/pleaseai/asana/issues/5)) ([854282d](https://github.com/pleaseai/asana/commit/854282d51458889b7a0c445cbba21e96428be6f9))
+
 ## [0.2.0](https://github.com/pleaseai/asana/compare/v0.1.0...v0.2.0) (2025-10-25)
 
 
