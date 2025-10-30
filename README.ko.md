@@ -28,7 +28,7 @@ brew install pleaseai/tap/asana-cli
 ### 설치 스크립트 (모든 플랫폼)
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/pleaseai/asana/main/scripts/install.sh | sh
+curl -fsSL https://raw.githubusercontent.com/pleaseai/asana/main/scripts/install.sh | bash
 ```
 
 **참고:** 설치 후 `~/.local/bin`이 PATH에 없다면 추가하세요.
