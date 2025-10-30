@@ -106,12 +106,12 @@ export function getAsanaClient() {
       },
     },
     projects: {
-      create: async (projectData: any) => {
+      create: async (projectData: Record<string, any>) => {
         const body = { data: projectData }
         const result = await projectsApiInstance!.createProject(body, {})
         return result.data
       },
-      findById: async (projectGid: string, opts: any = {}) => {
+      findById: async (projectGid: string, opts: Record<string, any> = {}) => {
         const result = await projectsApiInstance!.getProject(projectGid, opts)
         return result.data
       },
@@ -125,7 +125,7 @@ export function getAsanaClient() {
         const result = await projectsApiInstance!.getProjectsForTeam(teamGid, optsWithLimit)
         return result
       },
-      update: async (projectGid: string, updateData: any) => {
+      update: async (projectGid: string, updateData: Record<string, any>) => {
         const body = { data: updateData }
         const result = await projectsApiInstance!.updateProject(body, projectGid, {})
         return result.data
@@ -140,7 +140,7 @@ export function getAsanaClient() {
         const result = await sectionsApiInstance!.getSectionsForProject(projectGid, opts)
         return result
       },
-      createInProject: async (projectGid: string, sectionData: any) => {
+      createInProject: async (projectGid: string, sectionData: Record<string, any>) => {
         const body = { data: sectionData }
         const result = await sectionsApiInstance!.createSectionForProject(body, projectGid, {})
         return result.data

@@ -31,19 +31,15 @@ export function createProjectCommand(): Command {
           throw new Error('Workspace is required. Set default workspace or use -w option.')
         }
 
-        const projectData: any = {
-          name: options.name,
+        const { name, team, notes, color } = options
+        const projectData = {
+          name,
           workspace,
+          ...(team && { team }),
+          ...(notes && { notes }),
+          ...(color && { color }),
+          ...(options.public !== undefined && { public: options.public }),
         }
-
-        if (options.team)
-          projectData.team = options.team
-        if (options.notes)
-          projectData.notes = options.notes
-        if (options.color)
-          projectData.color = options.color
-        if (options.public !== undefined)
-          projectData.public = options.public
 
         const result = await client.projects.create(projectData)
 

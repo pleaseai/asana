@@ -61,14 +61,12 @@ export function createSectionCommand(): Command {
 
         const client = getAsanaClient()
 
-        const sectionData: any = {
-          name: options.name,
+        const { name, insertBefore, insertAfter } = options
+        const sectionData = {
+          name,
+          ...(insertBefore && { insert_before: insertBefore }),
+          ...(insertAfter && { insert_after: insertAfter }),
         }
-
-        if (options.insertBefore)
-          sectionData.insert_before = options.insertBefore
-        if (options.insertAfter)
-          sectionData.insert_after = options.insertAfter
 
         const result = await client.sections.createInProject(projectGid, sectionData)
 
