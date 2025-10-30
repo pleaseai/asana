@@ -3,6 +3,7 @@ import chalk from 'chalk'
 import { Command } from 'commander'
 import { getAsanaClient } from '../lib/asana-client'
 import { loadConfig } from '../lib/config'
+import { formatOutput, type OutputFormat } from '../utils/formatter'
 
 export function createTaskCommand(): Command {
   const task = new Command('task')
@@ -17,7 +18,7 @@ export function createTaskCommand(): Command {
     .option('--due <date>', 'Due date (YYYY-MM-DD)')
     .option('-w, --workspace <workspace>', 'Workspace GID')
     .option('-p, --project <project>', 'Project GID')
-    .action(async (options: TaskOptions) => {
+    .action(async (options: TaskOptions, command: Command) => {
       try {
         const client = getAsanaClient()
         const config = loadConfig()
@@ -43,10 +44,20 @@ export function createTaskCommand(): Command {
 
         const result = await client.tasks.create(taskData)
 
-        console.log(chalk.green('✓ Task created successfully'))
-        console.log(`  GID: ${result.gid}`)
-        console.log(`  Name: ${result.name}`)
-        console.log(`  Permalink: ${result.permalink_url}`)
+        // Get format from parent command (root program)
+        const format = (command.parent?.parent?.opts()?.format || 'toon') as OutputFormat
+
+        // Prepare result data for output
+        const resultData = {
+          status: 'success',
+          gid: result.gid,
+          name: result.name,
+          permalink_url: result.permalink_url,
+        }
+
+        // Format output based on selected format
+        const output = formatOutput({ task: resultData }, { format, colors: process.stdout.isTTY })
+        console.log(output)
       }
       catch (error) {
         console.error(chalk.red('✗ Failed to create task:'), error)
@@ -61,7 +72,7 @@ export function createTaskCommand(): Command {
     .option('-w, --workspace <workspace>', 'Workspace GID')
     .option('-p, --project <project>', 'Project GID')
     .option('-c, --completed', 'Include completed tasks')
-    .action(async (options: TaskListOptions) => {
+    .action(async (options: TaskListOptions, command: Command) => {
       try {
         const client = getAsanaClient()
         const config = loadConfig()
@@ -99,11 +110,12 @@ export function createTaskCommand(): Command {
           return
         }
 
-        console.log(chalk.bold(`\nTasks (${taskList.length}):\n`))
-        for (const t of taskList) {
-          const status = t.completed ? chalk.green('✓') : chalk.yellow('○')
-          console.log(`${status} ${t.gid} - ${t.name}`)
-        }
+        // Get format from parent command (root program)
+        const format = (command.parent?.opts()?.format || 'toon') as OutputFormat
+
+        // Format output based on selected format
+        const output = formatOutput({ tasks: taskList }, { format, colors: process.stdout.isTTY })
+        console.log(output)
       }
       catch (error) {
         console.error(chalk.red('✗ Failed to list tasks:'), error)
@@ -115,22 +127,28 @@ export function createTaskCommand(): Command {
     .command('get')
     .description('Get task details')
     .argument('<gid>', 'Task GID')
-    .action(async (gid: string) => {
+    .action(async (gid: string, options: any, command: Command) => {
       try {
         const client = getAsanaClient()
         const taskDetail = await client.tasks.findById(gid)
 
-        console.log(chalk.bold('\nTask Details:\n'))
-        console.log(`  GID: ${taskDetail.gid}`)
-        console.log(`  Name: ${taskDetail.name}`)
-        console.log(`  Completed: ${taskDetail.completed ? chalk.green('Yes') : chalk.yellow('No')}`)
-        if (taskDetail.assignee)
-          console.log(`  Assignee: ${taskDetail.assignee.name}`)
-        if (taskDetail.due_on)
-          console.log(`  Due Date: ${taskDetail.due_on}`)
-        if (taskDetail.notes)
-          console.log(`  Notes: ${taskDetail.notes}`)
-        console.log(`  Permalink: ${taskDetail.permalink_url}`)
+        // Get format from parent command (root program)
+        const format = (command.parent?.parent?.opts()?.format || 'toon') as OutputFormat
+
+        // Prepare task data for output
+        const taskData = {
+          gid: taskDetail.gid,
+          name: taskDetail.name,
+          completed: taskDetail.completed,
+          assignee: taskDetail.assignee?.name,
+          due_on: taskDetail.due_on,
+          notes: taskDetail.notes,
+          permalink_url: taskDetail.permalink_url,
+        }
+
+        // Format output based on selected format
+        const output = formatOutput({ task: taskData }, { format, colors: process.stdout.isTTY })
+        console.log(output)
       }
       catch (error) {
         console.error(chalk.red('✗ Failed to get task:'), error)

@@ -4,6 +4,7 @@ import { Command } from 'commander'
 import { getAsanaClient, resetClient } from '../lib/asana-client'
 import { loadConfig, saveConfig } from '../lib/config'
 import { startOAuthFlow } from '../lib/oauth'
+import { formatOutput, type OutputFormat } from '../utils/formatter'
 
 export function createAuthCommand(): Command {
   const auth = new Command('auth')
@@ -86,28 +87,42 @@ export function createAuthCommand(): Command {
   auth
     .command('whoami')
     .description('Display current authenticated user')
-    .action(async () => {
+    .action(async (options: any, command: Command) => {
       try {
         const client = getAsanaClient()
         const user = await client.users.me()
         const config = loadConfig()
 
-        console.log(chalk.bold('\nCurrent User:'))
-        console.log(`  Name: ${user.name}`)
-        console.log(`  Email: ${user.email}`)
-        console.log(`  GID: ${user.gid}`)
+        // Get format from parent command (root program)
+        const format = (command.parent?.parent?.opts()?.format || 'toon') as OutputFormat
+
+        // Prepare user data for output
+        const userData: any = {
+          user: {
+            name: user.name,
+            email: user.email,
+            gid: user.gid,
+          },
+        }
 
         if (config) {
-          console.log(chalk.bold('\nAuthentication:'))
-          console.log(`  Type: ${config.authType === 'oauth' ? 'OAuth 2.0' : 'Personal Access Token'}`)
+          userData.authentication = {
+            type: config.authType === 'oauth' ? 'OAuth 2.0' : 'Personal Access Token',
+          }
+
           if (config.authType === 'oauth' && config.expiresAt) {
             const expiresIn = Math.floor((config.expiresAt - Date.now()) / 1000 / 60)
-            console.log(`  Expires: ${expiresIn > 0 ? `in ${expiresIn} minutes` : 'expired (will auto-refresh)'}`)
+            userData.authentication.expires = expiresIn > 0 ? `in ${expiresIn} minutes` : 'expired (will auto-refresh)'
           }
+
           if (config.workspace) {
-            console.log(`  Default Workspace: ${config.workspace}`)
+            userData.authentication.default_workspace = config.workspace
           }
         }
+
+        // Format output based on selected format
+        const output = formatOutput(userData, { format, colors: process.stdout.isTTY })
+        console.log(output)
       }
       catch {
         console.error(chalk.red('✗ Not authenticated. Run "asana auth login" first.'))
