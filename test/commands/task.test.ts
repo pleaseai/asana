@@ -22,6 +22,8 @@ describe('task command', () => {
       expect(commandNames).toContain('create')
       expect(commandNames).toContain('list')
       expect(commandNames).toContain('get')
+      expect(commandNames).toContain('update')
+      expect(commandNames).toContain('move')
       expect(commandNames).toContain('complete')
       expect(commandNames).toContain('delete')
     })
@@ -140,6 +142,105 @@ describe('task command', () => {
 
       expect(getCommand?.registeredArguments).toHaveLength(1)
       expect(getCommand?.registeredArguments[0].name()).toBe('gid')
+    })
+  })
+
+  describe('update command', () => {
+    test('has correct description', () => {
+      const taskCommand = createTaskCommand()
+      const updateCommand = taskCommand.commands.find(cmd => cmd.name() === 'update')
+
+      expect(updateCommand?.description()).toBe('Update task properties')
+    })
+
+    test('accepts gid argument', () => {
+      const taskCommand = createTaskCommand()
+      const updateCommand = taskCommand.commands.find(cmd => cmd.name() === 'update')
+
+      expect(updateCommand?.registeredArguments).toHaveLength(1)
+      expect(updateCommand?.registeredArguments[0].name()).toBe('gid')
+    })
+
+    test('has optional name option', () => {
+      const taskCommand = createTaskCommand()
+      const updateCommand = taskCommand.commands.find(cmd => cmd.name() === 'update')
+      const options = updateCommand?.options.map(opt => opt.long)
+
+      expect(options).toContain('--name')
+    })
+
+    test('has optional notes option', () => {
+      const taskCommand = createTaskCommand()
+      const updateCommand = taskCommand.commands.find(cmd => cmd.name() === 'update')
+      const options = updateCommand?.options.map(opt => opt.long)
+
+      expect(options).toContain('--notes')
+    })
+
+    test('has optional assignee option', () => {
+      const taskCommand = createTaskCommand()
+      const updateCommand = taskCommand.commands.find(cmd => cmd.name() === 'update')
+      const options = updateCommand?.options.map(opt => opt.long)
+
+      expect(options).toContain('--assignee')
+    })
+
+    test('has optional due-on option', () => {
+      const taskCommand = createTaskCommand()
+      const updateCommand = taskCommand.commands.find(cmd => cmd.name() === 'update')
+      const options = updateCommand?.options.map(opt => opt.long)
+
+      expect(options).toContain('--due-on')
+    })
+
+    test('has optional start-on option', () => {
+      const taskCommand = createTaskCommand()
+      const updateCommand = taskCommand.commands.find(cmd => cmd.name() === 'update')
+      const options = updateCommand?.options.map(opt => opt.long)
+
+      expect(options).toContain('--start-on')
+    })
+
+    test('has optional completed option', () => {
+      const taskCommand = createTaskCommand()
+      const updateCommand = taskCommand.commands.find(cmd => cmd.name() === 'update')
+      const options = updateCommand?.options.map(opt => opt.long)
+
+      expect(options).toContain('--completed')
+    })
+  })
+
+  describe('move command', () => {
+    test('has correct description', () => {
+      const taskCommand = createTaskCommand()
+      const moveCommand = taskCommand.commands.find(cmd => cmd.name() === 'move')
+
+      expect(moveCommand?.description()).toBe('Move task to a different project')
+    })
+
+    test('accepts gid argument', () => {
+      const taskCommand = createTaskCommand()
+      const moveCommand = taskCommand.commands.find(cmd => cmd.name() === 'move')
+
+      expect(moveCommand?.registeredArguments).toHaveLength(1)
+      expect(moveCommand?.registeredArguments[0].name()).toBe('gid')
+    })
+
+    test('has required project option', () => {
+      const taskCommand = createTaskCommand()
+      const moveCommand = taskCommand.commands.find(cmd => cmd.name() === 'move')
+      const projectOption = moveCommand?.options.find(opt => opt.long === '--project')
+
+      expect(projectOption).toBeDefined()
+      expect(projectOption?.required).toBe(true)
+    })
+
+    test('has optional section option', () => {
+      const taskCommand = createTaskCommand()
+      const moveCommand = taskCommand.commands.find(cmd => cmd.name() === 'move')
+      const options = moveCommand?.options.map(opt => opt.long)
+
+      expect(options).toContain('--section')
     })
   })
 

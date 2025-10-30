@@ -21,3 +21,17 @@ export interface TaskListOptions {
   project?: string
   completed?: boolean
 }
+
+export interface TaskUpdateOptions {
+  name?: string
+  notes?: string
+  assignee?: string
+  dueOn?: string
+  startOn?: string
+  completed?: boolean
+}
+
+export interface TaskMoveOptions {
+  project: string
+  section?: string
+}

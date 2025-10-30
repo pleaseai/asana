@@ -1,4 +1,4 @@
-import type { TaskListOptions, TaskOptions } from '../types'
+import type { TaskListOptions, TaskMoveOptions, TaskOptions, TaskUpdateOptions } from '../types'
 import type { OutputFormat } from '../utils/formatter'
 import chalk from 'chalk'
 import { Command } from 'commander'
@@ -153,6 +153,122 @@ export function createTaskCommand(): Command {
       }
       catch (error) {
         console.error(chalk.red('✗ Failed to get task:'), error)
+        process.exit(1)
+      }
+    })
+
+  task
+    .command('update')
+    .description('Update task properties')
+    .argument('<gid>', 'Task GID')
+    .option('-n, --name <name>', 'Update task name')
+    .option('-d, --notes <notes>', 'Update task description/notes')
+    .option('-a, --assignee <assignee>', 'Update assignee user GID')
+    .option('--due-on <date>', 'Update due date (YYYY-MM-DD)')
+    .option('--start-on <date>', 'Update start date (YYYY-MM-DD)')
+    .option('-c, --completed <boolean>', 'Mark task as completed or incomplete (true/false)')
+    .action(async (gid: string, options: TaskUpdateOptions, command: Command) => {
+      try {
+        const client = getAsanaClient()
+
+        // Build update data object with only provided fields
+        const updateData: any = {}
+
+        if (options.name !== undefined)
+          updateData.name = options.name
+        if (options.notes !== undefined)
+          updateData.notes = options.notes
+        if (options.assignee !== undefined)
+          updateData.assignee = options.assignee
+        if (options.dueOn !== undefined)
+          updateData.due_on = options.dueOn
+        if (options.startOn !== undefined)
+          updateData.start_on = options.startOn
+        if (options.completed !== undefined)
+          updateData.completed = options.completed === 'true' || options.completed === true
+
+        // Check if at least one field is being updated
+        if (Object.keys(updateData).length === 0) {
+          throw new Error('At least one field must be specified for update')
+        }
+
+        const result = await client.tasks.update(gid, updateData)
+
+        // Get format from parent command (root program)
+        const format = (command.parent?.parent?.opts()?.format || 'toon') as OutputFormat
+
+        // Prepare result data for output
+        const resultData = {
+          status: 'success',
+          gid: result.gid,
+          name: result.name,
+          completed: result.completed,
+          assignee: result.assignee?.name,
+          due_on: result.due_on,
+          start_on: result.start_on,
+          permalink_url: result.permalink_url,
+        }
+
+        // Format output based on selected format
+        const output = formatOutput({ task: resultData }, { format, colors: process.stdout.isTTY })
+        console.log(output)
+      }
+      catch (error) {
+        console.error(chalk.red('✗ Failed to update task:'), error)
+        process.exit(1)
+      }
+    })
+
+  task
+    .command('move')
+    .description('Move task to a different project')
+    .argument('<gid>', 'Task GID')
+    .requiredOption('-p, --project <project>', 'Target project GID')
+    .option('-s, --section <section>', 'Target section GID (optional)')
+    .action(async (gid: string, options: TaskMoveOptions, command: Command) => {
+      try {
+        const client = getAsanaClient()
+
+        // Get current task to find existing projects
+        const currentTask = await client.tasks.findById(gid)
+
+        // Remove from all current projects
+        if (currentTask.projects && currentTask.projects.length > 0) {
+          for (const project of currentTask.projects) {
+            await client.tasks.removeProject(gid, { project: project.gid })
+          }
+        }
+
+        // Add to new project
+        const addData: any = { project: options.project }
+        if (options.section) {
+          addData.section = options.section
+        }
+
+        await client.tasks.addProject(gid, addData)
+
+        // Get updated task details
+        const updatedTask = await client.tasks.findById(gid)
+
+        // Get format from parent command (root program)
+        const format = (command.parent?.parent?.opts()?.format || 'toon') as OutputFormat
+
+        // Prepare result data for output
+        const resultData = {
+          status: 'success',
+          gid: updatedTask.gid,
+          name: updatedTask.name,
+          project: options.project,
+          section: options.section,
+          permalink_url: updatedTask.permalink_url,
+        }
+
+        // Format output based on selected format
+        const output = formatOutput({ task: resultData }, { format, colors: process.stdout.isTTY })
+        console.log(output)
+      }
+      catch (error) {
+        console.error(chalk.red('✗ Failed to move task:'), error)
         process.exit(1)
       }
     })
