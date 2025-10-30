@@ -4,6 +4,7 @@ import packageJson from '../package.json'
 import { createAuthCommand } from './commands/auth'
 import { createSelfUpdateCommand } from './commands/self-update'
 import { createTaskCommand } from './commands/task'
+import type { OutputFormat } from './utils/formatter'
 
 const program = new Command()
 
@@ -11,6 +12,11 @@ program
   .name('asana')
   .description('Asana CLI - Manage your Asana tasks from the command line')
   .version(packageJson.version)
+  .option(
+    '-f, --format <type>',
+    'Output format: toon (default), json, or plain',
+    'toon',
+  )
 
 // Register commands
 program.addCommand(createAuthCommand())
