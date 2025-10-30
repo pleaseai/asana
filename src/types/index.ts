@@ -28,7 +28,7 @@ export interface TaskUpdateOptions {
   assignee?: string
   dueOn?: string
   startOn?: string
-  completed?: boolean
+  completed?: boolean | string // Commander.js parses as string "true"/"false"
 }
 
 export interface TaskMoveOptions {

@@ -4,6 +4,8 @@ import chalk from 'chalk'
 import { Command } from 'commander'
 import { getAsanaClient } from '../lib/asana-client'
 import { loadConfig } from '../lib/config'
+import { handleAsanaError } from '../lib/error-handler'
+import { validateDateFormat, validateGid, validateUpdateFields, ValidationError } from '../lib/validators'
 import { formatOutput } from '../utils/formatter'
 
 export function createTaskCommand(): Command {
@@ -169,10 +171,19 @@ export function createTaskCommand(): Command {
     .option('-c, --completed <boolean>', 'Mark task as completed or incomplete (true/false)')
     .action(async (gid: string, options: TaskUpdateOptions, command: Command) => {
       try {
+        // Validate task GID format
+        validateGid(gid, 'Task GID')
+
         const client = getAsanaClient()
 
-        // Build update data object with only provided fields
-        const updateData: any = {}
+        const updateData: Partial<{
+          name: string
+          notes: string
+          assignee: string
+          due_on: string
+          start_on: string
+          completed: boolean
+        }> = {}
 
         if (options.name !== undefined)
           updateData.name = options.name
@@ -180,24 +191,23 @@ export function createTaskCommand(): Command {
           updateData.notes = options.notes
         if (options.assignee !== undefined)
           updateData.assignee = options.assignee
-        if (options.dueOn !== undefined)
+        if (options.dueOn !== undefined) {
+          validateDateFormat(options.dueOn, '--due-on')
           updateData.due_on = options.dueOn
-        if (options.startOn !== undefined)
+        }
+        if (options.startOn !== undefined) {
+          validateDateFormat(options.startOn, '--start-on')
           updateData.start_on = options.startOn
+        }
         if (options.completed !== undefined)
           updateData.completed = options.completed === 'true' || options.completed === true
 
-        // Check if at least one field is being updated
-        if (Object.keys(updateData).length === 0) {
-          throw new Error('At least one field must be specified for update')
-        }
+        validateUpdateFields(updateData)
 
         const result = await client.tasks.update(gid, updateData)
 
-        // Get format from parent command (root program)
         const format = (command.parent?.parent?.opts()?.format || 'toon') as OutputFormat
 
-        // Prepare result data for output
         const resultData = {
           status: 'success',
           gid: result.gid,
@@ -209,13 +219,14 @@ export function createTaskCommand(): Command {
           permalink_url: result.permalink_url,
         }
 
-        // Format output based on selected format
         const output = formatOutput({ task: resultData }, { format, colors: process.stdout.isTTY })
         console.log(output)
       }
       catch (error) {
-        console.error(chalk.red('✗ Failed to update task:'), error)
-        process.exit(1)
+        if (error instanceof ValidationError) {
+          process.exit(1)
+        }
+        handleAsanaError(error, 'Task update', { 'Task GID': gid })
       }
     })
 
@@ -227,33 +238,48 @@ export function createTaskCommand(): Command {
     .option('-s, --section <section>', 'Target section GID (optional)')
     .action(async (gid: string, options: TaskMoveOptions, command: Command) => {
       try {
+        // Validate input formats
+        validateGid(gid, 'Task GID')
+        validateGid(options.project, 'Project GID')
+        if (options.section) {
+          validateGid(options.section, 'Section GID')
+        }
+
         const client = getAsanaClient()
 
-        // Get current task to find existing projects
+        // Get current task to identify all projects for removal
+        // (Asana requires explicit removal before adding to new project)
         const currentTask = await client.tasks.findById(gid)
 
         // Remove from all current projects
         if (currentTask.projects && currentTask.projects.length > 0) {
           for (const project of currentTask.projects) {
-            await client.tasks.removeProject(gid, { project: project.gid })
+            try {
+              await client.tasks.removeProject(gid, { project: project.gid })
+            }
+            catch (removeError: any) {
+              // Log warning but continue - partial move is better than no move
+              console.warn(chalk.yellow(`⚠ Warning: Could not remove from project ${project.gid}`))
+              if (removeError.message) {
+                console.warn(chalk.gray(`  Reason: ${removeError.message}`))
+              }
+            }
           }
         }
 
-        // Add to new project
-        const addData: any = { project: options.project }
+        const addData: { project: string, section?: string } = {
+          project: options.project,
+        }
         if (options.section) {
           addData.section = options.section
         }
 
         await client.tasks.addProject(gid, addData)
 
-        // Get updated task details
         const updatedTask = await client.tasks.findById(gid)
 
-        // Get format from parent command (root program)
         const format = (command.parent?.parent?.opts()?.format || 'toon') as OutputFormat
 
-        // Prepare result data for output
         const resultData = {
           status: 'success',
           gid: updatedTask.gid,
@@ -263,13 +289,18 @@ export function createTaskCommand(): Command {
           permalink_url: updatedTask.permalink_url,
         }
 
-        // Format output based on selected format
         const output = formatOutput({ task: resultData }, { format, colors: process.stdout.isTTY })
         console.log(output)
       }
       catch (error) {
-        console.error(chalk.red('✗ Failed to move task:'), error)
-        process.exit(1)
+        if (error instanceof ValidationError) {
+          process.exit(1)
+        }
+        handleAsanaError(error, 'Task move', {
+          'Task GID': gid,
+          'Target project': options.project,
+          'Target section': options.section,
+        })
       }
     })
 
