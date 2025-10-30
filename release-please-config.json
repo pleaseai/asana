@@ -4,6 +4,7 @@
       "release-type": "node",
       "package-name": "@pleaseai/asana",
       "include-component-in-tag": false,
+      "include-v-in-tag": true,
       "changelog-sections": [
         {
           "type": "feat",
