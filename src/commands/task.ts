@@ -125,9 +125,9 @@ export function createTaskCommand(): Command {
       }
       catch (error) {
         handleAsanaError(error, 'Task listing', {
-          'Workspace': workspace,
-          'Project': options.project,
-          'Assignee': options.assignee,
+          Workspace: workspace,
+          Project: options.project,
+          Assignee: options.assignee,
         })
       }
     })
