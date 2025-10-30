@@ -63,8 +63,11 @@ export function createTaskCommand(): Command {
         console.log(output)
       }
       catch (error) {
-        console.error(chalk.red('✗ Failed to create task:'), error)
-        process.exit(1)
+        handleAsanaError(error, 'Task creation', {
+          'Task name': options.name,
+          'Workspace': workspace,
+          'Project': options.project,
+        })
       }
     })
 
@@ -121,8 +124,11 @@ export function createTaskCommand(): Command {
         console.log(output)
       }
       catch (error) {
-        console.error(chalk.red('✗ Failed to list tasks:'), error)
-        process.exit(1)
+        handleAsanaError(error, 'Task listing', {
+          'Workspace': workspace,
+          'Project': options.project,
+          'Assignee': options.assignee,
+        })
       }
     })
 
@@ -154,8 +160,7 @@ export function createTaskCommand(): Command {
         console.log(output)
       }
       catch (error) {
-        console.error(chalk.red('✗ Failed to get task:'), error)
-        process.exit(1)
+        handleAsanaError(error, 'Task retrieval', { 'Task GID': gid })
       }
     })
 
@@ -171,7 +176,6 @@ export function createTaskCommand(): Command {
     .option('-c, --completed <boolean>', 'Mark task as completed or incomplete (true/false)')
     .action(async (gid: string, options: TaskUpdateOptions, command: Command) => {
       try {
-        // Validate task GID format
         validateGid(gid, 'Task GID')
 
         const client = getAsanaClient()
@@ -199,6 +203,7 @@ export function createTaskCommand(): Command {
           validateDateFormat(options.startOn, '--start-on')
           updateData.start_on = options.startOn
         }
+        // Commander.js parses boolean flags as strings, so we need explicit conversion
         if (options.completed !== undefined)
           updateData.completed = options.completed === 'true' || options.completed === true
 
@@ -238,7 +243,6 @@ export function createTaskCommand(): Command {
     .option('-s, --section <section>', 'Target section GID (optional)')
     .action(async (gid: string, options: TaskMoveOptions, command: Command) => {
       try {
-        // Validate input formats
         validateGid(gid, 'Task GID')
         validateGid(options.project, 'Project GID')
         if (options.section) {
@@ -247,18 +251,16 @@ export function createTaskCommand(): Command {
 
         const client = getAsanaClient()
 
-        // Get current task to identify all projects for removal
-        // (Asana requires explicit removal before adding to new project)
+        // Asana requires explicit removal from current projects before adding to new project
         const currentTask = await client.tasks.findById(gid)
 
-        // Remove from all current projects
         if (currentTask.projects && currentTask.projects.length > 0) {
           for (const project of currentTask.projects) {
             try {
               await client.tasks.removeProject(gid, { project: project.gid })
             }
             catch (removeError: any) {
-              // Log warning but continue - partial move is better than no move
+              // Continue despite individual project removal failures to ensure partial migration succeeds
               console.warn(chalk.yellow(`⚠ Warning: Could not remove from project ${project.gid}`))
               if (removeError.message) {
                 console.warn(chalk.gray(`  Reason: ${removeError.message}`))
@@ -310,14 +312,17 @@ export function createTaskCommand(): Command {
     .argument('<gid>', 'Task GID')
     .action(async (gid: string) => {
       try {
+        validateGid(gid, 'Task GID')
         const client = getAsanaClient()
         await client.tasks.update(gid, { completed: true })
 
         console.log(chalk.green(`✓ Task ${gid} marked as complete`))
       }
       catch (error) {
-        console.error(chalk.red('✗ Failed to complete task:'), error)
-        process.exit(1)
+        if (error instanceof ValidationError) {
+          process.exit(1)
+        }
+        handleAsanaError(error, 'Task completion', { 'Task GID': gid })
       }
     })
 
@@ -327,14 +332,17 @@ export function createTaskCommand(): Command {
     .argument('<gid>', 'Task GID')
     .action(async (gid: string) => {
       try {
+        validateGid(gid, 'Task GID')
         const client = getAsanaClient()
         await client.tasks.delete(gid)
 
         console.log(chalk.green(`✓ Task ${gid} deleted`))
       }
       catch (error) {
-        console.error(chalk.red('✗ Failed to delete task:'), error)
-        process.exit(1)
+        if (error instanceof ValidationError) {
+          process.exit(1)
+        }
+        handleAsanaError(error, 'Task deletion', { 'Task GID': gid })
       }
     })
 
