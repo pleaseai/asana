@@ -15,6 +15,7 @@ Manage your Asana tasks efficiently from the command line.
 - ✅ Automatic token refresh (OAuth)
 - ✅ Default workspace configuration
 - ✅ Fast execution powered by Bun
+- ✨ **Multiple output formats** (TOON, JSON, Plain) for different use cases
 
 ## Quick Installation
 
@@ -66,6 +67,62 @@ asana task list -a me -w WORKSPACE_ID
 asana task complete TASK_ID
 ```
 
+### Output Formats
+
+Choose output format based on your needs:
+
+```bash
+# TOON format (default) - 30-60% more token-efficient for LLMs
+asana task list -a me
+
+# JSON format - for scripts and automation
+asana task list -a me --format json
+
+# Plain format - traditional human-readable output
+asana task list -a me --format plain
+```
+
+**Format Comparison:**
+
+| Format | Use Case | Token Efficiency | Machine Readable |
+|--------|----------|------------------|------------------|
+| **TOON** | LLM interactions, sharing outputs | ⭐⭐⭐⭐⭐ | ✅ |
+| **JSON** | Scripts, automation, parsing | ⭐⭐⭐ | ✅ |
+| **Plain** | Terminal viewing, traditional CLI | ⭐⭐ | ❌ |
+
+<details>
+<summary>📊 Example Outputs</summary>
+
+**TOON Format** (default):
+```
+tasks[3]{gid,name,completed}:
+  "1234567890",Setup authentication,true
+  "1234567891",Add task commands,false
+  "1234567892",Write documentation,false
+```
+
+**JSON Format**:
+```json
+{
+  "tasks": [
+    { "gid": "1234567890", "name": "Setup authentication", "completed": true },
+    { "gid": "1234567891", "name": "Add task commands", "completed": false },
+    { "gid": "1234567892", "name": "Write documentation", "completed": false }
+  ]
+}
+```
+
+**Plain Format**:
+```
+Tasks (3):
+
+✓ 1234567890 - Setup authentication
+○ 1234567891 - Add task commands
+○ 1234567892 - Write documentation
+```
+
+</details>
+
 ## Documentation
 
 **[📖 Full Documentation](https://asana.pleaseai.dev/)**
@@ -115,6 +172,7 @@ For detailed development guides, see [dev-docs/](./dev-docs/).
 - **Runtime**: [Bun](https://bun.sh)
 - **SDK**: [Asana Node.js SDK](https://github.com/Asana/node-asana)
 - **CLI Framework**: [Commander.js](https://github.com/tj/commander.js)
+- **Output Format**: [TOON](https://github.com/johannschopplich/toon) - Token-efficient format for LLMs
 - **Styling**: [Chalk](https://github.com/chalk/chalk)
 
 ## License
