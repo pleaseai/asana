@@ -14,7 +14,7 @@ program
   .version(packageJson.version)
   .option(
     '-f, --format <type>',
-    'Output format: toon (default), json, or plain',
+    'Output format: toon (token-efficient for LLMs), json (for scripting), plain (traditional)',
     'toon',
   )
 

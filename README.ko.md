@@ -15,6 +15,7 @@
 - ✅ 자동 토큰 갱신 (OAuth)
 - ✅ 기본 workspace 설정
 - ✅ Bun으로 구축된 빠른 실행 속도
+- ✨ **다양한 출력 포맷** (TOON, JSON, Plain) 지원으로 다양한 사용 사례 대응
 
 ## 빠른 설치
 
@@ -66,6 +67,62 @@ asana task list -a me -w WORKSPACE_ID
 asana task complete TASK_ID
 ```
 
+### 출력 포맷
+
+필요에 따라 출력 포맷을 선택하세요:
+
+```bash
+# TOON 포맷 (기본값) - LLM을 위한 토큰 효율성 30-60% 향상
+asana task list -a me
+
+# JSON 포맷 - 스크립트 및 자동화용
+asana task list -a me --format json
+
+# Plain 포맷 - 전통적인 사람이 읽기 편한 출력
+asana task list -a me --format plain
+```
+
+**포맷 비교:**
+
+| 포맷 | 사용 사례 | 토큰 효율성 | 기계 판독 |
+|------|----------|------------|----------|
+| **TOON** | LLM 상호작용, 출력 공유 | ⭐⭐⭐⭐⭐ | ✅ |
+| **JSON** | 스크립트, 자동화, 파싱 | ⭐⭐⭐ | ✅ |
+| **Plain** | 터미널 보기, 전통적 CLI | ⭐⭐ | ❌ |
+
+<details>
+<summary>📊 출력 예제</summary>
+
+**TOON 포맷** (기본값):
+```
+tasks[3]{gid,name,completed}:
+  "1234567890",인증 설정,true
+  "1234567891",작업 명령어 추가,false
+  "1234567892",문서 작성,false
+```
+
+**JSON 포맷**:
+```json
+{
+  "tasks": [
+    { "gid": "1234567890", "name": "인증 설정", "completed": true },
+    { "gid": "1234567891", "name": "작업 명령어 추가", "completed": false },
+    { "gid": "1234567892", "name": "문서 작성", "completed": false }
+  ]
+}
+```
+
+**Plain 포맷**:
+```
+Tasks (3):
+
+✓ 1234567890 - 인증 설정
+○ 1234567891 - 작업 명령어 추가
+○ 1234567892 - 문서 작성
+```
+
+</details>
+
 ## 문서
 
 **[📖 전체 문서](https://asana.pleaseai.dev/ko)**
@@ -115,6 +172,7 @@ bun run build
 - **Runtime**: [Bun](https://bun.sh)
 - **SDK**: [Asana Node.js SDK](https://github.com/Asana/node-asana)
 - **CLI Framework**: [Commander.js](https://github.com/tj/commander.js)
+- **출력 포맷**: [TOON](https://github.com/johannschopplich/toon) - LLM을 위한 토큰 효율적 포맷
 - **Styling**: [Chalk](https://github.com/chalk/chalk)
 
 ## 라이선스
