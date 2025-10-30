@@ -1,6 +1,6 @@
 {
   "name": "@amondnet/asana-cli-docs",
-  "version": "0.4.0",
+  "version": "0.4.1",
   "private": true,
   "description": "Documentation for Asana CLI - Manage your Asana tasks from the command line",
   "scripts": {
