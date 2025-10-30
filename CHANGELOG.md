@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.4.1](https://github.com/pleaseai/asana/compare/v0.4.0...v0.4.1) (2025-10-30)
+
+
+### Documentation
+
+* update install script command from 'sh' to 'bash' ([6de56ef](https://github.com/pleaseai/asana/commit/6de56ef275c64193535da1ce206d1668806279fc))
+* update install script command from 'sh' to 'bash' ([f823b5a](https://github.com/pleaseai/asana/commit/f823b5a2610857f18cb3118253ee057f1e517d9b))
+
 ## [0.4.0](https://github.com/pleaseai/asana/compare/v0.3.0...v0.4.0) (2025-10-30)
 
 
