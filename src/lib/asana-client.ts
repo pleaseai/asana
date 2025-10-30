@@ -6,6 +6,8 @@ let apiClientInstance: typeof Asana.ApiClient.instance | null = null
 let tasksApiInstance: Asana.TasksApi | null = null
 let usersApiInstance: Asana.UsersApi | null = null
 let workspacesApiInstance: Asana.WorkspacesApi | null = null
+let projectsApiInstance: Asana.ProjectsApi | null = null
+let sectionsApiInstance: Asana.SectionsApi | null = null
 
 function initializeApiClient(): typeof Asana.ApiClient.instance {
   if (apiClientInstance) {
@@ -53,6 +55,12 @@ export function getAsanaClient() {
   if (!workspacesApiInstance) {
     workspacesApiInstance = new Asana.WorkspacesApi()
   }
+  if (!projectsApiInstance) {
+    projectsApiInstance = new Asana.ProjectsApi()
+  }
+  if (!sectionsApiInstance) {
+    sectionsApiInstance = new Asana.SectionsApi()
+  }
 
   // Return a wrapper object that matches the old API structure
   return {
@@ -84,6 +92,66 @@ export function getAsanaClient() {
       },
       delete: async (taskGid: string) => {
         const result = await tasksApiInstance!.deleteTask(taskGid)
+        return result.data
+      },
+      addProject: async (taskGid: string, data: any) => {
+        const body = { data }
+        const result = await tasksApiInstance!.addProjectForTask(body, taskGid, {})
+        return result.data
+      },
+      removeProject: async (taskGid: string, data: any) => {
+        const body = { data }
+        const result = await tasksApiInstance!.removeProjectForTask(body, taskGid, {})
+        return result.data
+      },
+    },
+    projects: {
+      create: async (projectData: Record<string, any>) => {
+        const body = { data: projectData }
+        const result = await projectsApiInstance!.createProject(body, {})
+        return result.data
+      },
+      findById: async (projectGid: string, opts: Record<string, any> = {}) => {
+        const result = await projectsApiInstance!.getProject(projectGid, opts)
+        return result.data
+      },
+      findByWorkspace: async (workspaceGid: string, opts: any = {}) => {
+        const optsWithLimit = { limit: 100, ...opts }
+        const result = await projectsApiInstance!.getProjectsForWorkspace(workspaceGid, optsWithLimit)
+        return result
+      },
+      findByTeam: async (teamGid: string, opts: any = {}) => {
+        const optsWithLimit = { limit: 100, ...opts }
+        const result = await projectsApiInstance!.getProjectsForTeam(teamGid, optsWithLimit)
+        return result
+      },
+      update: async (projectGid: string, updateData: Record<string, any>) => {
+        const body = { data: updateData }
+        const result = await projectsApiInstance!.updateProject(body, projectGid, {})
+        return result.data
+      },
+      delete: async (projectGid: string) => {
+        const result = await projectsApiInstance!.deleteProject(projectGid)
+        return result.data
+      },
+    },
+    sections: {
+      findByProject: async (projectGid: string, opts: any = {}) => {
+        const result = await sectionsApiInstance!.getSectionsForProject(projectGid, opts)
+        return result
+      },
+      createInProject: async (projectGid: string, sectionData: Record<string, any>) => {
+        const body = { data: sectionData }
+        const result = await sectionsApiInstance!.createSectionForProject(body, projectGid, {})
+        return result.data
+      },
+      update: async (sectionGid: string, updateData: any) => {
+        const body = { data: updateData }
+        const result = await sectionsApiInstance!.updateSection(body, sectionGid, {})
+        return result.data
+      },
+      delete: async (sectionGid: string) => {
+        const result = await sectionsApiInstance!.deleteSection(sectionGid)
         return result.data
       },
     },
@@ -154,4 +222,6 @@ export function resetClient(): void {
   tasksApiInstance = null
   usersApiInstance = null
   workspacesApiInstance = null
+  projectsApiInstance = null
+  sectionsApiInstance = null
 }
