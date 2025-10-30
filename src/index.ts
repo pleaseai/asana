@@ -2,6 +2,8 @@
 import { Command } from 'commander'
 import packageJson from '../package.json'
 import { createAuthCommand } from './commands/auth'
+import { createProjectCommand } from './commands/project'
+import { createSectionCommand } from './commands/section'
 import { createSelfUpdateCommand } from './commands/self-update'
 import { createTaskCommand } from './commands/task'
 
@@ -20,6 +22,8 @@ program
 // Register commands
 program.addCommand(createAuthCommand())
 program.addCommand(createTaskCommand())
+program.addCommand(createProjectCommand())
+program.addCommand(createSectionCommand())
 program.addCommand(createSelfUpdateCommand())
 
 // Parse arguments

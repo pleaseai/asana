@@ -35,3 +35,36 @@ export interface TaskMoveOptions {
   project: string
   section?: string
 }
+
+export interface ProjectCreateOptions {
+  name: string
+  workspace?: string
+  team?: string
+  notes?: string
+  color?: string
+  public?: boolean
+}
+
+export interface ProjectListOptions {
+  workspace?: string
+  team?: string
+  archived?: boolean
+}
+
+export interface ProjectUpdateOptions {
+  name?: string
+  notes?: string
+  color?: string
+  archived?: boolean | string
+  public?: boolean | string
+}
+
+export interface SectionCreateOptions {
+  name: string
+  insertBefore?: string
+  insertAfter?: string
+}
+
+export interface SectionUpdateOptions {
+  name?: string
+}
