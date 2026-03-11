@@ -1,4 +1,5 @@
 import { createServer } from 'node:http'
+import { createInterface } from 'node:readline'
 import chalk from 'chalk'
 import open from 'open'
 
@@ -8,8 +9,10 @@ const OAUTH_CONFIG = {
   authUrl: 'https://app.asana.com/-/oauth_authorize',
   tokenUrl: 'https://app.asana.com/-/oauth_token',
   redirectUri: 'http://localhost:8080/callback',
-  scopes: 'default', // or specific scopes like 'tasks:read tasks:write'
+  defaultScopes: 'default',
 }
+
+const OOB_REDIRECT_URI = 'urn:ietf:wg:oauth:2.0:oob'
 
 export interface OAuthTokenResponse {
   access_token: string
@@ -18,11 +21,50 @@ export interface OAuthTokenResponse {
   token_type: string
 }
 
+export interface OAuthFlowOptions {
+  scopes?: string[]
+  oob?: boolean
+}
+
+function base64urlEncode(bytes: Uint8Array): string {
+  return btoa(String.fromCharCode(...bytes))
+    .replace(/\+/g, '-')
+    .replace(/\//g, '_')
+    .replace(/=/g, '')
+}
+
 /**
- * Start OAuth flow by opening browser and waiting for callback
- * Requires ASANA_CLIENT_ID and ASANA_CLIENT_SECRET environment variables
+ * Generate a cryptographically secure random state string for CSRF protection
  */
-export async function startOAuthFlow(): Promise<OAuthTokenResponse> {
+export function generateSecureState(): string {
+  const bytes = new Uint8Array(16)
+  crypto.getRandomValues(bytes)
+  return base64urlEncode(bytes)
+}
+
+/**
+ * Generate PKCE code_verifier and code_challenge (S256 method)
+ * RFC 7636: code_verifier is 43-128 URL-safe chars; code_challenge = BASE64URL(SHA256(verifier))
+ */
+export async function generatePKCE(): Promise<{ codeVerifier: string, codeChallenge: string }> {
+  const bytes = new Uint8Array(32) // 32 bytes → 43 base64url chars (no padding)
+  crypto.getRandomValues(bytes)
+  const codeVerifier = base64urlEncode(bytes)
+
+  const digest = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(codeVerifier))
+  const codeChallenge = base64urlEncode(new Uint8Array(digest))
+
+  return { codeVerifier, codeChallenge }
+}
+
+/**
+ * Start OAuth flow by opening browser and waiting for callback.
+ * Uses PKCE (S256) and cryptographically secure state.
+ * Requires ASANA_CLIENT_ID and ASANA_CLIENT_SECRET environment variables.
+ *
+ * @param options - Flow options
+ */
+export async function startOAuthFlow(options: OAuthFlowOptions = {}): Promise<OAuthTokenResponse> {
   const clientId = process.env.ASANA_CLIENT_ID
   const clientSecret = process.env.ASANA_CLIENT_SECRET
 
@@ -34,24 +76,30 @@ export async function startOAuthFlow(): Promise<OAuthTokenResponse> {
     )
   }
 
-  // Generate state for security
-  const state = Math.random().toString(36).substring(2, 15)
+  const state = generateSecureState()
+  const { codeVerifier, codeChallenge } = await generatePKCE()
+  const scopeStr = options.scopes?.join(' ') || OAUTH_CONFIG.defaultScopes
+  const redirectUri = options.oob ? OOB_REDIRECT_URI : OAUTH_CONFIG.redirectUri
 
-  // Build authorization URL
   const authUrl = new URL(OAUTH_CONFIG.authUrl)
   authUrl.searchParams.set('client_id', clientId)
-  authUrl.searchParams.set('redirect_uri', OAUTH_CONFIG.redirectUri)
+  authUrl.searchParams.set('redirect_uri', redirectUri)
   authUrl.searchParams.set('response_type', 'code')
   authUrl.searchParams.set('state', state)
-  authUrl.searchParams.set('scope', OAUTH_CONFIG.scopes)
+  authUrl.searchParams.set('scope', scopeStr)
+  authUrl.searchParams.set('code_challenge', codeChallenge)
+  authUrl.searchParams.set('code_challenge_method', 'S256')
+
+  if (options.oob) {
+    return startOobFlow(authUrl, codeVerifier, clientId, clientSecret)
+  }
 
   console.log(chalk.blue('Opening browser for authentication...'))
   console.log(chalk.gray(`If the browser doesn't open, visit: ${authUrl.toString()}`))
 
-  // Create local server to handle callback
   return new Promise((resolve, reject) => {
     const server = createServer(async (req, res) => {
-      const url = new URL(req.url || '', `http://localhost:8080`)
+      const url = new URL(req.url || '', 'http://localhost:8080')
 
       if (url.pathname === '/callback') {
         const code = url.searchParams.get('code') || ''
@@ -75,8 +123,7 @@ export async function startOAuthFlow(): Promise<OAuthTokenResponse> {
         }
 
         try {
-          // Exchange code for token
-          const token = await exchangeCodeForToken(code, clientId, clientSecret)
+          const token = await exchangeCodeForToken(code, clientId, clientSecret, OAUTH_CONFIG.redirectUri, codeVerifier)
 
           res.writeHead(200, { 'Content-Type': 'text/html' })
           res.end('<h1>Authentication Successful!</h1><p>You can close this window and return to the terminal.</p>')
@@ -105,20 +152,59 @@ export async function startOAuthFlow(): Promise<OAuthTokenResponse> {
 }
 
 /**
+ * OOB (out-of-band) flow: prints auth URL and prompts user to paste the code.
+ * Used when --no-browser is specified (headless/CI environments).
+ */
+async function startOobFlow(
+  authUrl: URL,
+  codeVerifier: string,
+  clientId: string,
+  clientSecret: string,
+): Promise<OAuthTokenResponse> {
+  console.log(chalk.blue('\nOpen this URL in your browser to authorize:'))
+  console.log(chalk.cyan(authUrl.toString()))
+  console.log(chalk.gray('\nAfter authorizing, copy the code shown in the browser.'))
+
+  const code = await promptForCode()
+
+  if (!code) {
+    throw new Error('No authorization code provided')
+  }
+
+  return exchangeCodeForToken(code, clientId, clientSecret, OOB_REDIRECT_URI, codeVerifier)
+}
+
+function promptForCode(): Promise<string> {
+  return new Promise((resolve) => {
+    const rl = createInterface({ input: process.stdin, output: process.stdout })
+    rl.question(chalk.yellow('Paste the authorization code: '), (answer) => {
+      rl.close()
+      resolve(answer.trim())
+    })
+  })
+}
+
+/**
  * Exchange authorization code for access token
  */
 async function exchangeCodeForToken(
   code: string,
   clientId: string,
   clientSecret: string,
+  redirectUri: string,
+  codeVerifier?: string,
 ): Promise<OAuthTokenResponse> {
   const params = new URLSearchParams({
     grant_type: 'authorization_code',
     client_id: clientId,
     client_secret: clientSecret,
-    redirect_uri: OAUTH_CONFIG.redirectUri,
+    redirect_uri: redirectUri,
     code,
   })
+
+  if (codeVerifier) {
+    params.set('code_verifier', codeVerifier)
+  }
 
   const response = await fetch(OAUTH_CONFIG.tokenUrl, {
     method: 'POST',

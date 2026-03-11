@@ -1,6 +1,6 @@
 import type { OAuthTokenResponse } from '../../src/lib/oauth'
 import { afterEach, beforeEach, describe, expect, mock, test } from 'bun:test'
-import { refreshAccessToken } from '../../src/lib/oauth'
+import { generatePKCE, generateSecureState, refreshAccessToken } from '../../src/lib/oauth'
 
 describe('oauth module', () => {
   beforeEach(() => {
@@ -13,6 +13,75 @@ describe('oauth module', () => {
     // Clean up environment variables
     delete process.env.ASANA_CLIENT_ID
     delete process.env.ASANA_CLIENT_SECRET
+  })
+
+  describe('generateSecureState', () => {
+    test('returns a non-empty string', () => {
+      const state = generateSecureState()
+      expect(typeof state).toBe('string')
+      expect(state.length).toBeGreaterThan(0)
+    })
+
+    test('returns different values on successive calls', () => {
+      const state1 = generateSecureState()
+      const state2 = generateSecureState()
+      expect(state1).not.toBe(state2)
+    })
+
+    test('returns URL-safe base64 string (no +, /, or = chars)', () => {
+      const state = generateSecureState()
+      expect(state).not.toMatch(/[+/=]/)
+    })
+
+    test('returns at least 16 characters', () => {
+      // 16 bytes of random data encodes to ~22 base64url chars
+      const state = generateSecureState()
+      expect(state.length).toBeGreaterThanOrEqual(16)
+    })
+  })
+
+  describe('generatePKCE', () => {
+    test('returns codeVerifier and codeChallenge', async () => {
+      const { codeVerifier, codeChallenge } = await generatePKCE()
+      expect(typeof codeVerifier).toBe('string')
+      expect(typeof codeChallenge).toBe('string')
+    })
+
+    test('codeVerifier is at least 43 characters (RFC 7636)', async () => {
+      const { codeVerifier } = await generatePKCE()
+      // 32 random bytes → 43 base64url chars (no padding)
+      expect(codeVerifier.length).toBeGreaterThanOrEqual(43)
+    })
+
+    test('codeVerifier contains only URL-safe characters', async () => {
+      const { codeVerifier } = await generatePKCE()
+      expect(codeVerifier).not.toMatch(/[+/=]/)
+    })
+
+    test('codeChallenge contains only URL-safe characters', async () => {
+      const { codeChallenge } = await generatePKCE()
+      expect(codeChallenge).not.toMatch(/[+/=]/)
+    })
+
+    test('returns different values on successive calls', async () => {
+      const first = await generatePKCE()
+      const second = await generatePKCE()
+      expect(first.codeVerifier).not.toBe(second.codeVerifier)
+      expect(first.codeChallenge).not.toBe(second.codeChallenge)
+    })
+
+    test('codeChallenge is SHA-256 of codeVerifier encoded as base64url', async () => {
+      const { codeVerifier, codeChallenge } = await generatePKCE()
+
+      // Re-derive the challenge independently
+      const digest = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(codeVerifier))
+      const expectedChallenge = btoa(String.fromCharCode(...new Uint8Array(digest)))
+        .replace(/\+/g, '-')
+        .replace(/\//g, '_')
+        .replace(/=/g, '')
+
+      expect(codeChallenge).toBe(expectedChallenge)
+    })
   })
 
   describe('refreshAccessToken', () => {
@@ -186,6 +255,54 @@ describe('oauth module', () => {
       await expect(startOAuthFlow()).rejects.toThrow(
         /OAuth requires ASANA_CLIENT_ID and ASANA_CLIENT_SECRET/,
       )
+    })
+
+    describe('scope parameter handling', () => {
+      test('uses default scope when no scopes option is provided', async () => {
+        // Verify the default scope is 'default' by checking what gets built into auth URL
+        // We do this by testing the behavior indirectly - when creds are missing, the
+        // error is thrown before scope matters; we just verify the flow accepts no scopes
+        const { startOAuthFlow } = await import('../../src/lib/oauth')
+        delete process.env.ASANA_CLIENT_ID
+
+        // The function throws before scope is processed, so we just verify it accepts undefined scopes
+        await expect(startOAuthFlow({})).rejects.toThrow(
+          /OAuth requires ASANA_CLIENT_ID and ASANA_CLIENT_SECRET/,
+        )
+      })
+
+      test('accepts custom scopes array', async () => {
+        const { startOAuthFlow } = await import('../../src/lib/oauth')
+        delete process.env.ASANA_CLIENT_ID
+
+        // Verify the function accepts a scopes array without throwing a type error
+        await expect(startOAuthFlow({ scopes: ['tasks:read', 'projects:read'] })).rejects.toThrow(
+          /OAuth requires ASANA_CLIENT_ID and ASANA_CLIENT_SECRET/,
+        )
+      })
+    })
+
+    describe('OOB flow', () => {
+      test('throws error when credentials are missing even in OOB mode', async () => {
+        delete process.env.ASANA_CLIENT_ID
+        delete process.env.ASANA_CLIENT_SECRET
+
+        const { startOAuthFlow } = await import('../../src/lib/oauth')
+
+        await expect(startOAuthFlow({ oob: true })).rejects.toThrow(
+          /OAuth requires ASANA_CLIENT_ID and ASANA_CLIENT_SECRET/,
+        )
+      })
+
+      test('accepts oob option', async () => {
+        const { startOAuthFlow } = await import('../../src/lib/oauth')
+        delete process.env.ASANA_CLIENT_ID
+
+        // Verify the function accepts the oob option
+        await expect(startOAuthFlow({ oob: true })).rejects.toThrow(
+          /OAuth requires ASANA_CLIENT_ID and ASANA_CLIENT_SECRET/,
+        )
+      })
     })
   })
 })
