@@ -1,0 +1,16 @@
+# .worktreeinclude — worktree로 복사할 gitignored 파일 목록
+# .gitignore 문법 사용. 패턴에 매칭되고 동시에 git이 ignore하는 파일만 복사된다.
+# Claude Code --worktree는 자동 처리. orca 등 외부 도구는 orca.yaml setup 훅의
+#   bunx @pleaseai/worktreeinclude "$ORCA_ROOT_PATH" "$ORCA_WORKTREE_PATH" 로 실행.
+# 상세: Skill("standards:dev-tooling") → references/worktree-setup.md
+#
+# 참고: .env 는 이 저장소에서 추적(committed, dotenvx)되므로 git 이 worktree 에
+#       자동 포함한다 → 여기 둘 필요 없음. gitignored 인 로컬 파일만 나열한다.
+
+# 로컬 환경 변수 / 시크릿 키 (생성 시 자동 복사 대상)
+.env.local
+.env.*.local
+.env.keys
+
+# Claude Code 로컬 설정 (permissions, env 등)
+.claude/settings.local.json
