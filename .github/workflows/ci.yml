@@ -18,8 +18,8 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Setup Bun
-        uses: oven-sh/setup-bun@v1
+      - name: Setup mise (node + bun)
+        uses: jdx/mise-action@v2
 
       - name: Install dependencies
         run: bun install
@@ -43,8 +43,8 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Setup Bun
-        uses: oven-sh/setup-bun@v1
+      - name: Setup mise (node + bun)
+        uses: jdx/mise-action@v2
 
       - name: Install dependencies
         run: bun install
@@ -68,8 +68,8 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Setup Bun
-        uses: oven-sh/setup-bun@v1
+      - name: Setup mise (node + bun)
+        uses: jdx/mise-action@v2
 
       - name: Install dependencies
         run: bun install

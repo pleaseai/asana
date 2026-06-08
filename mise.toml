@@ -1,0 +1,30 @@
+# mise.toml — PassionFactory 표준 도구 체인
+# 사용법: `mise trust && mise install`
+# 상세: Skill("standards:dev-tooling")
+
+[tools]
+node = "22"
+bun = "latest"
+
+[tasks.dev]
+description = "개발 서버 실행"
+run = "bun run dev"
+
+[tasks.build]
+description = "빌드"
+run = "bun run build"
+
+[tasks.lint]
+description = "린트"
+run = "bun run lint"
+
+[tasks.test]
+description = "테스트"
+run = "bun run test"
+
+[tasks.check]
+description = "lint → test 일괄 검사"
+depends = [
+  "lint",
+  "test"
+]
