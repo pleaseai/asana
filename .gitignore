@@ -39,3 +39,6 @@ report.[0-9]_.[0-9]_.[0-9]_.[0-9]_.json
 
 # Compiled binary
 asana
+
+# please plugin runtime state
+.please/state/
