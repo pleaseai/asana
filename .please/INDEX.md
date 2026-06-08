@@ -4,25 +4,25 @@
 
 ## Project Documents
 
-| Document | Purpose |
-|---|---|
+| Document                                   | Purpose                          |
+| ------------------------------------------ | -------------------------------- |
 | [`../ARCHITECTURE.md`](../ARCHITECTURE.md) | Repository-level bird's-eye view |
-| [`../CLAUDE.md`](../CLAUDE.md) | Project-level AI instructions |
+| [`../CLAUDE.md`](../CLAUDE.md)             | Project-level AI instructions    |
 
 ## Directory Map
 
-| Path | Purpose |
-|---|---|
-| `state/` | Runtime session state (progress) — not tracked in git |
-| `docs/tracks/` | Implementation tracks (spec + plan) → [Tracks](docs/tracks.jsonl) |
-| `docs/product-specs/` | Product-level specifications → [Product Specs Index](docs/product-specs/index.md) |
-| `docs/decisions/` | Architecture Decision Records → [Decisions Index](docs/decisions/index.md) |
-| `docs/investigations/` | Bug investigation reports |
-| `docs/research/` | Research documents |
-| `docs/references/` | External reference materials (-llms.txt etc.) |
-| `docs/knowledge/` | Stable project context (product, tech-stack, guidelines) |
-| `templates/` | Workflow templates (plugin-provided) |
-| `scripts/` | Utility scripts (plugin-provided) |
+| Path                   | Purpose                                                                           |
+| ---------------------- | --------------------------------------------------------------------------------- |
+| `state/`               | Runtime session state (progress) — not tracked in git                             |
+| `docs/tracks/`         | Implementation tracks (spec + plan) → [Tracks](docs/tracks.jsonl)                 |
+| `docs/product-specs/`  | Product-level specifications → [Product Specs Index](docs/product-specs/index.md) |
+| `docs/decisions/`      | Architecture Decision Records → [Decisions Index](docs/decisions/index.md)        |
+| `docs/investigations/` | Bug investigation reports                                                         |
+| `docs/research/`       | Research documents                                                                |
+| `docs/references/`     | External reference materials (-llms.txt etc.)                                     |
+| `docs/knowledge/`      | Stable project context (product, tech-stack, guidelines)                          |
+| `templates/`           | Workflow templates (plugin-provided)                                              |
+| `scripts/`             | Utility scripts (plugin-provided)                                                 |
 
 ## Configuration
 

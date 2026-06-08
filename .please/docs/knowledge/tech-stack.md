@@ -11,24 +11,24 @@
 
 ## Core Dependencies
 
-| Package | Purpose |
-|---------|---------|
-| `commander` (^14) | CLI argument parsing and command structure |
-| `asana` (^3.1) | Official Asana API SDK |
-| `@pleaseai/cli-toolkit` (^0.2) | Shared CLI utilities (org toolkit) |
-| `chalk` (^5) | Terminal colors |
-| `open` (^10) | Open URLs/browser (OAuth flow) |
-| `@dotenvx/dotenvx` (^1.51) | Encrypted environment variable / secrets management |
+| Package                        | Purpose                                             |
+| ------------------------------ | --------------------------------------------------- |
+| `commander` (^14)              | CLI argument parsing and command structure          |
+| `asana` (^3.1)                 | Official Asana API SDK                              |
+| `@pleaseai/cli-toolkit` (^0.2) | Shared CLI utilities (org toolkit)                  |
+| `chalk` (^5)                   | Terminal colors                                     |
+| `open` (^10)                   | Open URLs/browser (OAuth flow)                      |
+| `@dotenvx/dotenvx` (^1.51)     | Encrypted environment variable / secrets management |
 
 ## Tooling
 
-| Tool | Purpose |
-|------|---------|
-| `bun test` | Test runner (unit in `test/`, e2e in `tests/e2e`) |
-| `eslint` (^9) + `@antfu/eslint-config` (^6) | Linting and formatting (flat config) |
-| `eslint-plugin-format` | Formatting via ESLint |
-| `turbo` (^2.5) | Task orchestration |
-| `dotenvx` | `env:encrypt` / `env:decrypt`, secure run wrappers |
+| Tool                                        | Purpose                                            |
+| ------------------------------------------- | -------------------------------------------------- |
+| `bun test`                                  | Test runner (unit in `test/`, e2e in `tests/e2e`)  |
+| `eslint` (^9) + `@antfu/eslint-config` (^6) | Linting and formatting (flat config)               |
+| `eslint-plugin-format`                      | Formatting via ESLint                              |
+| `turbo` (^2.5)                              | Task orchestration                                 |
+| `dotenvx`                                   | `env:encrypt` / `env:decrypt`, secure run wrappers |
 
 ## Build & Distribution
 

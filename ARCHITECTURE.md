@@ -91,14 +91,14 @@ For understanding **output rendering**:
 
 ## Module Reference
 
-| Module | Purpose | Key Files | Depends On | Depended By |
-| --- | --- | --- | --- | --- |
-| `src/` (root) | CLI bootstrap & command registration | `index.ts` | `commands/*` | (binary entry) |
-| `src/commands/` | One module per resource; defines subcommands, flags, and orchestration | `auth.ts`, `task.ts`, `project.ts`, `section.ts`, `self-update.ts` | `lib/*`, `utils/formatter`, `types` | `index.ts` |
-| `src/lib/` | Core domain: API wrapper, auth, config persistence, validation, error handling | `asana-client.ts`, `oauth.ts`, `config.ts`, `validators.ts`, `error-handler.ts` | `asana` SDK, `node:fs/http`, `constants`, `types` | `commands/*` |
-| `src/utils/` | Output formatting across TOON / JSON / Plain | `formatter.ts` | `@pleaseai/cli-toolkit`, `chalk` | `commands/*` |
-| `src/constants/` | Stable identifiers (structured error IDs) | `errorIds.ts` | — | `lib/error-handler`, `commands/*` |
-| `src/types/` | Shared TypeScript types (config shape, command option types) | `index.ts` | — | `commands/*`, `lib/*` |
+| Module           | Purpose                                                                        | Key Files                                                                       | Depends On                                        | Depended By                       |
+| ---------------- | ------------------------------------------------------------------------------ | ------------------------------------------------------------------------------- | ------------------------------------------------- | --------------------------------- |
+| `src/` (root)    | CLI bootstrap & command registration                                           | `index.ts`                                                                      | `commands/*`                                      | (binary entry)                    |
+| `src/commands/`  | One module per resource; defines subcommands, flags, and orchestration         | `auth.ts`, `task.ts`, `project.ts`, `section.ts`, `self-update.ts`              | `lib/*`, `utils/formatter`, `types`               | `index.ts`                        |
+| `src/lib/`       | Core domain: API wrapper, auth, config persistence, validation, error handling | `asana-client.ts`, `oauth.ts`, `config.ts`, `validators.ts`, `error-handler.ts` | `asana` SDK, `node:fs/http`, `constants`, `types` | `commands/*`                      |
+| `src/utils/`     | Output formatting across TOON / JSON / Plain                                   | `formatter.ts`                                                                  | `@pleaseai/cli-toolkit`, `chalk`                  | `commands/*`                      |
+| `src/constants/` | Stable identifiers (structured error IDs)                                      | `errorIds.ts`                                                                   | —                                                 | `lib/error-handler`, `commands/*` |
+| `src/types/`     | Shared TypeScript types (config shape, command option types)                   | `index.ts`                                                                      | —                                                 | `commands/*`, `lib/*`             |
 
 ## Architecture Invariants
 

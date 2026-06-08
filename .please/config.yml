@@ -1,6 +1,6 @@
-schema_version: 5          # Config schema version (do not edit manually)
+schema_version: 5 # Config schema version (do not edit manually)
 
-language: en               # Output language (ko | en)
+language: en # Output language (ko | en)
 
 # GitHub integration (optional)
 # github:

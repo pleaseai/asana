@@ -4,10 +4,10 @@
 
 ## Active
 
-| ID | Source Track | Description | Priority | Created |
-|----|------------|-------------|----------|---------|
+| ID  | Source Track | Description | Priority | Created |
+| --- | ------------ | ----------- | -------- | ------- |
 
 ## Resolved
 
-| ID | Source Track | Description | Resolved In | Date |
-|----|------------|-------------|-------------|------|
+| ID  | Source Track | Description | Resolved In | Date |
+| --- | ------------ | ----------- | ----------- | ---- |

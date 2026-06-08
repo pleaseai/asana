@@ -119,12 +119,14 @@ bun --hot ./index.ts
 For more information, read the Bun API docs in `node_modules/bun-types/docs/**.md`.
 
 <!-- please:knowledge v1 -->
+
 ## Project Knowledge
 
 Consult these files for project context before exploring the codebase.
 For full file listing with workspace artifacts, use `Skill("please:project-knowledge")`.
 
 ### Domain Knowledge (.please/docs/knowledge/)
+
 - `product.md` — Product vision, goals, target users
 - `product-guidelines.md` — Branding, UX principles, design system
 - `tech-stack.md` — Technology choices with rationale
@@ -133,5 +135,6 @@ For full file listing with workspace artifacts, use `Skill("please:project-knowl
 - `gotchas.md` — Known project pitfalls and workarounds
 
 ### Decision Records
+
 - `.please/docs/decisions/` — Architecture Decision Records (ADR)
 <!-- /please:knowledge -->
