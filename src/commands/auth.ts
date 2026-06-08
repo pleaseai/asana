@@ -16,6 +16,8 @@ export function createAuthCommand(): Command {
     .description('Login to Asana (OAuth or PAT)')
     .option('--token <token>', 'Use Personal Access Token (PAT) instead of OAuth')
     .option('-w, --workspace <workspace>', 'Default workspace ID')
+    .option('--scope <scopes>', 'OAuth scopes, space-separated (e.g. "tasks:read projects:read")')
+    .option('--no-browser', 'Use copy-paste flow instead of opening browser (for headless/CI environments)')
     .action(async (options) => {
       try {
         if (options.token) {
@@ -42,7 +44,8 @@ export function createAuthCommand(): Command {
           console.log(chalk.gray('  Create OAuth app at: https://app.asana.com/0/my-apps'))
           console.log(chalk.gray('  Docs: https://developers.asana.com/docs/getting-started-with-asana-oauth\n'))
 
-          const tokenResponse = await startOAuthFlow()
+          const scopes = options.scope ? options.scope.trim().split(/\s+/) : undefined
+          const tokenResponse = await startOAuthFlow({ scopes, oob: options.browser === false })
 
           // Calculate expiration time
           const expiresAt = Date.now() + (tokenResponse.expires_in * 1000)
@@ -53,6 +56,7 @@ export function createAuthCommand(): Command {
             authType: 'oauth',
             workspace: options.workspace,
             expiresAt,
+            scopes,
           })
 
           console.log(chalk.green('✓ Successfully authenticated with OAuth'))

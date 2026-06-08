@@ -4,6 +4,7 @@ export interface AsanaConfig {
   authType?: 'pat' | 'oauth'
   workspace?: string
   expiresAt?: number
+  scopes?: string[]
 }
 
 export interface TaskOptions {
