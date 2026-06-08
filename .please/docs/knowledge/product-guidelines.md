@@ -10,8 +10,9 @@
   `project`, `section`, `self-update`.
 - **Composable & scriptable**: every command must be usable non-interactively. Avoid
   prompts in scripted paths; accept all required input via flags.
-- **Machine-readable by choice**: support `--format toon|json|plain`. Default to a
-  human-friendly format for TTY; allow explicit format selection for pipelines.
+- **Machine-readable by choice**: support `--format toon|json|plain`. Default to
+  `toon` (token-efficient, LLM-friendly); allow explicit `json`/`plain` selection for
+  scripting and human reading.
 - **Fast feedback**: keep startup and execution snappy; defer heavy work until needed.
 
 ## Output & Messaging

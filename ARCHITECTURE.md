@@ -184,9 +184,7 @@ recently expanded (`tests/e2e`).
 
 **Technical debt**: Pervasive `any` typing in the `getAsanaClient()` wrapper weakens
 type safety between commands and the SDK; tightening these types is a tracked
-improvement. The root `index.ts` at the repository root is a leftover Bun starter
-stub (`console.log('Hello via Bun!')`) and is not the CLI entry point — the real
-entry is `src/index.ts`.
+improvement.
 
 ---
 
