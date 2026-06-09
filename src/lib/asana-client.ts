@@ -104,6 +104,54 @@ export function getAsanaClient() {
         const result = await tasksApiInstance!.removeProjectForTask(body, taskGid, {})
         return result.data
       },
+      // Subtask operations
+      getSubtasks: async (taskGid: string, opts: any = {}) => {
+        const optsWithLimit = { limit: 100, ...opts }
+        const result = await tasksApiInstance!.getSubtasksForTask(taskGid, optsWithLimit)
+        return result
+      },
+      createSubtask: async (parentGid: string, taskData: any) => {
+        const body = { data: taskData }
+        const result = await tasksApiInstance!.createSubtaskForTask(body, parentGid, {})
+        return result.data
+      },
+      setParent: async (taskGid: string, parentGid: string) => {
+        const body = { data: { parent: parentGid } }
+        const result = await tasksApiInstance!.setParentForTask(body, taskGid, {})
+        return result.data
+      },
+      // Dependency operations (this task is blocked by its dependencies)
+      getDependencies: async (taskGid: string, opts: any = {}) => {
+        const optsWithLimit = { limit: 100, ...opts }
+        const result = await tasksApiInstance!.getDependenciesForTask(taskGid, optsWithLimit)
+        return result
+      },
+      addDependencies: async (taskGid: string, dependencies: string[]) => {
+        const body = { data: { dependencies } }
+        const result = await tasksApiInstance!.addDependenciesForTask(body, taskGid)
+        return result.data
+      },
+      removeDependencies: async (taskGid: string, dependencies: string[]) => {
+        const body = { data: { dependencies } }
+        const result = await tasksApiInstance!.removeDependenciesForTask(body, taskGid)
+        return result.data
+      },
+      // Dependent operations (these tasks are blocked by this task)
+      getDependents: async (taskGid: string, opts: any = {}) => {
+        const optsWithLimit = { limit: 100, ...opts }
+        const result = await tasksApiInstance!.getDependentsForTask(taskGid, optsWithLimit)
+        return result
+      },
+      addDependents: async (taskGid: string, dependents: string[]) => {
+        const body = { data: { dependents } }
+        const result = await tasksApiInstance!.addDependentsForTask(body, taskGid)
+        return result.data
+      },
+      removeDependents: async (taskGid: string, dependents: string[]) => {
+        const body = { data: { dependents } }
+        const result = await tasksApiInstance!.removeDependentsForTask(body, taskGid)
+        return result.data
+      },
     },
     projects: {
       create: async (projectData: Record<string, any>) => {

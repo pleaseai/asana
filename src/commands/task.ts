@@ -7,6 +7,8 @@ import { loadConfig } from '../lib/config'
 import { handleAsanaError } from '../lib/error-handler'
 import { validateDateFormat, validateGid, validateUpdateFields, ValidationError } from '../lib/validators'
 import { formatOutput } from '../utils/formatter'
+import { createDependencyCommand, createDependentCommand } from './task-dependency'
+import { createSubtaskCommand } from './task-subtask'
 
 export function createTaskCommand(): Command {
   const task = new Command('task')
@@ -345,6 +347,11 @@ export function createTaskCommand(): Command {
         handleAsanaError(error, 'Task deletion', { 'Task GID': gid })
       }
     })
+
+  // Subtask and dependency relationship subcommands
+  task.addCommand(createSubtaskCommand())
+  task.addCommand(createDependencyCommand())
+  task.addCommand(createDependentCommand())
 
   return task
 }

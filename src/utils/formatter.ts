@@ -22,6 +22,17 @@ export interface FormatterOptions {
 }
 
 /**
+ * Resolve the output format from a Commander command, including the global
+ * `--format` option declared on the root program.
+ *
+ * Works for arbitrarily nested subcommands (e.g. `task subtask list`) because
+ * `optsWithGlobals()` merges options from the command and all of its parents.
+ */
+export function getOutputFormat(command: { optsWithGlobals: () => Record<string, any> }): OutputFormat {
+  return (command.optsWithGlobals().format || 'toon') as OutputFormat
+}
+
+/**
  * Format data for CLI output based on specified format
  *
  * @param data - The data to format
