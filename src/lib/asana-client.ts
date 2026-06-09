@@ -122,7 +122,8 @@ export function getAsanaClient() {
       },
       // Dependency operations (this task is blocked by its dependencies)
       getDependencies: async (taskGid: string, opts: any = {}) => {
-        const result = await tasksApiInstance!.getDependenciesForTask(taskGid, opts)
+        const optsWithLimit = { limit: 100, ...opts }
+        const result = await tasksApiInstance!.getDependenciesForTask(taskGid, optsWithLimit)
         return result
       },
       addDependencies: async (taskGid: string, dependencies: string[]) => {
@@ -137,7 +138,8 @@ export function getAsanaClient() {
       },
       // Dependent operations (these tasks are blocked by this task)
       getDependents: async (taskGid: string, opts: any = {}) => {
-        const result = await tasksApiInstance!.getDependentsForTask(taskGid, opts)
+        const optsWithLimit = { limit: 100, ...opts }
+        const result = await tasksApiInstance!.getDependentsForTask(taskGid, optsWithLimit)
         return result
       },
       addDependents: async (taskGid: string, dependents: string[]) => {
