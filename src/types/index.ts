@@ -37,6 +37,17 @@ export interface TaskMoveOptions {
   section?: string
 }
 
+export interface SubtaskCreateOptions {
+  name: string
+  notes?: string
+  assignee?: string
+  dueOn?: string
+}
+
+export interface SubtaskListOptions {
+  recursive?: boolean
+}
+
 export interface ProjectCreateOptions {
   name: string
   workspace?: string

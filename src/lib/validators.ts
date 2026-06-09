@@ -51,6 +51,47 @@ export function validateDateFormat(date: string, fieldName: string): void {
 }
 
 /**
+ * Maximum number of dependencies and dependents combined per task.
+ *
+ * Asana enforces a hard limit of 30 dependency relationships (dependencies +
+ * dependents) per task. We validate locally to give a clear message before the
+ * API rejects the request.
+ */
+export const MAX_DEPENDENCIES_COMBINED = 30
+
+/**
+ * Validate that adding `addCount` relationships keeps the combined
+ * dependencies + dependents count within the Asana limit.
+ */
+export function validateDependencyLimit(currentCombinedCount: number, addCount: number = 1): void {
+  if (currentCombinedCount + addCount > MAX_DEPENDENCIES_COMBINED) {
+    console.error(chalk.red('✗ Dependency limit exceeded'))
+    console.error(chalk.gray(`  Asana allows at most ${MAX_DEPENDENCIES_COMBINED} dependencies and dependents combined per task.`))
+    console.error(chalk.gray(`  Current: ${currentCombinedCount}, attempting to add: ${addCount}`))
+    throw new ValidationError(
+      ERROR_IDS.DEPENDENCY_LIMIT_EXCEEDED,
+      'Dependency limit exceeded',
+      { currentCombinedCount, addCount, limit: MAX_DEPENDENCIES_COMBINED },
+    )
+  }
+}
+
+/**
+ * Validate that a task is not being made to depend on (or block) itself.
+ */
+export function validateNoSelfDependency(taskGid: string, relatedGid: string): void {
+  if (taskGid === relatedGid) {
+    console.error(chalk.red('✗ A task cannot depend on itself'))
+    console.error(chalk.gray(`  Task GID and related GID are both: ${taskGid}`))
+    throw new ValidationError(
+      ERROR_IDS.SELF_DEPENDENCY,
+      'Self-dependency is not allowed',
+      { taskGid, relatedGid },
+    )
+  }
+}
+
+/**
  * Validate that at least one field is provided for update
  */
 export function validateUpdateFields(fields: Record<string, any>): void {
