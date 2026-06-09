@@ -13,33 +13,45 @@ interface SubtaskEntry {
   depth: number
 }
 
+// Asana returns a compact representation by default; request the fields we
+// render explicitly so `completed` is not silently omitted.
+const SUBTASK_FIELDS = { opt_fields: 'name,completed' }
+
 /**
  * Recursively collect subtasks into a flat, depth-annotated list.
  *
  * Depth lets the caller render the hierarchy while keeping the output shape
- * compatible with the table-oriented formatter.
+ * compatible with the table-oriented formatter. Sibling subtrees are fetched
+ * concurrently, and a `visited` set guards against unexpected cyclic data.
  */
 async function collectSubtasks(
   client: ReturnType<typeof getAsanaClient>,
   parentGid: string,
   depth: number,
+  visited: Set<string> = new Set(),
 ): Promise<SubtaskEntry[]> {
-  const response = await client.tasks.getSubtasks(parentGid)
+  if (visited.has(parentGid)) {
+    return []
+  }
+  visited.add(parentGid)
+
+  const response = await client.tasks.getSubtasks(parentGid, SUBTASK_FIELDS)
   const subtasks = response.data || []
 
-  const entries: SubtaskEntry[] = []
-  for (const subtask of subtasks) {
-    entries.push({
-      gid: subtask.gid,
-      name: subtask.name,
-      completed: subtask.completed ?? false,
-      depth,
-    })
-    const nested = await collectSubtasks(client, subtask.gid, depth + 1)
-    entries.push(...nested)
-  }
+  const subtrees = await Promise.all(
+    subtasks.map(async (subtask: any) => {
+      const entry: SubtaskEntry = {
+        gid: subtask.gid,
+        name: subtask.name,
+        completed: subtask.completed ?? false,
+        depth,
+      }
+      const nested = await collectSubtasks(client, subtask.gid, depth + 1, visited)
+      return [entry, ...nested]
+    }),
+  )
 
-  return entries
+  return subtrees.flat()
 }
 
 export function createSubtaskCommand(): Command {
@@ -61,7 +73,7 @@ export function createSubtaskCommand(): Command {
           subtaskList = await collectSubtasks(client, parentGid, 0)
         }
         else {
-          const response = await client.tasks.getSubtasks(parentGid)
+          const response = await client.tasks.getSubtasks(parentGid, SUBTASK_FIELDS)
           subtaskList = (response.data || []).map((item: any) => ({
             gid: item.gid,
             name: item.name,

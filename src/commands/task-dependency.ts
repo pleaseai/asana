@@ -48,10 +48,15 @@ export function createDependencyCommand(): Command {
           client.tasks.getDependencies(taskGid, RELATIONSHIP_FIELDS),
           client.tasks.getDependents(taskGid, RELATIONSHIP_FIELDS),
         ])
-        const combined = (dependencies.data?.length || 0) + (dependents.data?.length || 0)
-        validateDependencyLimit(combined, 1)
 
-        await client.tasks.addDependencies(taskGid, [dependsOnGid])
+        // Adding an existing dependency is a no-op; skip the limit check and the
+        // API call so an at-capacity task can re-affirm a relationship it has.
+        const alreadyExists = (dependencies.data || []).some((dep: RelatedTask) => dep.gid === dependsOnGid)
+        if (!alreadyExists) {
+          const combined = (dependencies.data?.length || 0) + (dependents.data?.length || 0)
+          validateDependencyLimit(combined, 1)
+          await client.tasks.addDependencies(taskGid, [dependsOnGid])
+        }
 
         const format = getOutputFormat(command)
         const resultData = {
