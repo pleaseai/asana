@@ -10,8 +10,10 @@ import { describe, expect, test } from 'bun:test'
 import { ERROR_IDS } from '../../src/constants/errorIds'
 import {
   MAX_DEPENDENCIES_COMBINED,
+  VALID_TAG_COLORS,
   validateDependencyLimit,
   validateNoSelfDependency,
+  validateTagColor,
   validateUserIdentifier,
   ValidationError,
 } from '../../src/lib/validators'
@@ -106,6 +108,31 @@ describe('validateUserIdentifier', () => {
     catch (error) {
       expect(error).toBeInstanceOf(ValidationError)
       expect((error as ValidationError).errorId).toBe(ERROR_IDS.INVALID_USER_IDENTIFIER)
+    }
+  })
+})
+
+describe('validateTagColor', () => {
+  test('allows every documented Asana tag color', () => {
+    for (const color of VALID_TAG_COLORS) {
+      expect(() => validateTagColor(color)).not.toThrow()
+    }
+  })
+
+  test('throws for colors outside the Asana palette', () => {
+    expect(() => validateTagColor('red')).toThrow(ValidationError)
+    expect(() => validateTagColor('blue')).toThrow(ValidationError)
+    expect(() => validateTagColor('')).toThrow(ValidationError)
+  })
+
+  test('uses the INVALID_TAG_COLOR error id', () => {
+    try {
+      validateTagColor('red')
+      throw new Error('expected validateTagColor to throw')
+    }
+    catch (error) {
+      expect(error).toBeInstanceOf(ValidationError)
+      expect((error as ValidationError).errorId).toBe(ERROR_IDS.INVALID_TAG_COLOR)
     }
   })
 })

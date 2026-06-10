@@ -5,6 +5,7 @@ import { createAuthCommand } from './commands/auth'
 import { createProjectCommand } from './commands/project'
 import { createSectionCommand } from './commands/section'
 import { createSelfUpdateCommand } from './commands/self-update'
+import { createTagCommand } from './commands/tag'
 import { createTaskCommand } from './commands/task'
 
 const program = new Command()
@@ -24,6 +25,7 @@ program.addCommand(createAuthCommand())
 program.addCommand(createTaskCommand())
 program.addCommand(createProjectCommand())
 program.addCommand(createSectionCommand())
+program.addCommand(createTagCommand())
 program.addCommand(createSelfUpdateCommand())
 
 // Parse arguments

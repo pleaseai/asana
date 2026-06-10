@@ -11,6 +11,7 @@ import { createCommentCommand } from './task-comment'
 import { createDependencyCommand, createDependentCommand } from './task-dependency'
 import { createFollowerCommand } from './task-follower'
 import { createSubtaskCommand } from './task-subtask'
+import { createTaskTagCommand } from './task-tag'
 
 export function createTaskCommand(): Command {
   const task = new Command('task')
@@ -358,6 +359,7 @@ export function createTaskCommand(): Command {
   // Collaboration subcommands
   task.addCommand(createCommentCommand())
   task.addCommand(createFollowerCommand())
+  task.addCommand(createTaskTagCommand())
 
   return task
 }

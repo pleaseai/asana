@@ -75,6 +75,23 @@ export interface CommentAddOptions {
   html?: boolean
 }
 
+export interface TagListOptions {
+  workspace?: string
+}
+
+export interface TagCreateOptions {
+  name: string
+  workspace?: string
+  color?: string
+  notes?: string
+}
+
+export interface TagUpdateOptions {
+  name?: string
+  color?: string
+  notes?: string
+}
+
 export interface SectionCreateOptions {
   name: string
   insertBefore?: string

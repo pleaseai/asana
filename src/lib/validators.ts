@@ -70,6 +70,50 @@ export function validateUserIdentifier(value: string, fieldName: string = 'User'
 }
 
 /**
+ * Tag colors accepted by the Asana API.
+ *
+ * Friendly names such as "red" are rejected by the API; only the
+ * dark/light palette below is valid.
+ */
+export const VALID_TAG_COLORS = [
+  'dark-pink',
+  'dark-green',
+  'dark-blue',
+  'dark-red',
+  'dark-teal',
+  'dark-brown',
+  'dark-orange',
+  'dark-purple',
+  'dark-warm-gray',
+  'light-pink',
+  'light-green',
+  'light-blue',
+  'light-red',
+  'light-teal',
+  'light-brown',
+  'light-orange',
+  'light-purple',
+  'light-warm-gray',
+] as const
+
+export type TagColor = typeof VALID_TAG_COLORS[number]
+
+/**
+ * Validate that a tag color is one the Asana API accepts.
+ */
+export function validateTagColor(color: string): void {
+  if (!VALID_TAG_COLORS.includes(color as TagColor)) {
+    console.error(chalk.red(`✗ Invalid tag color: ${color}`))
+    console.error(chalk.gray(`  Valid colors: ${VALID_TAG_COLORS.join(', ')}`))
+    throw new ValidationError(
+      ERROR_IDS.INVALID_TAG_COLOR,
+      'Invalid tag color',
+      { color },
+    )
+  }
+}
+
+/**
  * Maximum number of dependencies and dependents combined per task.
  *
  * Asana enforces a hard limit of 30 dependency relationships (dependencies +
