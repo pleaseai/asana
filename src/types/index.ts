@@ -71,6 +71,24 @@ export interface ProjectUpdateOptions {
   public?: boolean | string
 }
 
+export interface TeamListOptions {
+  workspace?: string
+  cache?: boolean // Commander sets false when --no-cache is passed
+}
+
+export interface WorkspaceListOptions {
+  cache?: boolean
+}
+
+export interface UserSearchOptions {
+  workspace?: string
+}
+
+export interface UserTasksOptions {
+  workspace?: string
+  completed?: boolean
+}
+
 export interface SectionCreateOptions {
   name: string
   insertBefore?: string

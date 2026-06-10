@@ -8,6 +8,9 @@ import { createSearchCommand } from './commands/search'
 import { createSectionCommand } from './commands/section'
 import { createSelfUpdateCommand } from './commands/self-update'
 import { createTaskCommand } from './commands/task'
+import { createTeamCommand } from './commands/team'
+import { createUserCommand } from './commands/user'
+import { createWorkspaceCommand } from './commands/workspace'
 
 const program = new Command()
 
@@ -28,6 +31,9 @@ program.addCommand(createProjectCommand())
 program.addCommand(createSectionCommand())
 program.addCommand(createCustomFieldCommand())
 program.addCommand(createSearchCommand())
+program.addCommand(createTeamCommand())
+program.addCommand(createWorkspaceCommand())
+program.addCommand(createUserCommand())
 program.addCommand(createSelfUpdateCommand())
 
 // Parse arguments
