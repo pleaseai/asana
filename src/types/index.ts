@@ -80,3 +80,27 @@ export interface SectionCreateOptions {
 export interface SectionUpdateOptions {
   name?: string
 }
+
+export interface AttachmentDownloadOptions {
+  output?: string
+  force?: boolean
+}
+
+export interface CustomFieldListOptions {
+  workspace?: string
+}
+
+export interface BatchFileOptions {
+  file: string
+}
+
+export interface BatchCreateOptions extends BatchFileOptions {
+  workspace?: string
+}
+
+export interface SearchOptions {
+  workspace?: string
+  limit?: string
+  completed?: boolean | string // Commander.js parses as string "true"/"false"
+  assignee?: string
+}
