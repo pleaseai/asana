@@ -8,6 +8,9 @@ let usersApiInstance: Asana.UsersApi | null = null
 let workspacesApiInstance: Asana.WorkspacesApi | null = null
 let projectsApiInstance: Asana.ProjectsApi | null = null
 let sectionsApiInstance: Asana.SectionsApi | null = null
+let attachmentsApiInstance: Asana.AttachmentsApi | null = null
+let customFieldsApiInstance: Asana.CustomFieldsApi | null = null
+let typeaheadApiInstance: Asana.TypeaheadApi | null = null
 
 function initializeApiClient(): typeof Asana.ApiClient.instance {
   if (apiClientInstance) {
@@ -60,6 +63,15 @@ export function getAsanaClient() {
   }
   if (!sectionsApiInstance) {
     sectionsApiInstance = new Asana.SectionsApi()
+  }
+  if (!attachmentsApiInstance) {
+    attachmentsApiInstance = new Asana.AttachmentsApi()
+  }
+  if (!customFieldsApiInstance) {
+    customFieldsApiInstance = new Asana.CustomFieldsApi()
+  }
+  if (!typeaheadApiInstance) {
+    typeaheadApiInstance = new Asana.TypeaheadApi()
   }
 
   // Return a wrapper object that matches the old API structure
@@ -151,6 +163,52 @@ export function getAsanaClient() {
         const body = { data: { dependents } }
         const result = await tasksApiInstance!.removeDependentsForTask(body, taskGid)
         return result.data
+      },
+      // Full-text search within a workspace (premium Asana feature)
+      search: async (workspaceGid: string, opts: any = {}) => {
+        const result = await tasksApiInstance!.searchTasksForWorkspace(workspaceGid, opts)
+        return result
+      },
+    },
+    attachments: {
+      // `file` accepts an fs.ReadStream or Buffer so large files can stream
+      createForObject: async (opts: Record<string, any>) => {
+        const result = await attachmentsApiInstance!.createAttachmentForObject(opts)
+        return result.data
+      },
+      findByParent: async (parentGid: string, opts: any = {}) => {
+        const optsWithLimit = { limit: 100, ...opts }
+        const result = await attachmentsApiInstance!.getAttachmentsForObject(parentGid, optsWithLimit)
+        return result
+      },
+      findById: async (attachmentGid: string, opts: any = {}) => {
+        const result = await attachmentsApiInstance!.getAttachment(attachmentGid, opts)
+        return result.data
+      },
+      delete: async (attachmentGid: string) => {
+        const result = await attachmentsApiInstance!.deleteAttachment(attachmentGid)
+        return result.data
+      },
+    },
+    customFields: {
+      findByWorkspace: async (workspaceGid: string, opts: any = {}) => {
+        const optsWithLimit = { limit: 100, ...opts }
+        const result = await customFieldsApiInstance!.getCustomFieldsForWorkspace(workspaceGid, optsWithLimit)
+        return result
+      },
+      findById: async (customFieldGid: string, opts: any = {}) => {
+        const result = await customFieldsApiInstance!.getCustomField(customFieldGid, opts)
+        return result.data
+      },
+    },
+    typeahead: {
+      search: async (workspaceGid: string, resourceType: string, query: string, opts: any = {}) => {
+        const result = await typeaheadApiInstance!.typeaheadForWorkspace(
+          workspaceGid,
+          resourceType,
+          { query, ...opts },
+        )
+        return result
       },
     },
     projects: {
@@ -272,4 +330,7 @@ export function resetClient(): void {
   workspacesApiInstance = null
   projectsApiInstance = null
   sectionsApiInstance = null
+  attachmentsApiInstance = null
+  customFieldsApiInstance = null
+  typeaheadApiInstance = null
 }
