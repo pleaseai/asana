@@ -14,6 +14,19 @@ const ATTACHMENT_LIST_FIELDS = { opt_fields: 'name,resource_subtype,size,created
 const ATTACHMENT_DOWNLOAD_FIELDS = { opt_fields: 'name,download_url' }
 
 /**
+ * The attachment name comes from the Asana API and may contain path
+ * separators; reduce it to a safe basename so the default download
+ * location cannot escape the current directory (path traversal).
+ */
+export function safeDefaultFileName(name: string | undefined, attachmentGid: string): string {
+  const base = basename((name ?? '').replaceAll('\\', '/')).trim()
+  if (base === '' || base === '.' || base === '..') {
+    return `attachment-${attachmentGid}`
+  }
+  return base
+}
+
+/**
  * `asana task attach <task-gid> <file>` — upload a local file to a task.
  *
  * Registered directly on the task command (not under `attachment`) to match
@@ -117,7 +130,7 @@ export function createAttachmentCommand(): Command {
           process.exit(1)
         }
 
-        const outputPath = resolve(options.output ?? attachment.name ?? `attachment-${attachmentGid}`)
+        const outputPath = resolve(options.output ?? safeDefaultFileName(attachment.name, attachmentGid))
         if (existsSync(outputPath) && !options.force) {
           console.error(chalk.red(`✗ Output file already exists: ${outputPath}`))
           console.error(chalk.gray('  Use --force to overwrite or choose another path with --output.'))

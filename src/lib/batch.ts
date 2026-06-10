@@ -68,6 +68,12 @@ export function parseCsvRecords(content: string): Record<string, string>[] {
   if (headers.includes('')) {
     throw invalidBatchFile('CSV header row contains an empty column name')
   }
+  const duplicates = headers.filter((header, index) => headers.indexOf(header) !== index)
+  if (duplicates.length > 0) {
+    throw invalidBatchFile(
+      `CSV header row contains duplicate column name(s): ${[...new Set(duplicates)].join(', ')}`,
+    )
+  }
 
   return rows.slice(1).map((row, index) => {
     if (row.length > headers.length) {

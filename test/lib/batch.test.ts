@@ -72,6 +72,10 @@ describe('batch parsing', () => {
     test('throws ValidationError when a row has more columns than the header', () => {
       expect(() => parseCsvRecords('name\nTask A,extra\n')).toThrow(ValidationError)
     })
+
+    test('throws ValidationError on duplicate header names', () => {
+      expect(() => parseCsvRecords('name,notes,name\nTask A,Note,Task B\n')).toThrow(ValidationError)
+    })
   })
 
   describe('parseGidLines', () => {

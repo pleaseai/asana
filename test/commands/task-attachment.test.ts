@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'bun:test'
 import { createTaskCommand } from '../../src/commands/task'
-import { createAttachCommand, createAttachmentCommand } from '../../src/commands/task-attachment'
+import { createAttachCommand, createAttachmentCommand, safeDefaultFileName } from '../../src/commands/task-attachment'
 
 describe('attachment commands', () => {
   describe('command structure', () => {
@@ -53,6 +53,24 @@ describe('attachment commands', () => {
 
       expect(options).toContain('--output')
       expect(options).toContain('--force')
+    })
+  })
+
+  describe('safeDefaultFileName', () => {
+    test('keeps plain file names unchanged', () => {
+      expect(safeDefaultFileName('report.pdf', '123')).toBe('report.pdf')
+    })
+
+    test('strips path traversal segments from API-provided names', () => {
+      expect(safeDefaultFileName('../../.ssh/authorized_keys', '123')).toBe('authorized_keys')
+      expect(safeDefaultFileName('/etc/passwd', '123')).toBe('passwd')
+      expect(safeDefaultFileName('..\\..\\evil.exe', '123')).toBe('evil.exe')
+    })
+
+    test('falls back to a GID-based name for empty or dot-only names', () => {
+      expect(safeDefaultFileName(undefined, '123')).toBe('attachment-123')
+      expect(safeDefaultFileName('..', '123')).toBe('attachment-123')
+      expect(safeDefaultFileName('  ', '123')).toBe('attachment-123')
     })
   })
 })
