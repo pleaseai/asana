@@ -73,6 +73,17 @@ describe('FileCache', () => {
     })
   })
 
+  describe('unwritable cache file', () => {
+    test('should not throw when the cache path cannot be written', () => {
+      // A directory at the cache file path makes writeFileSync fail
+      const unwritablePath = cacheDir
+      const cache = new FileCache(unwritablePath)
+
+      expect(() => cache.set('key', 'value')).not.toThrow()
+      expect(cache.get('key')).toBeNull()
+    })
+  })
+
   describe('corrupt cache file', () => {
     test('should treat unreadable JSON as empty cache', () => {
       writeFileSync(cacheFile, 'not-json{{{')

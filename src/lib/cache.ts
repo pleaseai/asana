@@ -59,11 +59,17 @@ export class FileCache {
   }
 
   private persist(store: CacheStore): void {
-    const dir = dirname(this.filePath)
-    if (!existsSync(dir)) {
-      mkdirSync(dir, { recursive: true })
+    try {
+      const dir = dirname(this.filePath)
+      if (!existsSync(dir)) {
+        mkdirSync(dir, { recursive: true })
+      }
+      writeFileSync(this.filePath, JSON.stringify(store))
     }
-    writeFileSync(this.filePath, JSON.stringify(store))
+    catch {
+      // Cache is a performance optimization; a failed write (permissions,
+      // full disk) must never fail the command that triggered it
+    }
   }
 }
 

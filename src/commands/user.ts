@@ -27,7 +27,7 @@ function toUserData(user: any) {
     gid: user.gid,
     name: user.name,
     email: user.email,
-    workspaces: (user.workspaces || []).map((ws: any) => ws.name),
+    workspaces: (user.workspaces || []).map((ws: any) => ws?.name).filter(Boolean),
   }
 }
 
