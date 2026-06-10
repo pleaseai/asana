@@ -20,7 +20,7 @@ const COMMENT_SUBTYPE = 'comment_added'
  */
 function ensureHtmlBody(html: string): string {
   const trimmed = html.trim()
-  if (trimmed.startsWith('<body')) {
+  if (/^<body\b/i.test(trimmed)) {
     return trimmed
   }
   return `<body>${trimmed}</body>`

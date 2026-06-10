@@ -1,6 +1,7 @@
 import type { TagCreateOptions, TagListOptions, TagUpdateOptions } from '../types'
 import chalk from 'chalk'
 import { Command } from 'commander'
+import { ERROR_IDS } from '../constants/errorIds'
 import { getAsanaClient } from '../lib/asana-client'
 import { loadConfig } from '../lib/config'
 import { handleAsanaError } from '../lib/error-handler'
@@ -160,7 +161,11 @@ export function createTagCommand(): Command {
         if (Object.keys(updateData).length === 0) {
           console.error(chalk.red('✗ At least one field must be specified for update'))
           console.error(chalk.gray('  Available options: --name, --color, --notes'))
-          process.exit(1)
+          throw new ValidationError(
+            ERROR_IDS.NO_UPDATE_FIELDS,
+            'No update fields provided',
+            { fields: updateData },
+          )
         }
 
         const client = getAsanaClient()
