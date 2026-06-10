@@ -7,6 +7,7 @@ import { loadConfig } from '../lib/config'
 import { handleAsanaError } from '../lib/error-handler'
 import { validateDateFormat, validateGid, validateUpdateFields, ValidationError } from '../lib/validators'
 import { formatOutput } from '../utils/formatter'
+import { createCommentCommand } from './task-comment'
 import { createDependencyCommand, createDependentCommand } from './task-dependency'
 import { createSubtaskCommand } from './task-subtask'
 
@@ -352,6 +353,9 @@ export function createTaskCommand(): Command {
   task.addCommand(createSubtaskCommand())
   task.addCommand(createDependencyCommand())
   task.addCommand(createDependentCommand())
+
+  // Collaboration subcommands
+  task.addCommand(createCommentCommand())
 
   return task
 }

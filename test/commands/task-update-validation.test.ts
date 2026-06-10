@@ -166,7 +166,8 @@ describe('task commands integration', () => {
     const commandNames = taskCommand.commands.map(cmd => cmd.name())
 
     // Expected order of commands. Relationship subcommands (subtask,
-    // dependency, dependent) are registered after the core CRUD commands.
+    // dependency, dependent) are registered after the core CRUD commands,
+    // followed by collaboration subcommands (comment).
     const expectedOrder = [
       'create',
       'list',
@@ -178,6 +179,7 @@ describe('task commands integration', () => {
       'subtask',
       'dependency',
       'dependent',
+      'comment',
     ]
 
     expect(commandNames).toEqual(expectedOrder)

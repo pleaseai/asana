@@ -71,6 +71,10 @@ export interface ProjectUpdateOptions {
   public?: boolean | string
 }
 
+export interface CommentAddOptions {
+  html?: boolean
+}
+
 export interface SectionCreateOptions {
   name: string
   insertBefore?: string
