@@ -11,6 +11,7 @@ let sectionsApiInstance: Asana.SectionsApi | null = null
 let attachmentsApiInstance: Asana.AttachmentsApi | null = null
 let customFieldsApiInstance: Asana.CustomFieldsApi | null = null
 let typeaheadApiInstance: Asana.TypeaheadApi | null = null
+let teamsApiInstance: Asana.TeamsApi | null = null
 
 function initializeApiClient(): typeof Asana.ApiClient.instance {
   if (apiClientInstance) {
@@ -72,6 +73,9 @@ export function getAsanaClient() {
   }
   if (!typeaheadApiInstance) {
     typeaheadApiInstance = new Asana.TypeaheadApi()
+  }
+  if (!teamsApiInstance) {
+    teamsApiInstance = new Asana.TeamsApi()
   }
 
   // Return a wrapper object that matches the old API structure
@@ -266,6 +270,30 @@ export function getAsanaClient() {
         const result = await usersApiInstance!.getUser('me', {})
         return result.data
       },
+      findById: async (userGid: string, opts: Record<string, any> = {}) => {
+        const result = await usersApiInstance!.getUser(userGid, opts)
+        return result.data
+      },
+      // Endpoint is alphabetically sorted and capped at 2000 users by Asana
+      findByWorkspace: async (workspaceGid: string, opts: Record<string, any> = {}) => {
+        const result = await usersApiInstance!.getUsersForWorkspace(workspaceGid, opts)
+        return result
+      },
+      findByTeam: async (teamGid: string, opts: Record<string, any> = {}) => {
+        const result = await usersApiInstance!.getUsersForTeam(teamGid, opts)
+        return result
+      },
+    },
+    teams: {
+      findById: async (teamGid: string, opts: Record<string, any> = {}) => {
+        const result = await teamsApiInstance!.getTeam(teamGid, opts)
+        return result.data
+      },
+      findByWorkspace: async (workspaceGid: string, opts: Record<string, any> = {}) => {
+        const optsWithLimit = { limit: 100, ...opts }
+        const result = await teamsApiInstance!.getTeamsForWorkspace(workspaceGid, optsWithLimit)
+        return result
+      },
     },
     workspaces: {
       findAll: async () => {
@@ -275,6 +303,10 @@ export function getAsanaClient() {
       findById: async (workspaceGid: string) => {
         const result = await workspacesApiInstance!.getWorkspace(workspaceGid, {})
         return result.data
+      },
+      findUsers: async (workspaceGid: string, opts: Record<string, any> = {}) => {
+        const result = await usersApiInstance!.getUsersForWorkspace(workspaceGid, opts)
+        return result
       },
     },
   }
@@ -333,4 +365,5 @@ export function resetClient(): void {
   attachmentsApiInstance = null
   customFieldsApiInstance = null
   typeaheadApiInstance = null
+  teamsApiInstance = null
 }
