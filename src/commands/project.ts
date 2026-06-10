@@ -22,10 +22,12 @@ export function createProjectCommand(): Command {
     .option('--color <color>', 'Project color')
     .option('--public', 'Make project public to workspace')
     .action(async (options: ProjectCreateOptions, command: Command) => {
+      // Declared outside try so the error handler can report it
+      let workspace: string | undefined
       try {
         const client = getAsanaClient()
         const config = loadConfig()
-        const workspace = options.workspace || config?.workspace
+        workspace = options.workspace || config?.workspace
 
         if (!workspace) {
           throw new Error('Workspace is required. Set default workspace or use -w option.')
@@ -71,10 +73,12 @@ export function createProjectCommand(): Command {
     .option('-t, --team <team>', 'Team GID')
     .option('-a, --archived', 'Include archived projects')
     .action(async (options: ProjectListOptions, command: Command) => {
+      // Declared outside try so the error handler can report it
+      let workspace: string | undefined
       try {
         const client = getAsanaClient()
         const config = loadConfig()
-        const workspace = options.workspace || config?.workspace
+        workspace = options.workspace || config?.workspace
 
         if (!workspace && !options.team) {
           throw new Error('Workspace or team is required. Set default workspace or use -w/-t option.')

@@ -27,10 +27,12 @@ export function createTaskCommand(): Command {
     .option('-w, --workspace <workspace>', 'Workspace GID')
     .option('-p, --project <project>', 'Project GID')
     .action(async (options: TaskOptions, command: Command) => {
+      // Declared outside try so the error handler can report it
+      let workspace: string | undefined
       try {
         const client = getAsanaClient()
         const config = loadConfig()
-        const workspace = options.workspace || config?.workspace
+        workspace = options.workspace || config?.workspace
 
         if (!workspace) {
           throw new Error('Workspace is required. Set default workspace or use -w option.')
@@ -84,10 +86,12 @@ export function createTaskCommand(): Command {
     .option('-p, --project <project>', 'Project GID')
     .option('-c, --completed', 'Include completed tasks')
     .action(async (options: TaskListOptions, command: Command) => {
+      // Declared outside try so the error handler can report it
+      let workspace: string | undefined
       try {
         const client = getAsanaClient()
         const config = loadConfig()
-        const workspace = options.workspace || config?.workspace
+        workspace = options.workspace || config?.workspace
 
         let tasks: any
 
