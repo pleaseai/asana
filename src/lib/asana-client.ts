@@ -10,6 +10,9 @@ let projectsApiInstance: Asana.ProjectsApi | null = null
 let sectionsApiInstance: Asana.SectionsApi | null = null
 let storiesApiInstance: Asana.StoriesApi | null = null
 let tagsApiInstance: Asana.TagsApi | null = null
+let attachmentsApiInstance: Asana.AttachmentsApi | null = null
+let customFieldsApiInstance: Asana.CustomFieldsApi | null = null
+let typeaheadApiInstance: Asana.TypeaheadApi | null = null
 
 function initializeApiClient(): typeof Asana.ApiClient.instance {
   if (apiClientInstance) {
@@ -68,6 +71,15 @@ export function getAsanaClient() {
   }
   if (!tagsApiInstance) {
     tagsApiInstance = new Asana.TagsApi()
+  }
+  if (!attachmentsApiInstance) {
+    attachmentsApiInstance = new Asana.AttachmentsApi()
+  }
+  if (!customFieldsApiInstance) {
+    customFieldsApiInstance = new Asana.CustomFieldsApi()
+  }
+  if (!typeaheadApiInstance) {
+    typeaheadApiInstance = new Asana.TypeaheadApi()
   }
 
   // Return a wrapper object that matches the old API structure
@@ -182,6 +194,11 @@ export function getAsanaClient() {
         const result = await tasksApiInstance!.removeTagForTask(body, taskGid)
         return result.data
       },
+      // Full-text search within a workspace (premium Asana feature)
+      search: async (workspaceGid: string, opts: any = {}) => {
+        const result = await tasksApiInstance!.searchTasksForWorkspace(workspaceGid, opts)
+        return result
+      },
     },
     stories: {
       createForTask: async (taskGid: string, storyData: Record<string, any>) => {
@@ -223,6 +240,47 @@ export function getAsanaClient() {
       delete: async (tagGid: string) => {
         const result = await tagsApiInstance!.deleteTag(tagGid)
         return result.data
+      },
+    },
+    attachments: {
+      // `file` accepts an fs.ReadStream or Buffer so large files can stream
+      createForObject: async (opts: Record<string, any>) => {
+        const result = await attachmentsApiInstance!.createAttachmentForObject(opts)
+        return result.data
+      },
+      findByParent: async (parentGid: string, opts: any = {}) => {
+        const optsWithLimit = { limit: 100, ...opts }
+        const result = await attachmentsApiInstance!.getAttachmentsForObject(parentGid, optsWithLimit)
+        return result
+      },
+      findById: async (attachmentGid: string, opts: any = {}) => {
+        const result = await attachmentsApiInstance!.getAttachment(attachmentGid, opts)
+        return result.data
+      },
+      delete: async (attachmentGid: string) => {
+        const result = await attachmentsApiInstance!.deleteAttachment(attachmentGid)
+        return result.data
+      },
+    },
+    customFields: {
+      findByWorkspace: async (workspaceGid: string, opts: any = {}) => {
+        const optsWithLimit = { limit: 100, ...opts }
+        const result = await customFieldsApiInstance!.getCustomFieldsForWorkspace(workspaceGid, optsWithLimit)
+        return result
+      },
+      findById: async (customFieldGid: string, opts: any = {}) => {
+        const result = await customFieldsApiInstance!.getCustomField(customFieldGid, opts)
+        return result.data
+      },
+    },
+    typeahead: {
+      search: async (workspaceGid: string, resourceType: string, query: string, opts: any = {}) => {
+        const result = await typeaheadApiInstance!.typeaheadForWorkspace(
+          workspaceGid,
+          resourceType,
+          { query, ...opts },
+        )
+        return result
       },
     },
     projects: {
@@ -346,4 +404,7 @@ export function resetClient(): void {
   sectionsApiInstance = null
   storiesApiInstance = null
   tagsApiInstance = null
+  attachmentsApiInstance = null
+  customFieldsApiInstance = null
+  typeaheadApiInstance = null
 }

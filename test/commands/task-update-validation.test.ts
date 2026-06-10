@@ -167,7 +167,8 @@ describe('task commands integration', () => {
 
     // Expected order of commands. Relationship subcommands (subtask,
     // dependency, dependent) are registered after the core CRUD commands,
-    // followed by collaboration subcommands (comment, follower, tag).
+    // followed by collaboration subcommands (comment, follower, tag) and
+    // the advanced feature commands (Phase 6).
     const expectedOrder = [
       'create',
       'list',
@@ -182,6 +183,12 @@ describe('task commands integration', () => {
       'comment',
       'follower',
       'tag',
+      'attach',
+      'attachment',
+      'custom-field',
+      'batch-update',
+      'batch-create',
+      'batch-delete',
     ]
 
     expect(commandNames).toEqual(expectedOrder)

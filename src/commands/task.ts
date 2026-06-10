@@ -7,6 +7,9 @@ import { loadConfig } from '../lib/config'
 import { handleAsanaError } from '../lib/error-handler'
 import { validateDateFormat, validateGid, validateUpdateFields, ValidationError } from '../lib/validators'
 import { formatOutput } from '../utils/formatter'
+import { createTaskCustomFieldCommand } from './custom-field'
+import { createAttachCommand, createAttachmentCommand } from './task-attachment'
+import { createBatchCreateCommand, createBatchDeleteCommand, createBatchUpdateCommand } from './task-batch'
 import { createCommentCommand } from './task-comment'
 import { createDependencyCommand, createDependentCommand } from './task-dependency'
 import { createFollowerCommand } from './task-follower'
@@ -364,6 +367,14 @@ export function createTaskCommand(): Command {
   task.addCommand(createCommentCommand())
   task.addCommand(createFollowerCommand())
   task.addCommand(createTaskTagCommand())
+
+  // Advanced features (Phase 6)
+  task.addCommand(createAttachCommand())
+  task.addCommand(createAttachmentCommand())
+  task.addCommand(createTaskCustomFieldCommand())
+  task.addCommand(createBatchUpdateCommand())
+  task.addCommand(createBatchCreateCommand())
+  task.addCommand(createBatchDeleteCommand())
 
   return task
 }

@@ -14,6 +14,10 @@ Manage your Asana tasks efficiently from the command line.
 - ✅ Create, list, complete, and delete tasks
 - ✅ Automatic token refresh (OAuth)
 - ✅ Default workspace configuration
+- ✅ File attachments (upload, list, download)
+- ✅ Custom fields (text, number, enum)
+- ✅ Batch operations from JSON/CSV files
+- ✅ Workspace-wide task and project search
 - ✅ Fast execution powered by Bun
 - ✨ **Multiple output formats** (TOON, JSON, Plain) for different use cases
 
