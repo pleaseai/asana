@@ -180,6 +180,7 @@ describe('task commands integration', () => {
       'dependency',
       'dependent',
       'comment',
+      'follower',
     ]
 
     expect(commandNames).toEqual(expectedOrder)

@@ -9,6 +9,7 @@ import { validateDateFormat, validateGid, validateUpdateFields, ValidationError 
 import { formatOutput } from '../utils/formatter'
 import { createCommentCommand } from './task-comment'
 import { createDependencyCommand, createDependentCommand } from './task-dependency'
+import { createFollowerCommand } from './task-follower'
 import { createSubtaskCommand } from './task-subtask'
 
 export function createTaskCommand(): Command {
@@ -356,6 +357,7 @@ export function createTaskCommand(): Command {
 
   // Collaboration subcommands
   task.addCommand(createCommentCommand())
+  task.addCommand(createFollowerCommand())
 
   return task
 }

@@ -12,6 +12,7 @@ import {
   MAX_DEPENDENCIES_COMBINED,
   validateDependencyLimit,
   validateNoSelfDependency,
+  validateUserIdentifier,
   ValidationError,
 } from '../../src/lib/validators'
 
@@ -72,6 +73,39 @@ describe('validateNoSelfDependency', () => {
     catch (error) {
       expect(error).toBeInstanceOf(ValidationError)
       expect((error as ValidationError).errorId).toBe(ERROR_IDS.SELF_DEPENDENCY)
+    }
+  })
+})
+
+describe('validateUserIdentifier', () => {
+  test('allows a numeric GID', () => {
+    expect(() => validateUserIdentifier('1234567890')).not.toThrow()
+  })
+
+  test('allows "me"', () => {
+    expect(() => validateUserIdentifier('me')).not.toThrow()
+  })
+
+  test('allows an email address', () => {
+    expect(() => validateUserIdentifier('user@example.com')).not.toThrow()
+  })
+
+  test('throws for arbitrary strings', () => {
+    expect(() => validateUserIdentifier('not-a-user')).toThrow(ValidationError)
+  })
+
+  test('throws for empty values', () => {
+    expect(() => validateUserIdentifier('')).toThrow(ValidationError)
+  })
+
+  test('uses the INVALID_USER_IDENTIFIER error id', () => {
+    try {
+      validateUserIdentifier('not-a-user')
+      throw new Error('expected validateUserIdentifier to throw')
+    }
+    catch (error) {
+      expect(error).toBeInstanceOf(ValidationError)
+      expect((error as ValidationError).errorId).toBe(ERROR_IDS.INVALID_USER_IDENTIFIER)
     }
   })
 })

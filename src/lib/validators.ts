@@ -51,6 +51,25 @@ export function validateDateFormat(date: string, fieldName: string): void {
 }
 
 /**
+ * Validate a user identifier: a numeric GID, an email address, or "me".
+ *
+ * Asana user-facing endpoints (assignee, followers) accept all three forms.
+ */
+export function validateUserIdentifier(value: string, fieldName: string = 'User'): void {
+  const isGid = /^\d+$/.test(value || '')
+  const isEmail = /^[^\s@]+@[^\s@]+$/.test(value || '')
+  if (value !== 'me' && !isGid && !isEmail) {
+    console.error(chalk.red(`✗ Invalid ${fieldName} identifier. Expected a numeric GID, an email address, or "me".`))
+    console.error(chalk.gray(`  Provided: ${value}`))
+    throw new ValidationError(
+      ERROR_IDS.INVALID_USER_IDENTIFIER,
+      `Invalid ${fieldName} identifier`,
+      { value, fieldName },
+    )
+  }
+}
+
+/**
  * Maximum number of dependencies and dependents combined per task.
  *
  * Asana enforces a hard limit of 30 dependency relationships (dependencies +
