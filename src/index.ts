@@ -2,7 +2,9 @@
 import { Command } from 'commander'
 import packageJson from '../package.json'
 import { createAuthCommand } from './commands/auth'
+import { createCustomFieldCommand } from './commands/custom-field'
 import { createProjectCommand } from './commands/project'
+import { createSearchCommand } from './commands/search'
 import { createSectionCommand } from './commands/section'
 import { createSelfUpdateCommand } from './commands/self-update'
 import { createTaskCommand } from './commands/task'
@@ -24,6 +26,8 @@ program.addCommand(createAuthCommand())
 program.addCommand(createTaskCommand())
 program.addCommand(createProjectCommand())
 program.addCommand(createSectionCommand())
+program.addCommand(createCustomFieldCommand())
+program.addCommand(createSearchCommand())
 program.addCommand(createSelfUpdateCommand())
 
 // Parse arguments

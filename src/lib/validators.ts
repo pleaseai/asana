@@ -5,6 +5,7 @@
  * Validates before API calls to provide clear error messages.
  */
 
+import { existsSync, statSync } from 'node:fs'
 import chalk from 'chalk'
 import { ERROR_IDS } from '../constants/errorIds'
 
@@ -87,6 +88,20 @@ export function validateNoSelfDependency(taskGid: string, relatedGid: string): v
       ERROR_IDS.SELF_DEPENDENCY,
       'Self-dependency is not allowed',
       { taskGid, relatedGid },
+    )
+  }
+}
+
+/**
+ * Validate that a local file exists before attempting to read it.
+ */
+export function validateFileExists(filePath: string, fieldName: string = 'File'): void {
+  if (!existsSync(filePath) || !statSync(filePath).isFile()) {
+    console.error(chalk.red(`✗ ${fieldName} not found: ${filePath}`))
+    throw new ValidationError(
+      ERROR_IDS.FILE_NOT_FOUND,
+      `${fieldName} not found`,
+      { filePath, fieldName },
     )
   }
 }
