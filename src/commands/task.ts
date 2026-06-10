@@ -10,8 +10,11 @@ import { formatOutput } from '../utils/formatter'
 import { createTaskCustomFieldCommand } from './custom-field'
 import { createAttachCommand, createAttachmentCommand } from './task-attachment'
 import { createBatchCreateCommand, createBatchDeleteCommand, createBatchUpdateCommand } from './task-batch'
+import { createCommentCommand } from './task-comment'
 import { createDependencyCommand, createDependentCommand } from './task-dependency'
+import { createFollowerCommand } from './task-follower'
 import { createSubtaskCommand } from './task-subtask'
+import { createTaskTagCommand } from './task-tag'
 
 export function createTaskCommand(): Command {
   const task = new Command('task')
@@ -27,10 +30,12 @@ export function createTaskCommand(): Command {
     .option('-w, --workspace <workspace>', 'Workspace GID')
     .option('-p, --project <project>', 'Project GID')
     .action(async (options: TaskOptions, command: Command) => {
+      // Declared outside try so the error handler can report it
+      let workspace: string | undefined
       try {
         const client = getAsanaClient()
         const config = loadConfig()
-        const workspace = options.workspace || config?.workspace
+        workspace = options.workspace || config?.workspace
 
         if (!workspace) {
           throw new Error('Workspace is required. Set default workspace or use -w option.')
@@ -84,10 +89,12 @@ export function createTaskCommand(): Command {
     .option('-p, --project <project>', 'Project GID')
     .option('-c, --completed', 'Include completed tasks')
     .action(async (options: TaskListOptions, command: Command) => {
+      // Declared outside try so the error handler can report it
+      let workspace: string | undefined
       try {
         const client = getAsanaClient()
         const config = loadConfig()
-        const workspace = options.workspace || config?.workspace
+        workspace = options.workspace || config?.workspace
 
         let tasks: any
 
@@ -355,6 +362,11 @@ export function createTaskCommand(): Command {
   task.addCommand(createSubtaskCommand())
   task.addCommand(createDependencyCommand())
   task.addCommand(createDependentCommand())
+
+  // Collaboration subcommands
+  task.addCommand(createCommentCommand())
+  task.addCommand(createFollowerCommand())
+  task.addCommand(createTaskTagCommand())
 
   // Advanced features (Phase 6)
   task.addCommand(createAttachCommand())

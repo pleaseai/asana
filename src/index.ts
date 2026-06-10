@@ -7,6 +7,7 @@ import { createProjectCommand } from './commands/project'
 import { createSearchCommand } from './commands/search'
 import { createSectionCommand } from './commands/section'
 import { createSelfUpdateCommand } from './commands/self-update'
+import { createTagCommand } from './commands/tag'
 import { createTaskCommand } from './commands/task'
 import { createTeamCommand } from './commands/team'
 import { createUserCommand } from './commands/user'
@@ -29,6 +30,7 @@ program.addCommand(createAuthCommand())
 program.addCommand(createTaskCommand())
 program.addCommand(createProjectCommand())
 program.addCommand(createSectionCommand())
+program.addCommand(createTagCommand())
 program.addCommand(createCustomFieldCommand())
 program.addCommand(createSearchCommand())
 program.addCommand(createTeamCommand())

@@ -8,6 +8,8 @@ let usersApiInstance: Asana.UsersApi | null = null
 let workspacesApiInstance: Asana.WorkspacesApi | null = null
 let projectsApiInstance: Asana.ProjectsApi | null = null
 let sectionsApiInstance: Asana.SectionsApi | null = null
+let storiesApiInstance: Asana.StoriesApi | null = null
+let tagsApiInstance: Asana.TagsApi | null = null
 let attachmentsApiInstance: Asana.AttachmentsApi | null = null
 let customFieldsApiInstance: Asana.CustomFieldsApi | null = null
 let typeaheadApiInstance: Asana.TypeaheadApi | null = null
@@ -64,6 +66,12 @@ export function getAsanaClient() {
   }
   if (!sectionsApiInstance) {
     sectionsApiInstance = new Asana.SectionsApi()
+  }
+  if (!storiesApiInstance) {
+    storiesApiInstance = new Asana.StoriesApi()
+  }
+  if (!tagsApiInstance) {
+    tagsApiInstance = new Asana.TagsApi()
   }
   if (!attachmentsApiInstance) {
     attachmentsApiInstance = new Asana.AttachmentsApi()
@@ -168,10 +176,74 @@ export function getAsanaClient() {
         const result = await tasksApiInstance!.removeDependentsForTask(body, taskGid)
         return result.data
       },
+      // Follower operations
+      addFollowers: async (taskGid: string, followers: string[]) => {
+        const body = { data: { followers } }
+        const result = await tasksApiInstance!.addFollowersForTask(body, taskGid, {})
+        return result.data
+      },
+      removeFollowers: async (taskGid: string, followers: string[]) => {
+        const body = { data: { followers } }
+        const result = await tasksApiInstance!.removeFollowerForTask(body, taskGid, {})
+        return result.data
+      },
+      // Tag assignment operations
+      addTag: async (taskGid: string, tagGid: string) => {
+        const body = { data: { tag: tagGid } }
+        const result = await tasksApiInstance!.addTagForTask(body, taskGid)
+        return result.data
+      },
+      removeTag: async (taskGid: string, tagGid: string) => {
+        const body = { data: { tag: tagGid } }
+        const result = await tasksApiInstance!.removeTagForTask(body, taskGid)
+        return result.data
+      },
       // Full-text search within a workspace (premium Asana feature)
       search: async (workspaceGid: string, opts: any = {}) => {
         const result = await tasksApiInstance!.searchTasksForWorkspace(workspaceGid, opts)
         return result
+      },
+    },
+    stories: {
+      createForTask: async (taskGid: string, storyData: Record<string, any>) => {
+        const body = { data: storyData }
+        const result = await storiesApiInstance!.createStoryForTask(body, taskGid, {})
+        return result.data
+      },
+      findByTask: async (taskGid: string, opts: any = {}) => {
+        const optsWithLimit = { limit: 100, ...opts }
+        const result = await storiesApiInstance!.getStoriesForTask(taskGid, optsWithLimit)
+        return result
+      },
+    },
+    tags: {
+      create: async (tagData: Record<string, any>) => {
+        const body = { data: tagData }
+        const result = await tagsApiInstance!.createTag(body, {})
+        return result.data
+      },
+      findById: async (tagGid: string, opts: any = {}) => {
+        const result = await tagsApiInstance!.getTag(tagGid, opts)
+        return result.data
+      },
+      findByWorkspace: async (workspaceGid: string, opts: any = {}) => {
+        const optsWithLimit = { limit: 100, ...opts }
+        const result = await tagsApiInstance!.getTagsForWorkspace(workspaceGid, optsWithLimit)
+        return result
+      },
+      findByTask: async (taskGid: string, opts: any = {}) => {
+        const optsWithLimit = { limit: 100, ...opts }
+        const result = await tagsApiInstance!.getTagsForTask(taskGid, optsWithLimit)
+        return result
+      },
+      update: async (tagGid: string, updateData: Record<string, any>) => {
+        const body = { data: updateData }
+        const result = await tagsApiInstance!.updateTag(body, tagGid, {})
+        return result.data
+      },
+      delete: async (tagGid: string) => {
+        const result = await tagsApiInstance!.deleteTag(tagGid)
+        return result.data
       },
     },
     attachments: {
@@ -362,6 +434,8 @@ export function resetClient(): void {
   workspacesApiInstance = null
   projectsApiInstance = null
   sectionsApiInstance = null
+  storiesApiInstance = null
+  tagsApiInstance = null
   attachmentsApiInstance = null
   customFieldsApiInstance = null
   typeaheadApiInstance = null
