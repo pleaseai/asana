@@ -1,5 +1,23 @@
 # Changelog
 
+## [0.5.0](https://github.com/pleaseai/asana/compare/v0.4.0...v0.5.0) (2026-06-10)
+
+
+### Features
+
+* add attachments, custom fields, batch operations, and search (Phase 6) ([#28](https://github.com/pleaseai/asana/issues/28)) ([d15ab26](https://github.com/pleaseai/asana/commit/d15ab26b9c3bd720e68e3f769ae7587c997d363f)), closes [#19](https://github.com/pleaseai/asana/issues/19)
+* add subtask and dependency commands ([#16](https://github.com/pleaseai/asana/issues/16)) ([#26](https://github.com/pleaseai/asana/issues/26)) ([e75a3f8](https://github.com/pleaseai/asana/commit/e75a3f858391c6f5b62500ab40a5fdbf9b8de06b))
+* add team, workspace, and user management commands ([#29](https://github.com/pleaseai/asana/issues/29)) ([da0a6db](https://github.com/pleaseai/asana/commit/da0a6db45f12e290bd5200906d77b8c71227817e))
+* **oauth:** add PKCE, secure state, scope management, and OOB flow ([#24](https://github.com/pleaseai/asana/issues/24)) ([bc404c9](https://github.com/pleaseai/asana/commit/bc404c9e670856daa93e47f7ac68fa6acd8f2b09))
+* phase 4 collaboration features (comments, followers, tags) ([#30](https://github.com/pleaseai/asana/issues/30)) ([c2528ea](https://github.com/pleaseai/asana/commit/c2528ea4fc84f7c4faafdcee31023f5f3dd038d3))
+
+
+### Documentation
+
+* add please workspace and ARCHITECTURE.md ([#25](https://github.com/pleaseai/asana/issues/25)) ([778d835](https://github.com/pleaseai/asana/commit/778d8350d777f8436f01fd3f7bda7d63883f1a1f))
+* update install script command from 'sh' to 'bash' ([6de56ef](https://github.com/pleaseai/asana/commit/6de56ef275c64193535da1ce206d1668806279fc))
+* update install script command from 'sh' to 'bash' ([f823b5a](https://github.com/pleaseai/asana/commit/f823b5a2610857f18cb3118253ee057f1e517d9b))
+
 ## [0.4.0](https://github.com/pleaseai/asana/compare/v0.3.0...v0.4.0) (2025-10-30)
 
 
