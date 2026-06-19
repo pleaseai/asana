@@ -1,0 +1,28 @@
+.github/workflows/release-please.yml
+  s_2b847d1762251f::t_873e3e544a4c8e 56-57
+.github/workflows/ci.yml
+  s_2b847d1762251f::t_528d37d2a491b7 21-22,46-47,71-72
+.github/workflows/e2e-tests-secure.yml
+  s_2b847d1762251f::t_fc1468aa6bdfb1 23-24
+.github/workflows/e2e-tests.yml
+  s_2b847d1762251f::t_5add12904b77ad 23-24
+mise.toml
+  s_2b847d1762251f::t_90b06176efa29b 27-30
+  s_2b847d1762251f::t_d4db080bd92c8c 1-26
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.3",
+  "base_commit_sha": "a1d9b02a1bd55f1dba509027838658b466949b77",
+  "prompts": {},
+  "sessions": {
+    "s_2b847d1762251f": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "662ff002-8f74-478c-80ee-61bb9203e4a1",
+        "model": "claude-opus-4-8"
+      },
+      "human_author": "Minsu Lee <amond@amond.net>"
+    }
+  }
+}

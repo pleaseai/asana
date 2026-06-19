@@ -1,0 +1,33 @@
+.please/INDEX.md
+  s_c7ddcf0c7a65d6::t_b0f35c3f226081 7-8,10,14-25
+.please/config.yml
+  s_c7ddcf0c7a65d6::t_b0f35c3f226081 1,3
+.please/docs/tracks/tech-debt-tracker.md
+  s_c7ddcf0c7a65d6::t_b0f35c3f226081 7-8,12-13
+.please/docs/knowledge/tech-stack.md
+  s_c7ddcf0c7a65d6::t_b0f35c3f226081 14-21,25-31
+.please/docs/decisions/index.md
+  s_c7ddcf0c7a65d6::t_b0f35c3f226081 6
+.please/docs/product-specs/index.md
+  s_c7ddcf0c7a65d6::t_b0f35c3f226081 6
+CLAUDE.md
+  s_c7ddcf0c7a65d6::t_b0f35c3f226081 122,129,138
+ARCHITECTURE.md
+  s_c7ddcf0c7a65d6::t_b0f35c3f226081 94-101
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.3",
+  "base_commit_sha": "e472428223bb8f45a56e856540a26635b7b8e659",
+  "prompts": {},
+  "sessions": {
+    "s_c7ddcf0c7a65d6": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "02314b46-7251-46ba-8dcb-1ab568a80f6b",
+        "model": "claude-opus-4-8"
+      },
+      "human_author": "Minsu Lee <amond@amond.net>"
+    }
+  }
+}

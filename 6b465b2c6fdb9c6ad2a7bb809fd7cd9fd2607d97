@@ -1,0 +1,25 @@
+CLAUDE.md
+  s_2b847d1762251f::t_8d58a8283c7706 134-135
+.please/docs/knowledge/product-guidelines.md
+  s_2b847d1762251f::t_0431ac51311a0c 13-15
+.claude/scheduled_tasks.lock
+  ai_agent 1
+ARCHITECTURE.md
+  s_2b847d1762251f::t_9fab954cd11a02 187
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.3",
+  "base_commit_sha": "6b465b2c6fdb9c6ad2a7bb809fd7cd9fd2607d97",
+  "prompts": {},
+  "sessions": {
+    "s_2b847d1762251f": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "662ff002-8f74-478c-80ee-61bb9203e4a1",
+        "model": "claude-opus-4-8"
+      },
+      "human_author": "Minsu Lee <amond@amond.net>"
+    }
+  }
+}
