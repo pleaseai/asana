@@ -24,15 +24,18 @@ export function createAuthCommand(): Command {
           // PAT authentication
           console.log(chalk.blue('Authenticating with Personal Access Token...'))
 
-          // Validate token
-          const client = asana.Client.create().useAccessToken(options.token)
-          await client.users.me()
+          // Validate the token with the v3 SDK before persisting it.
+          // (The old `asana.Client.create()` helper was removed in asana@3.)
+          const apiClient = asana.ApiClient.instance
+          apiClient.authentications.token.accessToken = options.token
+          await new asana.UsersApi().getUser('me', {})
 
           saveConfig({
             accessToken: options.token,
             authType: 'pat',
             workspace: options.workspace,
           })
+          resetClient()
 
           console.log(chalk.green('✓ Successfully authenticated with PAT'))
           console.log(chalk.gray('  Docs: https://developers.asana.com/docs/personal-access-token'))
