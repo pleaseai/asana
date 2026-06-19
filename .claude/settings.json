@@ -19,6 +19,7 @@
     "ask": []
   },
   "enabledPlugins": {
-    "skill-optimizer@pleaseai": true
+    "skill-optimizer@pleaseai": true,
+    "bun@pleaseai": true
   }
 }
