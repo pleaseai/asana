@@ -10,10 +10,11 @@ import {
   cleanupTestEnvironment,
   cleanupTestTasks,
   createTestTask,
+  hasE2ECredentials,
   setupTestEnvironment,
 } from './helpers'
 
-describe('Collaboration E2E Tests', () => {
+describe.skipIf(!hasE2ECredentials)('Collaboration E2E Tests', () => {
   let client: any
   let workspace: string
   const createdTaskGids: string[] = []
