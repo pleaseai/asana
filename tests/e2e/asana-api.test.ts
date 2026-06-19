@@ -1,7 +1,7 @@
 import { afterAll, beforeAll, describe, expect, test } from 'bun:test'
-import { cleanupTestEnvironment, cleanupTestTasks, createTestTask, setupTestEnvironment } from './helpers'
+import { cleanupTestEnvironment, cleanupTestTasks, createTestTask, hasE2ECredentials, setupTestEnvironment } from './helpers'
 
-describe('Asana API E2E Tests', () => {
+describe.skipIf(!hasE2ECredentials)('Asana API E2E Tests', () => {
   let client: any
   let workspace: string
   const createdTaskGids: string[] = []

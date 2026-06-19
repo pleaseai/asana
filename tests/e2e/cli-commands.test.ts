@@ -1,8 +1,8 @@
 import { $ } from 'bun'
 import { afterAll, beforeAll, describe, expect, test } from 'bun:test'
-import { cleanupTestEnvironment, setupTestEnvironment } from './helpers'
+import { cleanupTestEnvironment, hasE2ECredentials, setupTestEnvironment } from './helpers'
 
-describe('CLI Commands E2E Tests', () => {
+describe.skipIf(!hasE2ECredentials)('CLI Commands E2E Tests', () => {
   let workspace: string
   const testTaskGids: string[] = []
 

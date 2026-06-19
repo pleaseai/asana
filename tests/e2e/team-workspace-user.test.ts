@@ -1,8 +1,8 @@
 import { $ } from 'bun'
 import { afterAll, beforeAll, describe, expect, test } from 'bun:test'
-import { cleanupTestEnvironment, setupTestEnvironment } from './helpers'
+import { cleanupTestEnvironment, hasE2ECredentials, setupTestEnvironment } from './helpers'
 
-describe('Team, Workspace & User E2E Tests', () => {
+describe.skipIf(!hasE2ECredentials)('Team, Workspace & User E2E Tests', () => {
   let workspace: string
   let client: any
 

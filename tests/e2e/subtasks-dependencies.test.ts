@@ -10,10 +10,11 @@ import {
   cleanupTestEnvironment,
   cleanupTestTasks,
   createTestTask,
+  hasE2ECredentials,
   setupTestEnvironment,
 } from './helpers'
 
-describe('Subtasks & Dependencies E2E Tests', () => {
+describe.skipIf(!hasE2ECredentials)('Subtasks & Dependencies E2E Tests', () => {
   let client: any
   let workspace: string
   const createdTaskGids: string[] = []

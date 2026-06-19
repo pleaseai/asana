@@ -2,6 +2,16 @@ import type { AsanaConfig } from '../../src/types'
 import { getAsanaClient, resetClient } from '../../src/lib/asana-client'
 import { saveConfig } from '../../src/lib/config'
 
+/**
+ * Whether live Asana credentials are configured. E2E tests need a real access
+ * token and workspace; when they are absent (e.g. a bare `bun test` run, or CI
+ * without secrets) the suites skip instead of hard-failing. Run them explicitly
+ * with `bun run test:e2e:secure` once `.env` is set up.
+ */
+export const hasE2ECredentials = Boolean(
+  process.env.ASANA_ACCESS_TOKEN && process.env.ASANA_WORKSPACE,
+)
+
 export function setupTestEnvironment() {
   const accessToken = process.env.ASANA_ACCESS_TOKEN
   const workspace = process.env.ASANA_WORKSPACE
