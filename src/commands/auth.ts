@@ -27,6 +27,9 @@ export function createAuthCommand(): Command {
           // Validate the token with the v3 SDK before persisting it.
           // (The old `asana.Client.create()` helper was removed in asana@3.)
           const apiClient = asana.ApiClient.instance
+          if (!apiClient.authentications?.token) {
+            throw new Error('Asana API client is not properly initialized: token authentication scheme is missing.')
+          }
           apiClient.authentications.token.accessToken = options.token
           await new asana.UsersApi().getUser('me', {})
 
