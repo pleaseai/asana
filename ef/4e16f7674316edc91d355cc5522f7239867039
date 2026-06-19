@@ -1,0 +1,31 @@
+tests/e2e/team-workspace-user.test.ts
+  s_01b51d7b47fb3b::t_51ae90a2d2ada6 3,5
+tests/e2e/collaboration.test.ts
+  s_01b51d7b47fb3b::t_fd23d582d846b7 13,17
+tests/e2e/advanced-features.test.ts
+  s_01b51d7b47fb3b::t_39aec018a6ed76 20,24
+tests/e2e/helpers.ts
+  s_01b51d7b47fb3b::t_d6046475c39d6f 5-14
+tests/e2e/asana-api.test.ts
+  s_01b51d7b47fb3b::t_cb605b5d2b4308 2,4
+tests/e2e/subtasks-dependencies.test.ts
+  s_01b51d7b47fb3b::t_a02eeaa07ea960 13,17
+tests/e2e/cli-commands.test.ts
+  s_01b51d7b47fb3b::t_0bec210378ef92 3,5
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.8",
+  "base_commit_sha": "ef4e16f7674316edc91d355cc5522f7239867039",
+  "prompts": {},
+  "sessions": {
+    "s_01b51d7b47fb3b": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "f01598e9-7e08-4f32-a0a2-ef3d956c1743",
+        "model": "claude-opus-4-8"
+      },
+      "human_author": "Minsu Lee <minsu.lee@pleaseai.dev>"
+    }
+  }
+}
