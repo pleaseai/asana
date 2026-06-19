@@ -17,5 +17,8 @@
     ],
     "deny": [],
     "ask": []
+  },
+  "enabledPlugins": {
+    "skill-optimizer@pleaseai": true
   }
 }
