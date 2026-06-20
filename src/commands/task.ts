@@ -80,6 +80,9 @@ export function createTaskCommand(): Command {
         console.log(output)
       }
       catch (error) {
+        if (error instanceof ValidationError) {
+          process.exit(1)
+        }
         handleAsanaError(error, 'Task creation', {
           'Task name': options.name,
           'Workspace': workspace,

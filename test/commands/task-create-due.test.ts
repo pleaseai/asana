@@ -1,4 +1,4 @@
-import { afterEach, describe, expect, mock, test } from 'bun:test'
+import { afterEach, describe, expect, mock, spyOn, test } from 'bun:test'
 
 /**
  * Regression test for `task create` due date handling.
@@ -44,5 +44,27 @@ describe('task create due date', () => {
   test('legacy --due alias also sets due_on', async () => {
     const taskData = await runCreate(['-n', 'Task', '-w', '123', '--due', '2026-06-26'])
     expect(taskData?.due_on).toBe('2026-06-26')
+  })
+
+  test('invalid date format exits without calling the API', async () => {
+    // validateDateFormat throws a ValidationError, which the create action
+    // catches and turns into process.exit(1) (consistent with sibling
+    // commands). Stub process.exit to throw so the action stops here instead
+    // of terminating the test runner, and silence the validation output
+    // written to stderr.
+    const exitSpy = spyOn(process, 'exit').mockImplementation((() => {
+      throw new Error('process.exit called')
+    }) as never)
+    const errorSpy = spyOn(console, 'error').mockImplementation(() => {})
+    try {
+      await expect(
+        runCreate(['-n', 'Task', '-w', '123', '--due-on', 'invalid-date']),
+      ).rejects.toThrow('process.exit called')
+      expect(exitSpy).toHaveBeenCalledWith(1)
+    }
+    finally {
+      exitSpy.mockRestore()
+      errorSpy.mockRestore()
+    }
   })
 })
