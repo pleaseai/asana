@@ -12,6 +12,8 @@ export interface TaskOptions {
   notes?: string
   assignee?: string
   dueOn?: string
+  /** Deprecated alias for `dueOn`, kept for backward compatibility with `--due`. */
+  due?: string
   workspace?: string
   project?: string
 }
