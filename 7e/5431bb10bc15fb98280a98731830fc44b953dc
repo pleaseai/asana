@@ -1,0 +1,23 @@
+test/commands/task-create-due.test.ts
+  s_229d36e6ddf408::t_cc705b4385e26b 1
+  s_229d36e6ddf408::t_cc51273479b37e 48-51,55-59,63-69
+  s_229d36e6ddf408::t_9dcf0200470416 52-54,60-62
+src/commands/task.ts
+  s_229d36e6ddf408::t_03d76d021d76e8 83-85
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.9",
+  "base_commit_sha": "7e5431bb10bc15fb98280a98731830fc44b953dc",
+  "prompts": {},
+  "sessions": {
+    "s_229d36e6ddf408": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "4d5feecb-dce4-4494-9754-fa357c8bf9c6",
+        "model": "claude-opus-4-8"
+      },
+      "human_author": "Minsu Lee <minsu.lee@pleaseai.dev>"
+    }
+  }
+}
