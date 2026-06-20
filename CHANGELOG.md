@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.5.1](https://github.com/pleaseai/asana/compare/v0.5.0...v0.5.1) (2026-06-19)
+
+
+### Bug Fixes
+
+* **auth:** repair PAT login by validating token with asana@3 SDK ([#31](https://github.com/pleaseai/asana/issues/31)) ([97d7640](https://github.com/pleaseai/asana/commit/97d7640562a7d82dbd7202a874b46c67665ad3bd))
+
 ## [0.5.0](https://github.com/pleaseai/asana/compare/v0.4.0...v0.5.0) (2026-06-10)
 
 
