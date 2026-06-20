@@ -26,7 +26,8 @@ export function createTaskCommand(): Command {
     .requiredOption('-n, --name <name>', 'Task name')
     .option('-d, --notes <notes>', 'Task description/notes')
     .option('-a, --assignee <assignee>', 'Assignee user GID')
-    .option('--due <date>', 'Due date (YYYY-MM-DD)')
+    .option('--due-on <date>', 'Due date (YYYY-MM-DD)')
+    .option('--due <date>', 'Deprecated alias for --due-on (YYYY-MM-DD)')
     .option('-w, --workspace <workspace>', 'Workspace GID')
     .option('-p, --project <project>', 'Project GID')
     .action(async (options: TaskOptions, command: Command) => {
@@ -50,8 +51,14 @@ export function createTaskCommand(): Command {
           taskData.notes = options.notes
         if (options.assignee)
           taskData.assignee = options.assignee
-        if (options.dueOn)
-          taskData.due_on = options.dueOn
+        // Accept both --due-on (canonical, matches `task update`) and the
+        // deprecated --due alias. Previously the option was --due but the code
+        // only read options.dueOn, so the due date was silently dropped.
+        const dueOn = options.dueOn ?? options.due
+        if (dueOn) {
+          validateDateFormat(dueOn, options.dueOn ? '--due-on' : '--due')
+          taskData.due_on = dueOn
+        }
         if (options.project)
           taskData.projects = [options.project]
 
@@ -73,6 +80,9 @@ export function createTaskCommand(): Command {
         console.log(output)
       }
       catch (error) {
+        if (error instanceof ValidationError) {
+          process.exit(1)
+        }
         handleAsanaError(error, 'Task creation', {
           'Task name': options.name,
           'Workspace': workspace,
