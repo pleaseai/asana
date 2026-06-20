@@ -42,3 +42,7 @@ asana
 
 # please plugin runtime state
 .please/state/
+
+# Asana CLI skill — eval scratch & evals may contain private workspace data
+.claude/skills/*-workspace/
+.claude/skills/asana-cli/evals/
