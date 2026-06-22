@@ -46,8 +46,8 @@ Avoid `--format plain` unless the user explicitly wants the traditional view; it
 carries the least information per token.
 
 ```bash
-asana task list -a me                      # read it yourself (toon)
-asana task list -a me -f json | jq -r '.tasks[].gid'   # extract gids
+asana task list -a me                                   # read it yourself (toon)
+asana task get 1207891234567890 -f json | jq -r '.task.gid'   # parse a field
 ```
 
 ## The golden rule: resolve names to GIDs first
