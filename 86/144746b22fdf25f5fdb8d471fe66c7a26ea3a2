@@ -1,0 +1,25 @@
+docs/content/ko/1.guide/1.getting-started.md
+  s_2653ef578742ef::t_d3cdc0aed39d14 17
+.markdown-link-check.json
+  s_2653ef578742ef::t_b67fcb0c81dd90 5-9
+docs/content/ko/index.md
+  s_2653ef578742ef::t_eb87c9966b74d2 41
+docs/content/en/index.md
+  s_2653ef578742ef::t_59f11c4139f631 41
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.9",
+  "base_commit_sha": "86144746b22fdf25f5fdb8d471fe66c7a26ea3a2",
+  "prompts": {},
+  "sessions": {
+    "s_2653ef578742ef": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "44bb5990-bf55-4c57-8d19-9a79fd0eec7a",
+        "model": "claude-opus-4-8"
+      },
+      "human_author": "Minsu Lee <minsu.lee@pleaseai.dev>"
+    }
+  }
+}
