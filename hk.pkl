@@ -1,0 +1,20 @@
+amends "package://github.com/jdx/hk/releases/download/v1.48.0/hk@1.48.0#/Config.pkl"
+
+// markdown-link-check validates every link in changed markdown files.
+// Binary comes from mise ("npm:markdown-link-check"); config from .markdown-link-check.json.
+local linters = new Mapping<String, Step> {
+    ["markdown-link-check"] {
+        glob = List("*.md", "**/*.md")
+        exclude = List("node_modules/**", "CHANGELOG.md")
+        check = "markdown-link-check --config .markdown-link-check.json --quiet {{ files }}"
+    }
+}
+
+hooks {
+    ["pre-commit"] {
+        steps = linters
+    }
+    ["check"] {
+        steps = linters
+    }
+}

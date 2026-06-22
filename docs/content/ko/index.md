@@ -38,7 +38,7 @@ trailing-icon: i-lucide-arrow-right
 color: neutral
 icon: simple-icons-github
 size: xl
-to: https://github.com/amondnet/asana
+to: https://github.com/pleaseai/asana
 variant: outline
 
 ---

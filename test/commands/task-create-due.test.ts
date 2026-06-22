@@ -1,4 +1,13 @@
-import { afterEach, describe, expect, mock, spyOn, test } from 'bun:test'
+import { afterAll, afterEach, describe, expect, mock, spyOn, test } from 'bun:test'
+import * as realClient from '../../src/lib/asana-client'
+import * as realConfig from '../../src/lib/config'
+
+// Bun's `mock.restore()` does NOT revert `mock.module()` registrations, so the
+// module mocks below leak into later test files and make the suite order-
+// dependent. Capture the real modules by value at load time and re-install them
+// once this file's tests finish.
+const REAL_CLIENT = { ...realClient }
+const REAL_CONFIG = { ...realConfig }
 
 /**
  * Regression test for `task create` due date handling.
@@ -12,6 +21,11 @@ import { afterEach, describe, expect, mock, spyOn, test } from 'bun:test'
 describe('task create due date', () => {
   afterEach(() => {
     mock.restore()
+  })
+
+  afterAll(() => {
+    mock.module('../../src/lib/asana-client', () => REAL_CLIENT)
+    mock.module('../../src/lib/config', () => REAL_CONFIG)
   })
 
   async function runCreate(args: string[]): Promise<any> {

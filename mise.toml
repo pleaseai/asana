@@ -1,29 +1,36 @@
-# mise.toml — PassionFactory 표준 도구 체인
-# 사용법: `mise trust && mise install`
-# 상세: Skill("standards:dev-tooling")
+# mise.toml — PassionFactory standard toolchain
+# Usage: `mise trust && mise install`
+# Details: Skill("standards:dev-tooling")
 
 [tools]
 node = "22"
 bun = "latest"
+"npm:markdown-link-check" = "3" # markdown link validation (pre-commit)
+# hk (git hook manager) is not listed in [tools] because it ships no darwin/amd64 binary.
+# Install: `mise use -g hk` (linux / arm64) or `brew install hk` (Intel Mac). See dev-docs/GIT_HOOKS.md.
 
 [tasks.dev]
-description = "개발 서버 실행"
+description = "Run the dev server"
 run = "bun run dev"
 
 [tasks.build]
-description = "빌드"
+description = "Build"
 run = "bun run build"
 
 [tasks.lint]
-description = "린트"
+description = "Lint"
 run = "bun run lint"
 
+[tasks."lint:links"]
+description = "Check markdown links (all files)"
+run = "find . -name '*.md' -not -path '*/node_modules/*' -not -name 'CHANGELOG.md' -exec markdown-link-check --config .markdown-link-check.json --quiet {} +"
+
 [tasks.test]
-description = "테스트"
+description = "Test"
 run = "bun run test"
 
 [tasks.check]
-description = "lint → test 일괄 검사"
+description = "Run lint then test"
 depends = [
   "lint",
   "test"
