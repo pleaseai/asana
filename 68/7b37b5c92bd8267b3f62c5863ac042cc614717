@@ -1,0 +1,19 @@
+.github/workflows/ci.yml
+  s_9520faa549e8dc::t_e0149502a3a2f7 79-93
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.9",
+  "base_commit_sha": "687b37b5c92bd8267b3f62c5863ac042cc614717",
+  "prompts": {},
+  "sessions": {
+    "s_9520faa549e8dc": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "1bf3e358-32c2-49eb-908f-41cbd75bfed6",
+        "model": "claude-opus-4-8"
+      },
+      "human_author": "Minsu Lee <minsu.lee@pleaseai.dev>"
+    }
+  }
+}
