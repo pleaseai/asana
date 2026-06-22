@@ -54,7 +54,7 @@ OAuth requires env vars `ASANA_CLIENT_ID` and `ASANA_CLIENT_SECRET`.
 
 ## workspace
 
-- `asana workspace list` — list workspaces  `[--no-cache]`
+- `asana workspace list` — list workspaces `[--no-cache]`
 - `asana workspace get <gid>` — workspace details
 - `asana workspace users [gid]` — list users (defaults to configured workspace)
 - `asana workspace set-default <gid>` — persist default workspace to config
@@ -89,7 +89,7 @@ OAuth requires env vars `ASANA_CLIENT_ID` and `ASANA_CLIENT_SECRET`.
 
 ## task subtask
 
-- `asana task subtask list <parent-gid>`  `[-r|--recursive]`
+- `asana task subtask list <parent-gid>` `[-r|--recursive]`
 - `asana task subtask create <parent-gid>`
   - `-n, --name <name>` (required), `-d, --notes`, `-a, --assignee`, `--due-on <date>`
 - `asana task subtask add <task-gid> <parent-gid>` — convert existing task into a subtask
@@ -105,7 +105,7 @@ Asana caps combined dependencies + dependents at 50.
 
 ## task comment
 
-- `asana task comment add <task-gid> <text>`  `[--html]` (rich text; auto-wraps in `<body>`)
+- `asana task comment add <task-gid> <text>` `[--html]` (rich text; auto-wraps in `<body>`)
 - `asana task comment list <task-gid>` — user comments only (excludes system events)
 
 ## task follower
@@ -124,7 +124,7 @@ Asana caps combined dependencies + dependents at 50.
 
 - `asana task attach <task-gid> <file>` — upload a local file (streamed)
 - `asana task attachment list <task-gid>`
-- `asana task attachment download <attachment-gid>`  `[-o|--output <path>] [--force]`
+- `asana task attachment download <attachment-gid>` `[-o|--output <path>] [--force]`
   - External attachments (e.g. Google Drive links) cannot be downloaded.
 
 ## task custom-field
@@ -134,11 +134,11 @@ Asana caps combined dependencies + dependents at 50.
 
 ## task batch operations
 
-- `asana task batch-create --file <path>`  `[-w|--workspace <gid>]`
+- `asana task batch-create --file <path>` `[-w|--workspace <gid>]`
   - JSON array of task objects (`name` required), or CSV with header row (`name`, optional `notes`/`assignee`/`due_on`/`completed`/`project`).
 - `asana task batch-update --file <path>`
   - JSON array of `{gid, ...fields}` or `{"tasks":[...]}`. Each record needs `gid`.
-- `asana task batch-delete --file <path>`  `[--yes]` (destructive)
+- `asana task batch-delete --file <path>` `[--yes]` (destructive)
   - Text file, one GID per line; `#` lines are comments. Prompts unless `--yes`.
 
 All batch commands print a summary: total / succeeded / failed (+ failure details).
@@ -147,7 +147,7 @@ All batch commands print a summary: total / succeeded / failed (+ failure detail
 
 - `asana project create`
   - `-n, --name <name>` (required), `-w, --workspace`, `-t, --team`, `-d, --notes`, `--color <color>`, `--public`
-- `asana project list` — needs workspace or team  `[-w] [-t] [-a|--archived]`
+- `asana project list` — needs workspace or team `[-w] [-t] [-a|--archived]`
 - `asana project get <gid>`
 - `asana project update <gid>`
   - `-n, --name`, `-d, --notes`, `--color <color>`, `--archived <boolean>`, `--public <boolean>`
@@ -158,21 +158,21 @@ All batch commands print a summary: total / succeeded / failed (+ failure detail
 - `asana section list <project-gid>`
 - `asana section create <project-gid>`
   - `-n, --name <name>` (required), `--insert-before <section-gid>`, `--insert-after <section-gid>`
-- `asana section update <section-gid>`  `-n, --name <name>`
+- `asana section update <section-gid>` `-n, --name <name>`
 - `asana section delete <section-gid>` (destructive)
 
 ## tag
 
-- `asana tag list`  `[-w|--workspace]`
+- `asana tag list` `[-w|--workspace]`
 - `asana tag create`
   - `-n, --name <name>` (required), `-w, --workspace`, `-c, --color <color>` (e.g. `dark-red`), `-d, --notes`
 - `asana tag get <tag-gid>`
-- `asana tag update <tag-gid>`  `-n, --name`, `-c, --color`, `-d, --notes` (≥1 required)
+- `asana tag update <tag-gid>` `-n, --name`, `-c, --color`, `-d, --notes` (≥1 required)
 - `asana tag delete <tag-gid>` (destructive)
 
 ## custom-field definitions
 
-- `asana custom-field list`  `[-w|--workspace]` — workspace's custom field definitions (gid/name/type)
+- `asana custom-field list` `[-w|--workspace]` — workspace's custom field definitions (gid/name/type)
 
 ## search
 
@@ -183,7 +183,7 @@ All batch commands print a summary: total / succeeded / failed (+ failure detail
 
 ## team
 
-- `asana team list`  `[-w|--workspace] [--no-cache]`
+- `asana team list` `[-w|--workspace] [--no-cache]`
 - `asana team get <gid>`
 - `asana team members <gid>`
 
@@ -191,12 +191,12 @@ All batch commands print a summary: total / succeeded / failed (+ failure detail
 
 - `asana user me` — current user
 - `asana user get <user>` — GID, email, or `me`
-- `asana user search <query>` — fuzzy match by name/email  `[-w|--workspace]`
-- `asana user tasks <user>` — tasks assigned to user  `[-w|--workspace] [-c|--completed]`
+- `asana user search <query>` — fuzzy match by name/email `[-w|--workspace]`
+- `asana user tasks <user>` — tasks assigned to user `[-w|--workspace] [-c|--completed]`
 
 ## self-update
 
-- `asana self-update`  `[--check]` — update CLI to latest (use `brew upgrade asana-cli` if installed via Homebrew)
+- `asana self-update` `[--check]` — update CLI to latest (use `brew upgrade asana-cli` if installed via Homebrew)
 
 ---
 
@@ -206,6 +206,7 @@ All batch commands print a summary: total / succeeded / failed (+ failure detail
 `authType` (`pat`/`oauth`), `workspace` (default), `expiresAt`, `scopes`.
 
 **Environment variables (override config):**
+
 - `ASANA_ACCESS_TOKEN` — PAT; used instead of config file if set
 - `ASANA_WORKSPACE` — default workspace GID
 - `ASANA_CLIENT_ID` / `ASANA_CLIENT_SECRET` — OAuth app credentials (for `auth login` OAuth flow)

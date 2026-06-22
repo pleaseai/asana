@@ -33,8 +33,8 @@ just run the command the user asked for — don't spend a turn on `auth whoami`
   `-w <gid>` on the command or set it once with `asana workspace set-default <gid>`.
 
 Workspace resolution order: `-w` flag → config default → `ASANA_WORKSPACE` env
-var. `asana auth whoami` is the right tool to *confirm who you are or which
-workspace is default* — reach for it when that's genuinely in question, not as a
+var. `asana auth whoami` is the right tool to _confirm who you are or which
+workspace is default_ — reach for it when that's genuinely in question, not as a
 reflex before every command.
 
 ## Output format: keep it `toon`, switch to `json` to parse
@@ -56,12 +56,12 @@ The CLI does **not** look names up for you. A task, project, user, or tag is
 referenced by its numeric `gid`. When the user names something instead of giving
 a gid ("move the login bug to the Q3 board"), find the gid first, then act:
 
-| User says… | Resolve with |
-| --- | --- |
-| a person ("assign to Jin") | `asana user search "Jin"` → user gid (or just use `me`) |
-| a project ("the Q3 board") | `asana search projects "Q3"` or `asana project list -w <gid>` |
-| a task ("the login bug") | `asana search tasks "login"` (premium) or `asana task list -p <gid>` |
-| a tag, section, team | `asana tag list` / `asana section list <proj>` / `asana team list` |
+| User says…                 | Resolve with                                                         |
+| -------------------------- | -------------------------------------------------------------------- |
+| a person ("assign to Jin") | `asana user search "Jin"` → user gid (or just use `me`)              |
+| a project ("the Q3 board") | `asana search projects "Q3"` or `asana project list -w <gid>`        |
+| a task ("the login bug")   | `asana search tasks "login"` (premium) or `asana task list -p <gid>` |
+| a tag, section, team       | `asana tag list` / `asana section list <proj>` / `asana team list`   |
 
 Chain it in one shot when you're confident, e.g.:
 
