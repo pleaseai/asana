@@ -1,4 +1,14 @@
-import { afterEach, describe, expect, mock, test } from 'bun:test'
+import * as realAsana from 'asana'
+import { afterAll, afterEach, describe, expect, mock, test } from 'bun:test'
+import * as realConfig from '../../src/lib/config'
+
+// Bun's `mock.restore()` does NOT revert `mock.module()` registrations, so the
+// module mocks below leak into later test files and make the suite order-
+// dependent (e.g. a stubbed `loadConfig` breaks asana-client tests on CI where
+// the file order differs). Capture the real modules by value at load time and
+// re-install them once this file's tests finish.
+const REAL_ASANA = { ...realAsana }
+const REAL_CONFIG = { ...realConfig }
 
 /**
  * Regression test for the PAT login path.
@@ -12,6 +22,11 @@ import { afterEach, describe, expect, mock, test } from 'bun:test'
 describe('auth login --token (PAT)', () => {
   afterEach(() => {
     mock.restore()
+  })
+
+  afterAll(() => {
+    mock.module('asana', () => REAL_ASANA)
+    mock.module('../../src/lib/config', () => REAL_CONFIG)
   })
 
   test('validates the token via the v3 SDK and saves a PAT config', async () => {
