@@ -1,0 +1,28 @@
+.markdown-link-check.json
+  s_9520faa549e8dc::t_f6d5d0fc5929f9 1-21
+mise.toml
+  s_9520faa549e8dc::t_7593c12d5d83ac 10
+  s_9520faa549e8dc::t_d51dc4600be9d7 26
+  s_9520faa549e8dc::t_d6cc5112027f05 24,27
+  s_9520faa549e8dc::t_30362264d486d5 1-3,8-9,13,17,21,25,29,33
+dev-docs/GIT_HOOKS.md
+  s_9520faa549e8dc::t_0a91d7eae68ce3 1-48
+hk.pkl
+  s_9520faa549e8dc::t_f5659283c8f5e5 1-20
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.9",
+  "base_commit_sha": "b77345a1a01087afed514525c0d6b742fc90b427",
+  "prompts": {},
+  "sessions": {
+    "s_9520faa549e8dc": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "1bf3e358-32c2-49eb-908f-41cbd75bfed6",
+        "model": "claude-opus-4-8"
+      },
+      "human_author": "Minsu Lee <minsu.lee@pleaseai.dev>"
+    }
+  }
+}
