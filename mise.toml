@@ -23,7 +23,7 @@ run = "bun run lint"
 
 [tasks."lint:links"]
 description = "Check markdown links (all files)"
-run = "hk check --all"
+run = "find . -name '*.md' -not -path '*/node_modules/*' -not -name 'CHANGELOG.md' -exec markdown-link-check --config .markdown-link-check.json --quiet {} +"
 
 [tasks.test]
 description = "Test"

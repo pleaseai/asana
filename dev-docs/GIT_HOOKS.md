@@ -41,8 +41,8 @@ hk install
 ## Useful commands
 
 ```bash
-mise run lint:links        # check links in ALL markdown files
-hk check --all             # same as above (the underlying command)
+mise run lint:links        # check links in ALL markdown files directly
+hk check --all             # check links via hk hook runner
 hk run pre-commit          # run the pre-commit hook on staged files manually
 git commit --no-verify ...  # bypass the hook in an emergency
 ```
