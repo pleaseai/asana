@@ -6,7 +6,7 @@ import { getAsanaClient } from '../lib/asana-client'
 import { loadConfig } from '../lib/config'
 import { handleAsanaError } from '../lib/error-handler'
 import { validateDateFormat, validateGid, validateUpdateFields, ValidationError } from '../lib/validators'
-import { formatOutput } from '../utils/formatter'
+import { formatOutput, getOutputFormat } from '../utils/formatter'
 import { createTaskCustomFieldCommand } from './custom-field'
 import { createAttachCommand, createAttachmentCommand } from './task-attachment'
 import { createBatchCreateCommand, createBatchDeleteCommand, createBatchUpdateCommand } from './task-batch'
@@ -138,8 +138,11 @@ export function createTaskCommand(): Command {
           return
         }
 
-        // Get format from parent command (root program)
-        const format = (command.parent?.opts()?.format || 'toon') as OutputFormat
+        // Resolve --format from the global options. Use getOutputFormat
+        // (optsWithGlobals) rather than walking the parent chain by hand — the
+        // global option lives on the root command, and the hand-walked lookup
+        // here previously stopped one level short and silently ignored --format.
+        const format = getOutputFormat(command)
 
         // Format output based on selected format
         const output = formatOutput({ tasks: taskList }, { format, colors: process.stdout.isTTY })
