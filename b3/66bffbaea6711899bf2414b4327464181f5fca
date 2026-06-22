@@ -1,0 +1,21 @@
+dev-docs/GIT_HOOKS.md
+  s_2653ef578742ef::t_b66a82b96db01b 44-45
+mise.toml
+  s_2653ef578742ef::t_c1d164879796f3 26
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.9",
+  "base_commit_sha": "b366bffbaea6711899bf2414b4327464181f5fca",
+  "prompts": {},
+  "sessions": {
+    "s_2653ef578742ef": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "44bb5990-bf55-4c57-8d19-9a79fd0eec7a",
+        "model": "claude-opus-4-8"
+      },
+      "human_author": "Minsu Lee <minsu.lee@pleaseai.dev>"
+    }
+  }
+}
