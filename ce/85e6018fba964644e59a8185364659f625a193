@@ -1,0 +1,19 @@
+dev-docs/commit-convention.md
+  s_359ff1e296f03b::t_4cd2640c3d1398 5
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.9",
+  "base_commit_sha": "ce85e6018fba964644e59a8185364659f625a193",
+  "prompts": {},
+  "sessions": {
+    "s_359ff1e296f03b": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "f0292591-e1fd-46da-974c-fbb56d3a39e7",
+        "model": "claude-opus-4-8"
+      },
+      "human_author": "Minsu Lee <minsu.lee@pleaseai.dev>"
+    }
+  }
+}
