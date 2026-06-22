@@ -2,7 +2,11 @@
   "ignorePatterns": [
     { "pattern": "^https?://localhost" },
     { "pattern": "^https?://127\\.0\\.0\\.1" },
-    { "pattern": "^https?://0\\.0\\.0\\.0" }
+    { "pattern": "^https?://0\\.0\\.0\\.0" },
+    { "comment": "Nuxt Content 내부 라우트(렌더링 시 해석되며 파일로 검사 불가)", "pattern": "^/" },
+    { "comment": "Asana 앱 페이지는 인증이 필요해 봇 요청을 403으로 차단", "pattern": "^https?://app\\.asana\\.com/" },
+    { "comment": "npm 패키지 페이지는 봇 요청을 403으로 차단", "pattern": "^https?://(www\\.)?npmjs\\.com/" },
+    { "comment": "npm.im 단축 URL은 봇 요청을 403으로 차단", "pattern": "^https?://npm\\.im/" }
   ],
   "httpHeaders": [
     {
