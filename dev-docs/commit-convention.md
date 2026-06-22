@@ -2,7 +2,7 @@
 
 Lint your conventional commits
 
-Shareable `commitlint` config enforcing [conventional commits](https://conventionalcommits.org/).
+Shareable `commitlint` config enforcing [conventional commits](https://www.conventionalcommits.org/).
 Use with [@commitlint/cli](https://npm.im/@commitlint/cli) and [@commitlint/prompt-cli](https://npm.im/@commitlint/prompt-cli).
 
 ## Getting started
