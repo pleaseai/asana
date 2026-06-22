@@ -76,3 +76,18 @@ jobs:
 
       - name: Run ESLint
         run: bun run lint
+
+  link-check:
+    name: Markdown Link Check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup mise (node + markdown-link-check)
+        uses: jdx/mise-action@v2
+
+      # Reuse the same hk.pkl globs/excludes as the local pre-commit hook so the
+      # check is identical everywhere. hk isn't in mise.toml [tools] (no Intel-Mac
+      # binary), so install it on the fly here (CI runs linux).
+      - name: Check markdown links
+        run: mise exec hk@1.48.0 -- hk check --all
