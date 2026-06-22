@@ -1,0 +1,21 @@
+.claude/skills/asana-cli/references/commands.md
+  s_359ff1e296f03b::t_bb994bd46cd9a9 57,92,108,127,137,141,150,161,166,170,175,186,194-195,199,209
+.claude/skills/asana-cli/SKILL.md
+  s_359ff1e296f03b::t_9157e5684c7e43 36-37,59-64
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.9",
+  "base_commit_sha": "9cc7a888082d10fb33fc4314c46180a87a215322",
+  "prompts": {},
+  "sessions": {
+    "s_359ff1e296f03b": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "f0292591-e1fd-46da-974c-fbb56d3a39e7",
+        "model": "claude-opus-4-8"
+      },
+      "human_author": "Minsu Lee <minsu.lee@pleaseai.dev>"
+    }
+  }
+}
