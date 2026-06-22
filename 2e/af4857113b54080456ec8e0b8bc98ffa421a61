@@ -1,0 +1,21 @@
+test/commands/task-list-format.test.ts
+  s_359ff1e296f03b::t_f8e6fe73200906 1-31,70,75
+src/commands/task.ts
+  s_359ff1e296f03b::t_589e04cd78f40c 141-145
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.9",
+  "base_commit_sha": "2eaf4857113b54080456ec8e0b8bc98ffa421a61",
+  "prompts": {},
+  "sessions": {
+    "s_359ff1e296f03b": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "f0292591-e1fd-46da-974c-fbb56d3a39e7",
+        "model": "claude-opus-4-8"
+      },
+      "human_author": null
+    }
+  }
+}
