@@ -1,0 +1,19 @@
+dev-docs/adr/003-axi-agent-experience.md
+  s_80ac1b711d051b::t_9e7a54f2e6c2e6 91-93
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.10",
+  "base_commit_sha": "418a3d5d75b904e888a122c41a48f9128bf0f257",
+  "prompts": {},
+  "sessions": {
+    "s_80ac1b711d051b": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "d7686863-5b8d-4732-8a4a-09f40f877c48",
+        "model": "claude-opus-4-8"
+      },
+      "human_author": "Minsu Lee <minsu.lee@pleaseai.dev>"
+    }
+  }
+}
