@@ -1,0 +1,26 @@
+test/lib/error-handler.test.ts
+  s_80ac1b711d051b::t_4bb68bcbef2eb7 82-98
+  s_80ac1b711d051b::t_740ed769486fc4 11
+src/lib/error-handler.ts
+  s_80ac1b711d051b::t_34375a042ff324 19-27
+src/commands/task.ts
+  s_80ac1b711d051b::t_16a1a536615fa8 338,342-343,352
+  s_80ac1b711d051b::t_a3248f3ca93c0f 360,372-377
+  s_80ac1b711d051b::t_af07e2a5ab2aaa 7
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.10",
+  "base_commit_sha": "7144814714738387dac29de92462c7eeec543f9b",
+  "prompts": {},
+  "sessions": {
+    "s_80ac1b711d051b": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "d7686863-5b8d-4732-8a4a-09f40f877c48",
+        "model": "claude-opus-4-8"
+      },
+      "human_author": "Minsu Lee <minsu.lee@pleaseai.dev>"
+    }
+  }
+}
