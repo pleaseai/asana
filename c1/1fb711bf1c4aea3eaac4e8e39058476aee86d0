@@ -1,0 +1,20 @@
+dev-docs/AXI-ADOPTION.md
+  s_80ac1b711d051b::t_2b15b5b4f77477 173
+  s_80ac1b711d051b::t_3243afc3262968 39
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.10",
+  "base_commit_sha": "c11fb711bf1c4aea3eaac4e8e39058476aee86d0",
+  "prompts": {},
+  "sessions": {
+    "s_80ac1b711d051b": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "d7686863-5b8d-4732-8a4a-09f40f877c48",
+        "model": "claude-opus-4-8"
+      },
+      "human_author": "Minsu Lee <minsu.lee@pleaseai.dev>"
+    }
+  }
+}
