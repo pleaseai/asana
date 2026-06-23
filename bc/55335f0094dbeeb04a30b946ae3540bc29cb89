@@ -1,0 +1,21 @@
+src/lib/axi-output.ts
+  s_80ac1b711d051b::t_8510d28f5128ff 1-91
+test/lib/axi-output.test.ts
+  s_80ac1b711d051b::t_4d42e760b50b28 87-89
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.10",
+  "base_commit_sha": "bc55335f0094dbeeb04a30b946ae3540bc29cb89",
+  "prompts": {},
+  "sessions": {
+    "s_80ac1b711d051b": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "d7686863-5b8d-4732-8a4a-09f40f877c48",
+        "model": "claude-opus-4-8"
+      },
+      "human_author": "Minsu Lee <minsu.lee@pleaseai.dev>"
+    }
+  }
+}
