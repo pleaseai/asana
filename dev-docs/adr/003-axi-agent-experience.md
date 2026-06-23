@@ -88,8 +88,9 @@ Adopt **Option 3 (format-aware dual-mode error output)** with the following rule
   context: <optional key/values>
   ```
 
-- `--format plain` (and the default when output is an interactive TTY) → existing
-  **stderr + Chalk** human-readable behavior is preserved unchanged.
+- `--format plain` → existing **stderr + Chalk** human-readable behavior is
+  preserved unchanged. (`--format` defaults to `toon` regardless of TTY; `plain`
+  is opt-in.)
 - Errors are **translated** at the boundary: extract actionable meaning, never leak
   raw Asana SDK payloads or stack traces (DEBUG mode may still dump full detail to
   stderr).
