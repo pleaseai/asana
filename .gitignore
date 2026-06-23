@@ -44,5 +44,5 @@ asana
 .please/state/
 
 # Asana CLI skill — eval scratch & evals may contain private workspace data
-.claude/skills/*-workspace/
-.claude/skills/asana-cli/evals/
+skills/*-workspace/
+skills/asana-cli/evals/

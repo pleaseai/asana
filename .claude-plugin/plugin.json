@@ -1,0 +1,20 @@
+{
+  "name": "asana",
+  "version": "0.5.1",
+  "description": "Manage Asana from the terminal with the `asana` CLI — tasks, projects, sections, subtasks, comments, dependencies, followers, tags, attachments, custom fields, and CSV/JSON batch import.",
+  "author": {
+    "name": "Minsu Lee",
+    "email": "amond@amond.net",
+    "url": "https://github.com/amondnet"
+  },
+  "homepage": "https://github.com/pleaseai/asana#readme",
+  "repository": "https://github.com/pleaseai/asana",
+  "license": "MIT",
+  "keywords": [
+    "asana",
+    "cli",
+    "task-management",
+    "productivity",
+    "command-line"
+  ]
+}
