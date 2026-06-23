@@ -87,7 +87,7 @@ export function createTaskCommand(): Command {
           'Task name': options.name,
           'Workspace': workspace,
           'Project': options.project,
-        })
+        }, getOutputFormat(command))
       }
     })
 
@@ -153,7 +153,7 @@ export function createTaskCommand(): Command {
           Workspace: workspace,
           Project: options.project,
           Assignee: options.assignee,
-        })
+        }, getOutputFormat(command))
       }
     })
 
@@ -185,7 +185,7 @@ export function createTaskCommand(): Command {
         console.log(output)
       }
       catch (error) {
-        handleAsanaError(error, 'Task retrieval', { 'Task GID': gid })
+        handleAsanaError(error, 'Task retrieval', { 'Task GID': gid }, getOutputFormat(command))
       }
     })
 
@@ -256,7 +256,7 @@ export function createTaskCommand(): Command {
         if (error instanceof ValidationError) {
           process.exit(1)
         }
-        handleAsanaError(error, 'Task update', { 'Task GID': gid })
+        handleAsanaError(error, 'Task update', { 'Task GID': gid }, getOutputFormat(command))
       }
     })
 
@@ -327,7 +327,7 @@ export function createTaskCommand(): Command {
           'Task GID': gid,
           'Target project': options.project,
           'Target section': options.section,
-        })
+        }, getOutputFormat(command))
       }
     })
 
