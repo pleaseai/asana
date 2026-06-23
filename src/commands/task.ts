@@ -21,6 +21,9 @@ import { createTaskTagCommand } from './task-tag'
  * Exit on a validation failure, emitting a structured error to stdout for
  * machine formats (AXI §6). For `plain` the validator has already written a
  * human-readable message to stderr, so we avoid printing it twice.
+ *
+ * emitError writes the payload synchronously, so the following process.exit
+ * cannot truncate it when stdout is piped.
  */
 function failValidation(error: ValidationError, command: Command): never {
   const format = getOutputFormat(command)

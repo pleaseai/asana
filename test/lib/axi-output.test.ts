@@ -6,6 +6,7 @@
  * human `plain` format keeps colored stderr output.
  */
 
+import * as nodeFs from 'node:fs'
 import { describe, expect, mock, spyOn, test } from 'bun:test'
 import { ERROR_IDS } from '../../src/constants/errorIds'
 import {
@@ -77,17 +78,19 @@ describe('formatStructuredError', () => {
 })
 
 describe('emitError', () => {
-  test('writes a structured payload to stdout for json format', () => {
-    const log = spyOn(console, 'log').mockImplementation(() => {})
+  test('writes a structured payload synchronously to stdout (fd 1) for json format', () => {
+    // Synchronous write (not console.log) so process.exit cannot truncate it
+    // when stdout is piped.
+    const writeSpy = spyOn(nodeFs, 'writeSync').mockImplementation(() => 0)
     const err = spyOn(console, 'error').mockImplementation(() => {})
 
     emitError({ code: ERROR_IDS.TASK_NOT_FOUND, message: 'Task not found' }, 'json')
 
     expect(err).not.toHaveBeenCalled()
-    expect(log).toHaveBeenCalledTimes(1)
-    const firstCall = log.mock.calls[0]
-    expect(firstCall).toBeDefined()
-    const parsed = JSON.parse(String(firstCall?.[0]))
+    expect(writeSpy).toHaveBeenCalledTimes(1)
+    const call = writeSpy.mock.calls[0]
+    expect(call?.[0]).toBe(1)
+    const parsed = JSON.parse(String(call?.[1]))
     expect(parsed.code).toBe(ERROR_IDS.TASK_NOT_FOUND)
 
     mock.restore()

@@ -10,6 +10,7 @@
 
 import type { ErrorId } from '../constants/errorIds'
 import type { OutputFormat } from '../utils/formatter'
+import * as nodeFs from 'node:fs'
 import { inspect } from 'node:util'
 import { encodeToon } from '@pleaseai/cli-toolkit/output'
 import chalk from 'chalk'
@@ -73,7 +74,9 @@ export function emitError(error: AxiError, format: OutputFormat): void {
     return
   }
 
-  console.log(formatStructuredError(error, format))
+  // Write synchronously to stdout (fd 1): callers exit immediately afterwards,
+  // and an async console.log could be truncated by process.exit when piped.
+  nodeFs.writeSync(1, `${formatStructuredError(error, format)}\n`)
 }
 
 /**

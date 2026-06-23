@@ -137,7 +137,9 @@ export function handleAsanaError(
   context: Record<string, any>,
   format: OutputFormat = 'plain',
 ): never {
-  // Machine formats: structured error to stdout (AXI §6)
+  // Machine formats: structured error to stdout (AXI §6). emitError writes the
+  // payload synchronously, so the following process.exit cannot truncate it
+  // when stdout is piped.
   if (format !== 'plain') {
     emitError(translateAsanaError(error, operation, context), format)
     process.exit(1)
