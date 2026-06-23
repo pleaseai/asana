@@ -36,7 +36,7 @@ introspection); see the scorecard below.
 ## Agent DX scorecard
 
 AXI covers output and presentation. The complementary
-[Agent DX CLI Scale](../.claude/skills/agent-dx-cli-scale/SKILL.md) (0–21, from
+**Agent DX CLI Scale** (0–21, from
 "You Need to Rewrite Your CLI for AI Agents") scores the **input, safety, and
 introspection** surfaces AXI does not. We track it here so the roadmap is measured
 against both.
@@ -170,7 +170,7 @@ low-risk and may be pulled forward right after Phase 1.**
 ## References
 
 - [AXI — Agent eXperience Interface](https://agentskills.io)
-- [Agent DX CLI Scale](../.claude/skills/agent-dx-cli-scale/SKILL.md)
+- Agent DX CLI Scale — local skill `agent-dx-cli-scale` (from "You Need to Rewrite Your CLI for AI Agents")
 - [TOON specification](https://toonformat.dev/reference/spec.html)
 - [ADR-002: TOON Output Format](./adr/002-toon-output-format.md)
 - [ADR-003: AXI Agent eXperience Conventions](./adr/003-axi-agent-experience.md)
