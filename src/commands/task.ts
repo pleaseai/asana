@@ -3,8 +3,9 @@ import type { OutputFormat } from '../utils/formatter'
 import chalk from 'chalk'
 import { Command } from 'commander'
 import { getAsanaClient } from '../lib/asana-client'
+import { emitError, emitResult } from '../lib/axi-output'
 import { loadConfig } from '../lib/config'
-import { handleAsanaError } from '../lib/error-handler'
+import { handleAsanaError, isNotFoundError } from '../lib/error-handler'
 import { validateDateFormat, validateGid, validateUpdateFields, ValidationError } from '../lib/validators'
 import { formatOutput, getOutputFormat } from '../utils/formatter'
 import { createTaskCustomFieldCommand } from './custom-field'
@@ -15,6 +16,22 @@ import { createDependencyCommand, createDependentCommand } from './task-dependen
 import { createFollowerCommand } from './task-follower'
 import { createSubtaskCommand } from './task-subtask'
 import { createTaskTagCommand } from './task-tag'
+
+/**
+ * Exit on a validation failure, emitting a structured error to stdout for
+ * machine formats (AXI §6). For `plain` the validator has already written a
+ * human-readable message to stderr, so we avoid printing it twice.
+ *
+ * emitError writes the payload synchronously, so the following process.exit
+ * cannot truncate it when stdout is piped.
+ */
+function failValidation(error: ValidationError, command: Command): never {
+  const format = getOutputFormat(command)
+  if (format !== 'plain') {
+    emitError({ code: error.errorId, message: error.message, context: error.context }, format)
+  }
+  process.exit(1)
+}
 
 export function createTaskCommand(): Command {
   const task = new Command('task')
@@ -81,13 +98,13 @@ export function createTaskCommand(): Command {
       }
       catch (error) {
         if (error instanceof ValidationError) {
-          process.exit(1)
+          failValidation(error, command)
         }
         handleAsanaError(error, 'Task creation', {
           'Task name': options.name,
           'Workspace': workspace,
           'Project': options.project,
-        })
+        }, getOutputFormat(command))
       }
     })
 
@@ -153,7 +170,7 @@ export function createTaskCommand(): Command {
           Workspace: workspace,
           Project: options.project,
           Assignee: options.assignee,
-        })
+        }, getOutputFormat(command))
       }
     })
 
@@ -185,7 +202,7 @@ export function createTaskCommand(): Command {
         console.log(output)
       }
       catch (error) {
-        handleAsanaError(error, 'Task retrieval', { 'Task GID': gid })
+        handleAsanaError(error, 'Task retrieval', { 'Task GID': gid }, getOutputFormat(command))
       }
     })
 
@@ -254,9 +271,9 @@ export function createTaskCommand(): Command {
       }
       catch (error) {
         if (error instanceof ValidationError) {
-          process.exit(1)
+          failValidation(error, command)
         }
-        handleAsanaError(error, 'Task update', { 'Task GID': gid })
+        handleAsanaError(error, 'Task update', { 'Task GID': gid }, getOutputFormat(command))
       }
     })
 
@@ -321,13 +338,13 @@ export function createTaskCommand(): Command {
       }
       catch (error) {
         if (error instanceof ValidationError) {
-          process.exit(1)
+          failValidation(error, command)
         }
         handleAsanaError(error, 'Task move', {
           'Task GID': gid,
           'Target project': options.project,
           'Target section': options.section,
-        })
+        }, getOutputFormat(command))
       }
     })
 
@@ -335,19 +352,25 @@ export function createTaskCommand(): Command {
     .command('complete')
     .description('Mark a task as complete')
     .argument('<gid>', 'Task GID')
-    .action(async (gid: string) => {
+    .action(async (gid: string, _options: any, command: Command) => {
       try {
         validateGid(gid, 'Task GID')
         const client = getAsanaClient()
-        await client.tasks.update(gid, { completed: true })
+        // Completing an already-complete task is not an error in the Asana API,
+        // so this mutation is already idempotent (exit 0).
+        const result = await client.tasks.update(gid, { completed: true })
 
-        console.log(chalk.green(`✓ Task ${gid} marked as complete`))
+        emitResult(
+          { task: { status: 'success', gid: result.gid ?? gid, completed: result.completed ?? true } },
+          `✓ Task ${gid} marked as complete`,
+          getOutputFormat(command),
+        )
       }
       catch (error) {
         if (error instanceof ValidationError) {
-          process.exit(1)
+          failValidation(error, command)
         }
-        handleAsanaError(error, 'Task completion', { 'Task GID': gid })
+        handleAsanaError(error, 'Task completion', { 'Task GID': gid }, getOutputFormat(command))
       }
     })
 
@@ -355,19 +378,32 @@ export function createTaskCommand(): Command {
     .command('delete')
     .description('Delete a task')
     .argument('<gid>', 'Task GID')
-    .action(async (gid: string) => {
+    .action(async (gid: string, _options: any, command: Command) => {
       try {
         validateGid(gid, 'Task GID')
         const client = getAsanaClient()
         await client.tasks.delete(gid)
 
-        console.log(chalk.green(`✓ Task ${gid} deleted`))
+        emitResult(
+          { task: { status: 'success', gid, deleted: true } },
+          `✓ Task ${gid} deleted`,
+          getOutputFormat(command),
+        )
       }
       catch (error) {
         if (error instanceof ValidationError) {
-          process.exit(1)
+          failValidation(error, command)
         }
-        handleAsanaError(error, 'Task deletion', { 'Task GID': gid })
+        // Idempotent delete: an already-gone task is a no-op success (AXI §6).
+        if (isNotFoundError(error)) {
+          emitResult(
+            { task: { status: 'already_deleted', gid } },
+            `✓ Task ${gid} already deleted (no-op)`,
+            getOutputFormat(command),
+          )
+          return
+        }
+        handleAsanaError(error, 'Task deletion', { 'Task GID': gid }, getOutputFormat(command))
       }
     })
 

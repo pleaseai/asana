@@ -5,13 +5,14 @@
  * Validates before API calls to provide clear error messages.
  */
 
+import type { ErrorId } from '../constants/errorIds'
 import { existsSync, statSync } from 'node:fs'
 import chalk from 'chalk'
 import { ERROR_IDS } from '../constants/errorIds'
 
 export class ValidationError extends Error {
   constructor(
-    public errorId: string,
+    public errorId: ErrorId,
     message: string,
     public context: Record<string, any> = {},
   ) {
