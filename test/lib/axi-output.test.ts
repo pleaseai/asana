@@ -110,6 +110,22 @@ describe('emitError', () => {
 
     mock.restore()
   })
+
+  test('renders object context values without [object Object] in plain output', () => {
+    spyOn(console, 'log').mockImplementation(() => {})
+    const err = spyOn(console, 'error').mockImplementation(() => {})
+
+    emitError(
+      { code: ERROR_IDS.NO_UPDATE_FIELDS, message: 'No fields', context: { fields: { name: 'x' } } },
+      'plain',
+    )
+
+    const joined = err.mock.calls.map(call => String(call[0])).join('\n')
+    expect(joined).not.toContain('[object Object]')
+    expect(joined).toContain('name')
+
+    mock.restore()
+  })
 })
 
 describe('emitResult', () => {

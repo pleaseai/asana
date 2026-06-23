@@ -3,7 +3,7 @@ import type { OutputFormat } from '../utils/formatter'
 import chalk from 'chalk'
 import { Command } from 'commander'
 import { getAsanaClient } from '../lib/asana-client'
-import { emitResult } from '../lib/axi-output'
+import { emitError, emitResult } from '../lib/axi-output'
 import { loadConfig } from '../lib/config'
 import { handleAsanaError, isNotFoundError } from '../lib/error-handler'
 import { validateDateFormat, validateGid, validateUpdateFields, ValidationError } from '../lib/validators'
@@ -16,6 +16,19 @@ import { createDependencyCommand, createDependentCommand } from './task-dependen
 import { createFollowerCommand } from './task-follower'
 import { createSubtaskCommand } from './task-subtask'
 import { createTaskTagCommand } from './task-tag'
+
+/**
+ * Exit on a validation failure, emitting a structured error to stdout for
+ * machine formats (AXI §6). For `plain` the validator has already written a
+ * human-readable message to stderr, so we avoid printing it twice.
+ */
+function failValidation(error: ValidationError, command: Command): never {
+  const format = getOutputFormat(command)
+  if (format !== 'plain') {
+    emitError({ code: error.errorId, message: error.message, context: error.context }, format)
+  }
+  process.exit(1)
+}
 
 export function createTaskCommand(): Command {
   const task = new Command('task')
@@ -82,7 +95,7 @@ export function createTaskCommand(): Command {
       }
       catch (error) {
         if (error instanceof ValidationError) {
-          process.exit(1)
+          failValidation(error, command)
         }
         handleAsanaError(error, 'Task creation', {
           'Task name': options.name,
@@ -255,7 +268,7 @@ export function createTaskCommand(): Command {
       }
       catch (error) {
         if (error instanceof ValidationError) {
-          process.exit(1)
+          failValidation(error, command)
         }
         handleAsanaError(error, 'Task update', { 'Task GID': gid }, getOutputFormat(command))
       }
@@ -322,7 +335,7 @@ export function createTaskCommand(): Command {
       }
       catch (error) {
         if (error instanceof ValidationError) {
-          process.exit(1)
+          failValidation(error, command)
         }
         handleAsanaError(error, 'Task move', {
           'Task GID': gid,
@@ -352,7 +365,7 @@ export function createTaskCommand(): Command {
       }
       catch (error) {
         if (error instanceof ValidationError) {
-          process.exit(1)
+          failValidation(error, command)
         }
         handleAsanaError(error, 'Task completion', { 'Task GID': gid }, getOutputFormat(command))
       }
@@ -376,7 +389,7 @@ export function createTaskCommand(): Command {
       }
       catch (error) {
         if (error instanceof ValidationError) {
-          process.exit(1)
+          failValidation(error, command)
         }
         // Idempotent delete: an already-gone task is a no-op success (AXI §6).
         if (isNotFoundError(error)) {

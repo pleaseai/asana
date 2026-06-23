@@ -10,13 +10,14 @@
 
 import type { ErrorId } from '../constants/errorIds'
 import type { OutputFormat } from '../utils/formatter'
+import { inspect } from 'node:util'
 import { encodeToon } from '@pleaseai/cli-toolkit/output'
 import chalk from 'chalk'
 import { formatOutput } from '../utils/formatter'
 
 export interface AxiError {
   /** Stable, machine-readable error code. */
-  code: ErrorId | string
+  code: ErrorId
 
   /** Translated, actionable message readable by both humans and agents. */
   message: string
@@ -100,7 +101,8 @@ function emitErrorPlain(error: AxiError): void {
   if (error.context) {
     for (const [key, value] of Object.entries(error.context)) {
       if (value !== undefined && value !== null) {
-        console.error(chalk.gray(`  ${key}: ${value}`))
+        const rendered = typeof value === 'string' ? value : inspect(value, { depth: null, colors: false })
+        console.error(chalk.gray(`  ${key}: ${rendered}`))
       }
     }
   }
