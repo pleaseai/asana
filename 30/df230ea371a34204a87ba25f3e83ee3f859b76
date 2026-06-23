@@ -1,0 +1,22 @@
+test/lib/error-handler.test.ts
+  s_80ac1b711d051b::t_e17295b4c945a1 65,70-78
+  s_80ac1b711d051b::t_c7c035445f1d32 1-64,66-69,79-81
+src/lib/error-handler.ts
+  s_80ac1b711d051b::t_d98d55e51b0204 5-8,12-13,15-16,19-122,128,130-135
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.10",
+  "base_commit_sha": "30df230ea371a34204a87ba25f3e83ee3f859b76",
+  "prompts": {},
+  "sessions": {
+    "s_80ac1b711d051b": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "d7686863-5b8d-4732-8a4a-09f40f877c48",
+        "model": "claude-opus-4-8"
+      },
+      "human_author": "Minsu Lee <minsu.lee@pleaseai.dev>"
+    }
+  }
+}
