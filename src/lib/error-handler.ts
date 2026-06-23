@@ -16,6 +16,16 @@ import { ERROR_IDS } from '../constants/errorIds'
 import { emitError } from './axi-output'
 
 /**
+ * Whether an error represents a missing resource (HTTP 404). Pure.
+ *
+ * Used to make destructive mutations idempotent: deleting an already-gone
+ * resource is a no-op success rather than an error (AXI §6).
+ */
+export function isNotFoundError(error: any): boolean {
+  return error?.status === 404
+}
+
+/**
  * Translate a raw Asana SDK / HTTP / network error into a structured AxiError
  * (stable code + actionable help). Pure — no side effects.
  */

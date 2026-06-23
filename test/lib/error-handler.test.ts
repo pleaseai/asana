@@ -8,7 +8,7 @@
 
 import { describe, expect, test } from 'bun:test'
 import { ERROR_IDS } from '../../src/constants/errorIds'
-import { translateAsanaError } from '../../src/lib/error-handler'
+import { isNotFoundError, translateAsanaError } from '../../src/lib/error-handler'
 
 const OP = 'Task creation'
 const CTX = { 'Task GID': '123' }
@@ -77,5 +77,22 @@ describe('translateAsanaError', () => {
 
     expect(result.code).toBe(ERROR_IDS.API_ERROR)
     expect(result.context).toEqual(CTX)
+  })
+})
+
+describe('isNotFoundError', () => {
+  test('is true for an HTTP 404 error', () => {
+    expect(isNotFoundError({ status: 404 })).toBe(true)
+  })
+
+  test('is false for other HTTP statuses', () => {
+    expect(isNotFoundError({ status: 403 })).toBe(false)
+    expect(isNotFoundError({ status: 500 })).toBe(false)
+  })
+
+  test('is false for network and unknown errors', () => {
+    expect(isNotFoundError({ code: 'ENOTFOUND' })).toBe(false)
+    expect(isNotFoundError({})).toBe(false)
+    expect(isNotFoundError(null)).toBe(false)
   })
 })
