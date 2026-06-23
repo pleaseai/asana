@@ -1,0 +1,19 @@
+src/lib/validators.ts
+  s_80ac1b711d051b::t_f90df8919e8f9a 8,15
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.10",
+  "base_commit_sha": "ae457cc37bb8c4d4f6c9620848a57d28ba20bfbf",
+  "prompts": {},
+  "sessions": {
+    "s_80ac1b711d051b": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "d7686863-5b8d-4732-8a4a-09f40f877c48",
+        "model": "claude-opus-4-8"
+      },
+      "human_author": "Minsu Lee <minsu.lee@pleaseai.dev>"
+    }
+  }
+}
