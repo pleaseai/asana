@@ -1,0 +1,28 @@
+src/lib/axi-output.ts
+  s_80ac1b711d051b::t_5b8993f626e37a 13
+  s_80ac1b711d051b::t_71adfb8c632ecb 77-79
+src/commands/task.ts
+  s_80ac1b711d051b::t_8f397a8b497d31 25-26
+  s_80ac1b711d051b::t_da1479f630592e 24
+test/lib/axi-output.test.ts
+  s_80ac1b711d051b::t_5d9dd1495c5ddb 81-84,90-93
+  s_80ac1b711d051b::t_82a7225c75614a 9
+src/lib/error-handler.ts
+  s_80ac1b711d051b::t_a6f97a156ca4cf 140-142
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.10",
+  "base_commit_sha": "c218dd0e18f321e6e324e5c8f76a03f2566c5e29",
+  "prompts": {},
+  "sessions": {
+    "s_80ac1b711d051b": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "d7686863-5b8d-4732-8a4a-09f40f877c48",
+        "model": "claude-opus-4-8"
+      },
+      "human_author": "Minsu Lee <minsu.lee@pleaseai.dev>"
+    }
+  }
+}
