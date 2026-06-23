@@ -12,6 +12,7 @@ import type { ErrorId } from '../constants/errorIds'
 import type { OutputFormat } from '../utils/formatter'
 import { encodeToon } from '@pleaseai/cli-toolkit/output'
 import chalk from 'chalk'
+import { formatOutput } from '../utils/formatter'
 
 export interface AxiError {
   /** Stable, machine-readable error code. */
@@ -72,6 +73,25 @@ export function emitError(error: AxiError, format: OutputFormat): void {
   }
 
   console.log(formatStructuredError(error, format))
+}
+
+/**
+ * Emit a successful result in the selected format.
+ *
+ * - `toon` / `json`: structured `data` to stdout (agent-readable).
+ * - `plain`: the human-friendly `plainMessage` (colored) to stdout.
+ *
+ * Keeps machine output parseable while preserving the existing human UX, so an
+ * agent parsing stdout never receives stray prose (Pragmatic Programmer —
+ * orthogonality).
+ */
+export function emitResult(data: unknown, plainMessage: string, format: OutputFormat): void {
+  if (format === 'plain') {
+    console.log(chalk.green(plainMessage))
+    return
+  }
+
+  console.log(formatOutput(data, { format }))
 }
 
 function emitErrorPlain(error: AxiError): void {

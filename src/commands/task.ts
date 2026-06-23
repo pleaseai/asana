@@ -3,6 +3,7 @@ import type { OutputFormat } from '../utils/formatter'
 import chalk from 'chalk'
 import { Command } from 'commander'
 import { getAsanaClient } from '../lib/asana-client'
+import { emitResult } from '../lib/axi-output'
 import { loadConfig } from '../lib/config'
 import { handleAsanaError, isNotFoundError } from '../lib/error-handler'
 import { validateDateFormat, validateGid, validateUpdateFields, ValidationError } from '../lib/validators'
@@ -341,9 +342,13 @@ export function createTaskCommand(): Command {
         const client = getAsanaClient()
         // Completing an already-complete task is not an error in the Asana API,
         // so this mutation is already idempotent (exit 0).
-        await client.tasks.update(gid, { completed: true })
+        const result = await client.tasks.update(gid, { completed: true })
 
-        console.log(chalk.green(`✓ Task ${gid} marked as complete`))
+        emitResult(
+          { task: { status: 'success', gid: result.gid ?? gid, completed: result.completed ?? true } },
+          `✓ Task ${gid} marked as complete`,
+          getOutputFormat(command),
+        )
       }
       catch (error) {
         if (error instanceof ValidationError) {
@@ -363,7 +368,11 @@ export function createTaskCommand(): Command {
         const client = getAsanaClient()
         await client.tasks.delete(gid)
 
-        console.log(chalk.green(`✓ Task ${gid} deleted`))
+        emitResult(
+          { task: { status: 'success', gid, deleted: true } },
+          `✓ Task ${gid} deleted`,
+          getOutputFormat(command),
+        )
       }
       catch (error) {
         if (error instanceof ValidationError) {
@@ -371,7 +380,11 @@ export function createTaskCommand(): Command {
         }
         // Idempotent delete: an already-gone task is a no-op success (AXI §6).
         if (isNotFoundError(error)) {
-          console.log(chalk.green(`✓ Task ${gid} already deleted (no-op)`))
+          emitResult(
+            { task: { status: 'already_deleted', gid } },
+            `✓ Task ${gid} already deleted (no-op)`,
+            getOutputFormat(command),
+          )
           return
         }
         handleAsanaError(error, 'Task deletion', { 'Task GID': gid }, getOutputFormat(command))

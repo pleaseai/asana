@@ -11,6 +11,7 @@ import { ERROR_IDS } from '../../src/constants/errorIds'
 import {
   buildErrorPayload,
   emitError,
+  emitResult,
   formatStructuredError,
 } from '../../src/lib/axi-output'
 
@@ -106,6 +107,33 @@ describe('emitError', () => {
     const joined = err.mock.calls.map(call => String(call[0])).join('\n')
     expect(joined).toContain('Task not found')
     expect(joined).toContain('Try again')
+
+    mock.restore()
+  })
+})
+
+describe('emitResult', () => {
+  test('emits a structured payload to stdout for machine formats', () => {
+    const log = spyOn(console, 'log').mockImplementation(() => {})
+
+    emitResult({ task: { gid: '1', status: 'success' } }, '✓ done', 'json')
+
+    expect(log).toHaveBeenCalledTimes(1)
+    const parsed = JSON.parse(String(log.mock.calls[0]?.[0]))
+    expect(parsed.task.gid).toBe('1')
+
+    mock.restore()
+  })
+
+  test('emits the human plain message for plain format', () => {
+    const log = spyOn(console, 'log').mockImplementation(() => {})
+
+    emitResult({ task: { gid: '1' } }, '✓ done', 'plain')
+
+    const out = String(log.mock.calls[0]?.[0])
+    expect(out).toContain('✓ done')
+    // The structured payload must not leak into plain output.
+    expect(out).not.toContain('gid')
 
     mock.restore()
   })
