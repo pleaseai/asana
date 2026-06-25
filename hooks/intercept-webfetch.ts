@@ -13,7 +13,6 @@
  * URL parsing is shared with the CLI via `src/lib/asana-url.ts`.
  */
 
-import type { AsanaUrlMatch } from '../src/lib/asana-url'
 import process from 'node:process'
 import { parseAsanaUrl } from '../src/lib/asana-url'
 
@@ -49,10 +48,9 @@ export function decideForToolCall(hookInput: PreToolUseHookInput): HookJSONOutpu
   }
 
   const url = (hookInput.tool_input as WebFetchToolInput)?.url
-  const match = url ? parseAsanaUrl(url) : null
 
   // Not an Asana URL → allow the fetch.
-  if (!match) {
+  if (!url || !parseAsanaUrl(url)) {
     return {}
   }
 
@@ -62,39 +60,19 @@ export function decideForToolCall(hookInput: PreToolUseHookInput): HookJSONOutpu
       permissionDecision: 'deny',
       permissionDecisionReason: 'Asana URL detected — use the asana CLI for authenticated, structured access',
     },
-    systemMessage: `⚠️ ${buildCliGuidance(match)}`,
+    systemMessage: `⚠️ ${buildCliGuidance(url)}`,
   }
 }
 
 /**
- * Build the `asana` CLI guidance shown to the agent for a matched URL.
+ * Build the `asana` CLI guidance for an Asana URL. `asana fetch` resolves the
+ * URL to its task/project/comment itself, so the agent can pass the link
+ * verbatim instead of extracting a gid and choosing a subcommand.
  */
-export function buildCliGuidance(match: AsanaUrlMatch): string {
-  if (match.type === 'comment' && match.taskId) {
-    return `Asana comment detected. Use the asana CLI instead of WebFetch:
-
-  asana task comment list ${match.taskId} --format toon
-
-(The CLI lists a task's comments; there is no fetch-single-comment command.)`
-  }
-
-  if (match.type === 'task' && match.taskId) {
-    return `Asana task detected. Use the asana CLI instead of WebFetch:
-
-  asana task get ${match.taskId} --format toon`
-  }
-
-  if (match.type === 'project' && match.projectId) {
-    return `Asana project detected. Use the asana CLI instead of WebFetch:
-
-  asana project get ${match.projectId} --format toon`
-  }
-
+export function buildCliGuidance(url: string): string {
   return `Asana URL detected. Use the asana CLI instead of WebFetch:
 
-  asana --help          # list commands
-  asana task get <gid>  # a task
-  asana project get <gid>  # a project`
+  asana fetch ${url} --format toon`
 }
 
 async function main(): Promise<void> {
