@@ -1,0 +1,19 @@
+test/lib/asana-client.test.ts
+  s_85c9f156fd120c::t_cb6a078534ad2c 136-157
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.13",
+  "base_commit_sha": "b8ede3e5218e19202f4b7c31f8db8f04f62b1db8",
+  "prompts": {},
+  "sessions": {
+    "s_85c9f156fd120c": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "da6c1796-1786-4c23-8938-51b5d4979c8d",
+        "model": "claude-opus-4-8"
+      },
+      "human_author": "Minsu Lee <minsu.lee@pleaseai.dev>"
+    }
+  }
+}
