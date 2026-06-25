@@ -1,11 +1,11 @@
-import type { OutputFormat } from '../utils/formatter'
 import asana from 'asana'
 import chalk from 'chalk'
 import { Command } from 'commander'
 import { getAsanaClient, resetClient } from '../lib/asana-client'
 import { loadConfig, saveConfig } from '../lib/config'
+import { handleAsanaError } from '../lib/error-handler'
 import { startOAuthFlow } from '../lib/oauth'
-import { formatOutput } from '../utils/formatter'
+import { formatOutput, getOutputFormat } from '../utils/formatter'
 
 export function createAuthCommand(): Command {
   const auth = new Command('auth')
@@ -99,13 +99,13 @@ export function createAuthCommand(): Command {
     .command('whoami')
     .description('Display current authenticated user')
     .action(async (options: any, command: Command) => {
+      // Resolve format up front so it is available in the catch block too.
+      const format = getOutputFormat(command)
+
       try {
         const client = getAsanaClient()
         const user = await client.users.me()
         const config = loadConfig()
-
-        // Get format from parent command (root program)
-        const format = (command.parent?.parent?.opts()?.format || 'toon') as OutputFormat
 
         // Prepare user data for output
         const userData: any = {
@@ -135,9 +135,18 @@ export function createAuthCommand(): Command {
         const output = formatOutput(userData, { format, colors: process.stdout.isTTY })
         console.log(output)
       }
-      catch {
-        console.error(chalk.red('✗ Not authenticated. Run "asana auth login" first.'))
-        process.exit(1)
+      catch (error) {
+        // No stored credentials at all → keep the friendly login hint for humans.
+        // For machine formats (json/toon) fall through to handleAsanaError so the
+        // failure is emitted as structured output instead of a plain colored line.
+        if (format === 'plain' && error instanceof Error && error.message.includes('Asana access token not found')) {
+          console.error(chalk.red('✗ Not authenticated. Run "asana auth login" first.'))
+          process.exit(1)
+        }
+
+        // Otherwise surface the real failure (401, app-type restriction, network,
+        // etc.) instead of masking every error as "not authenticated".
+        handleAsanaError(error, 'Get current user', {}, format)
       }
     })
 
