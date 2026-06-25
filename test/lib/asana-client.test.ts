@@ -133,6 +133,28 @@ describe('asana-client module', () => {
 
       expect(() => getAsanaClient()).toThrow('Asana access token not found')
     })
+
+    test('falls through an empty config token to ASANA_ACCESS_TOKEN', () => {
+      // Empty config token is falsy, so the `|| env` chain must reach the env
+      // placeholder. Guards against a future `||` -> `??` refactor silently
+      // breaking brokered egress.
+      const config: AsanaConfig = { accessToken: '', authType: 'pat' }
+      mkdirSync(TEST_CONFIG_DIR, { recursive: true })
+      writeFileSync(TEST_CONFIG_FILE, JSON.stringify(config))
+      process.env.ASANA_ACCESS_TOKEN = 'brokered'
+
+      getAsanaClient()
+
+      expect(Asana.ApiClient.instance.authentications.token.accessToken).toBe('brokered')
+    })
+
+    test('throws when config token is empty and no ASANA_ACCESS_TOKEN is set', () => {
+      const config: AsanaConfig = { accessToken: '', authType: 'pat' }
+      mkdirSync(TEST_CONFIG_DIR, { recursive: true })
+      writeFileSync(TEST_CONFIG_FILE, JSON.stringify(config))
+
+      expect(() => getAsanaClient()).toThrow('Asana access token not found')
+    })
   })
 
   describe('refreshTokenIfNeeded', () => {
