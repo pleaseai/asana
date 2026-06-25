@@ -3,6 +3,7 @@ import type { OutputFormat } from '../utils/formatter'
 import chalk from 'chalk'
 import { Command } from 'commander'
 import { getAsanaClient } from '../lib/asana-client'
+import { toTaskView } from '../lib/asana-views'
 import { emitError, emitResult } from '../lib/axi-output'
 import { loadConfig } from '../lib/config'
 import { handleAsanaError, isNotFoundError } from '../lib/error-handler'
@@ -189,19 +190,8 @@ export function createTaskCommand(): Command {
         // Get format from parent command (root program)
         const format = (command.parent?.parent?.opts()?.format || 'toon') as OutputFormat
 
-        // Prepare task data for output
-        const taskData = {
-          gid: taskDetail.gid,
-          name: taskDetail.name,
-          completed: taskDetail.completed,
-          assignee: taskDetail.assignee?.name,
-          due_on: taskDetail.due_on,
-          notes: taskDetail.notes,
-          permalink_url: taskDetail.permalink_url,
-        }
-
         // Format output based on selected format
-        const output = formatOutput({ task: taskData }, { format, colors: process.stdout.isTTY })
+        const output = formatOutput({ task: toTaskView(taskDetail) }, { format, colors: process.stdout.isTTY })
         console.log(output)
       }
       catch (error) {

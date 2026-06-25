@@ -4,6 +4,7 @@ import { Command } from 'commander'
 import packageJson from '../package.json'
 import { createAuthCommand } from './commands/auth'
 import { createCustomFieldCommand } from './commands/custom-field'
+import { createFetchCommand } from './commands/fetch'
 import { createProjectCommand } from './commands/project'
 import { createSearchCommand } from './commands/search'
 import { createSectionCommand } from './commands/section'
@@ -30,6 +31,7 @@ program
 // Register commands
 program.addCommand(createAuthCommand())
 program.addCommand(createTaskCommand())
+program.addCommand(createFetchCommand())
 program.addCommand(createProjectCommand())
 program.addCommand(createSectionCommand())
 program.addCommand(createTagCommand())
