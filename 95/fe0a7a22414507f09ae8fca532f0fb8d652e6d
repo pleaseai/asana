@@ -1,0 +1,35 @@
+src/commands/tag.ts
+  s_45593b991010b8::t_a4be2ac9742db9 79,81-82,84,154,156,161,163
+eslint.config.js
+  s_45593b991010b8::t_ae73d296fab878 8-10
+test/self-update.test.ts
+  s_45593b991010b8::t_a4be2ac9742db9 59,61-62,64
+src/commands/self-update.ts
+  s_45593b991010b8::t_a4be2ac9742db9 99,101,132,134-135,137
+src/commands/task.ts
+  s_45593b991010b8::t_a4be2ac9742db9 67,69-70,72,81,83,237,239-240,242-243,245,255,257
+src/commands/section.ts
+  s_45593b991010b8::t_a4be2ac9742db9 111,113
+src/commands/project.ts
+  s_45593b991010b8::t_a4be2ac9742db9 176,178-179,181-182,184,186,188-189,191
+src/commands/task-subtask.ts
+  s_45593b991010b8::t_a4be2ac9742db9 120,122-123,125-126,128
+package.json
+  s_45593b991010b8::t_a34ab20cc07887 60
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.13",
+  "base_commit_sha": "95fe0a7a22414507f09ae8fca532f0fb8d652e6d",
+  "prompts": {},
+  "sessions": {
+    "s_45593b991010b8": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "29a0c011-efee-49f2-9d30-193309048f81",
+        "model": "claude-opus-4-8"
+      },
+      "human_author": "Minsu Lee <minsu.lee@pleaseai.dev>"
+    }
+  }
+}
