@@ -1,0 +1,32 @@
+src/lib/asana-url.ts
+  s_a6b01afcbdb21d::t_5c30c03d5ac59b 27-33,37,44,51,57-58,65,71-72
+src/lib/asana-views.ts
+  s_a6b01afcbdb21d::t_0794d4720eeab7 78
+  s_a6b01afcbdb21d::t_02e8096f4b27ae 19-21
+  s_a6b01afcbdb21d::t_094ceb09f7a8a7 44-46
+hooks/intercept-webfetch.ts
+  s_a6b01afcbdb21d::t_2450ffa7427dea 75
+test/lib/asana-url.test.ts
+  s_a6b01afcbdb21d::t_7c2f69d75154b4 157-187
+test/hooks/intercept-webfetch.test.ts
+  s_a6b01afcbdb21d::t_112122b411b0e8 9,12
+  s_a6b01afcbdb21d::t_5c45382a13264a 22,28
+src/commands/fetch.ts
+  s_a6b01afcbdb21d::t_27f01794f8ab24 98-102
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.13",
+  "base_commit_sha": "6d4da2924501320521eaf71163f3d8fb1887a2e5",
+  "prompts": {},
+  "sessions": {
+    "s_a6b01afcbdb21d": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "a80b6f43-0fb6-429d-9d15-95e63b625fa2",
+        "model": "claude-opus-4-8"
+      },
+      "human_author": "Minsu Lee <minsu.lee@pleaseai.dev>"
+    }
+  }
+}
