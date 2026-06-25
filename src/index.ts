@@ -46,7 +46,7 @@ program.hook('preAction', async (_thisCommand, actionCommand) => {
   // Build the invoked command path, e.g. "auth whoami" or "task list".
   const segments: string[] = []
   let cmd: Command | null = actionCommand
-  while (cmd && cmd.name() !== program.name()) {
+  while (cmd && cmd !== program) {
     segments.unshift(cmd.name())
     cmd = cmd.parent
   }
@@ -65,5 +65,10 @@ program.hook('preAction', async (_thisCommand, actionCommand) => {
   }
 })
 
-// Parse arguments
-program.parseAsync(process.argv)
+// Parse arguments. Surface any rejection from async action handlers as a clean
+// error exit instead of an unhandled-rejection warning. (Top-level await is
+// disallowed by the project lint config, so handle the promise explicitly.)
+program.parseAsync(process.argv).catch((error) => {
+  console.error(chalk.red(`✗ ${error instanceof Error ? error.message : 'Command failed'}`))
+  process.exit(1)
+})
