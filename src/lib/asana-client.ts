@@ -28,14 +28,9 @@ function initializeApiClient(): typeof Asana.ApiClient.instance {
     )
   }
 
-  // Check if OAuth token is expired and refresh if needed
-  if (config.authType === 'oauth' && config.expiresAt && config.refreshToken) {
-    const isExpired = Date.now() >= config.expiresAt
-
-    if (isExpired) {
-      console.warn('Token expired, will refresh on next API call')
-    }
-  }
+  // OAuth tokens are refreshed up front by the CLI `preAction` hook
+  // (see src/index.ts → refreshTokenIfNeeded), so by the time we initialize the
+  // client the stored access token is already current.
 
   apiClientInstance = Asana.ApiClient.instance
   const token = apiClientInstance.authentications.token
@@ -382,6 +377,21 @@ export function getAsanaClient() {
       },
     },
   }
+}
+
+/**
+ * Commands that must NOT trigger an OAuth token refresh before running:
+ * - `auth login` / `auth logout` manage credentials directly
+ * - `self-update` does not call the Asana API
+ */
+const NO_REFRESH_COMMANDS = new Set(['auth login', 'auth logout', 'self-update'])
+
+/**
+ * Whether the given space-joined command path (e.g. "auth whoami", "task list")
+ * should refresh the OAuth token before executing. Pure.
+ */
+export function shouldRefreshAuthForCommand(commandPath: string): boolean {
+  return !NO_REFRESH_COMMANDS.has(commandPath)
 }
 
 /**
