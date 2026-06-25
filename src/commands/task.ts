@@ -64,10 +64,12 @@ export function createTaskCommand(): Command {
           workspace,
         }
 
-        if (options.notes)
+        if (options.notes) {
           taskData.notes = options.notes
-        if (options.assignee)
+        }
+        if (options.assignee) {
           taskData.assignee = options.assignee
+        }
         // Accept both --due-on (canonical, matches `task update`) and the
         // deprecated --due alias. Previously the option was --due but the code
         // only read options.dueOn, so the due date was silently dropped.
@@ -76,8 +78,9 @@ export function createTaskCommand(): Command {
           validateDateFormat(dueOn, options.dueOn ? '--due-on' : '--due')
           taskData.due_on = dueOn
         }
-        if (options.project)
+        if (options.project) {
           taskData.projects = [options.project]
+        }
 
         const result = await client.tasks.create(taskData)
 
@@ -231,12 +234,15 @@ export function createTaskCommand(): Command {
           completed: boolean
         }> = {}
 
-        if (options.name !== undefined)
+        if (options.name !== undefined) {
           updateData.name = options.name
-        if (options.notes !== undefined)
+        }
+        if (options.notes !== undefined) {
           updateData.notes = options.notes
-        if (options.assignee !== undefined)
+        }
+        if (options.assignee !== undefined) {
           updateData.assignee = options.assignee
+        }
         if (options.dueOn !== undefined) {
           validateDateFormat(options.dueOn, '--due-on')
           updateData.due_on = options.dueOn
@@ -246,8 +252,9 @@ export function createTaskCommand(): Command {
           updateData.start_on = options.startOn
         }
         // Commander.js parses boolean flags as strings, so we need explicit conversion
-        if (options.completed !== undefined)
+        if (options.completed !== undefined) {
           updateData.completed = options.completed === 'true' || options.completed === true
+        }
 
         validateUpdateFields(updateData)
 

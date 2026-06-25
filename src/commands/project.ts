@@ -173,17 +173,22 @@ export function createProjectCommand(): Command {
           public: boolean
         }> = {}
 
-        if (options.name !== undefined)
+        if (options.name !== undefined) {
           updateData.name = options.name
-        if (options.notes !== undefined)
+        }
+        if (options.notes !== undefined) {
           updateData.notes = options.notes
-        if (options.color !== undefined)
+        }
+        if (options.color !== undefined) {
           updateData.color = options.color
+        }
         // Commander.js parses boolean flags as strings, so we need explicit conversion
-        if (options.archived !== undefined)
+        if (options.archived !== undefined) {
           updateData.archived = options.archived === 'true' || options.archived === true
-        if (options.public !== undefined)
+        }
+        if (options.public !== undefined) {
           updateData.public = options.public === 'true' || options.public === true
+        }
 
         validateUpdateFields(updateData)
 

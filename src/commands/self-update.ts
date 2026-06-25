@@ -96,8 +96,9 @@ async function downloadFile(url: string, destPath: string): Promise<void> {
 async function verifyChecksum(filePath: string, checksumUrl: string): Promise<boolean> {
   try {
     const response = await fetch(checksumUrl)
-    if (!response.ok)
+    if (!response.ok) {
       return false
+    }
 
     const checksumContent = await response.text()
     const expectedChecksum = checksumContent.split(/\s+/)[0]
@@ -128,10 +129,12 @@ function compareVersions(current: string, latest: string): number {
     const curr = currentParts[i] || 0
     const lat = latestParts[i] || 0
 
-    if (curr < lat)
+    if (curr < lat) {
       return -1
-    if (curr > lat)
+    }
+    if (curr > lat) {
       return 1
+    }
   }
 
   return 0

@@ -56,10 +56,12 @@ describe('self-update command', () => {
         const p1 = parts1[i] || 0
         const p2 = parts2[i] || 0
 
-        if (p1 < p2)
+        if (p1 < p2) {
           return -1
-        if (p1 > p2)
+        }
+        if (p1 > p2) {
           return 1
+        }
       }
 
       return 0
