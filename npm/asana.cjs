@@ -46,8 +46,11 @@ function run(argv, platform, arch) {
     process.stderr.write(`asana: failed to launch binary: ${result.error.message}\n`)
     return 1
   }
-  // Mirror signal-terminated children with a non-zero exit.
+  // Mirror a signal-terminated child: re-raise the signal on ourselves so the
+  // parent shell records the conventional 128+signal exit (e.g. 130 for SIGINT)
+  // instead of a plain failure. The return is a fallback if we survive it.
   if (result.signal) {
+    process.kill(process.pid, result.signal)
     return 1
   }
   return result.status ?? 1

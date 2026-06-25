@@ -19,20 +19,28 @@ interface Args {
 
 function parseArgs(argv: string[]): Args {
   const values: Partial<Args> = { binaries: 'artifacts', out: 'dist-npm' }
+  // Reject a missing value or one that is actually the next flag, so a typo
+  // like `--version --out dist` fails loudly instead of consuming `--out`.
+  const requireValue = (flag: string, value: string | undefined): string => {
+    if (value === undefined || value.startsWith('--')) {
+      throw new Error(`Missing value for ${flag}`)
+    }
+    return value
+  }
   for (let i = 0; i < argv.length; i += 1) {
     const flag = argv[i]
     const value = argv[i + 1]
     switch (flag) {
       case '--version':
-        values.version = value
+        values.version = requireValue(flag, value)
         i += 1
         break
       case '--binaries':
-        values.binaries = value
+        values.binaries = requireValue(flag, value)
         i += 1
         break
       case '--out':
-        values.out = value
+        values.out = requireValue(flag, value)
         i += 1
         break
       default:

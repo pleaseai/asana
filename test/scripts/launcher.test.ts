@@ -22,10 +22,24 @@ describe('launcher', () => {
   })
 
   describe('run', () => {
-    test('returns exit code 1 when no platform package is installed', () => {
+    test('warns and returns exit code 1 when no platform package is installed', () => {
       // A platform that has no published package and is not installed here.
-      const code = launcher.run(['--version'], 'sunos', 'mips')
-      expect(code).toBe(1)
+      // Stub stderr so the intentional warning stays out of the test output
+      // while we still assert the user-facing message.
+      const written: string[] = []
+      const original = process.stderr.write
+      process.stderr.write = ((chunk: string | Uint8Array): boolean => {
+        written.push(String(chunk))
+        return true
+      }) as typeof process.stderr.write
+      try {
+        const code = launcher.run(['--version'], 'sunos', 'mips')
+        expect(code).toBe(1)
+      }
+      finally {
+        process.stderr.write = original
+      }
+      expect(written.join('')).toContain('no prebuilt binary for sunos-mips')
     })
   })
 })

@@ -138,10 +138,12 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
+        with:
+          persist-credentials: false
 
       - name: Setup mise (node + bun)
-        uses: jdx/mise-action@v2
+        uses: jdx/mise-action@c37c93293d6b742fc901e1406b8f764f6fb19dac # v2.4.4
 
       - name: Upgrade npm for trusted publishing
         run: |
@@ -149,7 +151,7 @@ jobs:
           npm --version
 
       - name: Download all artifacts
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
         with:
           path: artifacts
 
@@ -162,18 +164,30 @@ jobs:
 
       - name: Pack and publish (platform packages first, then main)
         run: |
-          set -e
+          # pipefail so a `bun pm pack` failure is not masked by the `tail` pipe.
+          set -euo pipefail
           publish_dir() {
             local dir="$1"
             local tarball
             # bun pm pack --quiet prints only the tarball filename (in the dir).
             tarball="$(cd "${dir}" && bun pm pack --quiet --ignore-scripts | tail -n1)"
+            if [[ -z "${tarball}" ]]; then
+              echo "::error::bun pm pack produced no tarball for ${dir}"
+              return 1
+            fi
             echo "Publishing ${dir}/${tarball}"
             npm publish "${dir}/${tarball}" --access public
           }
+          # nullglob so an empty match is an empty list, not the literal pattern.
+          shopt -s nullglob
           # Platform packages first so the main package's optionalDependencies
           # are resolvable as soon as it is published.
-          for dir in dist-npm/asana-*; do
+          dirs=(dist-npm/asana-*)
+          if [[ ${#dirs[@]} -eq 0 ]]; then
+            echo "::error::No platform packages under dist-npm/. Did prepare-npm.ts run?"
+            exit 1
+          fi
+          for dir in "${dirs[@]}"; do
             publish_dir "${dir}"
           done
           publish_dir dist-npm/main

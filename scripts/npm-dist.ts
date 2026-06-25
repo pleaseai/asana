@@ -14,7 +14,7 @@
  * This module holds the pure manifest-building logic (no I/O) plus a thin
  * filesystem wrapper, so the package shapes can be unit-tested deterministically.
  */
-import { chmodSync, copyFileSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs'
+import { chmodSync, copyFileSync, existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs'
 import { join } from 'node:path'
 
 export const SCOPE = '@pleaseai'
@@ -143,13 +143,8 @@ export function resolveArtifactPath(binariesDir: string, target: PlatformTarget)
 }
 
 function existsFile(path: string): boolean {
-  try {
-    readFileSync(path)
-    return true
-  }
-  catch {
-    return false
-  }
+  // Zero-copy existence probe — never read the (up to ~25 MB) binary into memory.
+  return existsSync(path)
 }
 
 /**
