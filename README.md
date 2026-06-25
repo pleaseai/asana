@@ -30,6 +30,16 @@ Manage your Asana tasks efficiently from the command line.
 brew install pleaseai/tap/asana-cli
 ```
 
+### npm (Node.js)
+
+```bash
+npm install -g @pleaseai/asana
+# or run without installing
+npx @pleaseai/asana --help
+```
+
+npm installs the prebuilt binary matching your platform (macOS/Linux, x64/arm64); no Bun runtime is required.
+
 ### Install Script (All Platforms)
 
 ```bash

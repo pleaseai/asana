@@ -123,6 +123,50 @@ jobs:
             release/* \
             --clobber
 
+  publish-npm:
+    needs: [release-please, build-binaries]
+    if: ${{ needs.release-please.outputs.release_created }}
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup mise (node + bun)
+        uses: jdx/mise-action@v2
+
+      - name: Install dependencies
+        run: bun install
+
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+
+      - name: Build npm packages
+        run: |
+          bun run scripts/prepare-npm.ts \
+            --version "${{ needs.release-please.outputs.tag_name }}" \
+            --binaries artifacts \
+            --out dist-npm
+
+      - name: Configure npm authentication
+        env:
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" > ~/.npmrc
+
+      - name: Publish platform packages then main
+        run: |
+          set -e
+          # Platform packages first so the main package's optionalDependencies
+          # are resolvable as soon as it is published.
+          for dir in dist-npm/asana-*; do
+            echo "Publishing ${dir}"
+            npm publish "${dir}" --access public
+          done
+          echo "Publishing dist-npm/main"
+          npm publish dist-npm/main --access public
+
   update-homebrew-formula:
     needs: [release-please, upload-release-assets]
     if: ${{ needs.release-please.outputs.release_created }}
