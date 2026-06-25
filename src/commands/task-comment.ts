@@ -2,17 +2,10 @@ import type { CommentAddOptions } from '../types'
 import chalk from 'chalk'
 import { Command } from 'commander'
 import { getAsanaClient } from '../lib/asana-client'
+import { COMMENT_FIELDS, toCommentViews } from '../lib/asana-views'
 import { handleAsanaError } from '../lib/error-handler'
 import { validateGid, ValidationError } from '../lib/validators'
 import { formatOutput, getOutputFormat } from '../utils/formatter'
-
-// Stories include system events (assignments, status changes); request the
-// subtype so we can keep only user comments in `comment list`.
-const COMMENT_FIELDS = {
-  opt_fields: 'text,html_text,created_at,created_by.name,resource_subtype',
-}
-
-const COMMENT_SUBTYPE = 'comment_added'
 
 /**
  * Asana requires `html_text` to be wrapped in a <body> element. Wrap plain
@@ -75,14 +68,7 @@ export function createCommentCommand(): Command {
 
         const client = getAsanaClient()
         const response = await client.stories.findByTask(taskGid, COMMENT_FIELDS)
-        const comments = (response.data || [])
-          .filter((story: any) => story.resource_subtype === COMMENT_SUBTYPE)
-          .map((story: any) => ({
-            gid: story.gid,
-            created_at: story.created_at,
-            created_by: story.created_by?.name,
-            text: story.text,
-          }))
+        const comments = toCommentViews(response.data)
 
         if (comments.length === 0) {
           console.log(chalk.yellow('No comments found'))

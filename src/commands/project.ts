@@ -3,6 +3,7 @@ import type { OutputFormat } from '../utils/formatter'
 import chalk from 'chalk'
 import { Command } from 'commander'
 import { getAsanaClient } from '../lib/asana-client'
+import { toProjectView } from '../lib/asana-views'
 import { loadConfig } from '../lib/config'
 import { handleAsanaError } from '../lib/error-handler'
 import { validateGid, validateUpdateFields, ValidationError } from '../lib/validators'
@@ -129,17 +130,7 @@ export function createProjectCommand(): Command {
 
         const format = (command.parent?.parent?.opts()?.format || 'toon') as OutputFormat
 
-        const projectData = {
-          gid: projectDetail.gid,
-          name: projectDetail.name,
-          archived: projectDetail.archived,
-          color: projectDetail.color,
-          notes: projectDetail.notes,
-          public: projectDetail.public,
-          permalink_url: projectDetail.permalink_url,
-        }
-
-        const output = formatOutput({ project: projectData }, { format, colors: process.stdout.isTTY })
+        const output = formatOutput({ project: toProjectView(projectDetail) }, { format, colors: process.stdout.isTTY })
         console.log(output)
       }
       catch (error) {
