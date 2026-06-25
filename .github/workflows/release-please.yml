@@ -147,7 +147,7 @@ jobs:
 
       - name: Upgrade npm for trusted publishing
         run: |
-          npm install -g npm@latest # trusted publishing requires npm >= 11.5.1
+          npm install -g npm@11.17.0 # pinned; trusted publishing requires npm >= 11.5.1
           npm --version
 
       - name: Download all artifacts
