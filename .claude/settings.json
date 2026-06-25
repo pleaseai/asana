@@ -20,6 +20,8 @@
   },
   "enabledPlugins": {
     "skill-optimizer@pleaseai": true,
-    "bun@pleaseai": true
+    "bun@pleaseai": true,
+    "nostics@pleaseai": true,
+    "axi@pleaseai": true
   }
 }
