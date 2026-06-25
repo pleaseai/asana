@@ -1,0 +1,24 @@
+src/commands/self-update.ts
+  s_45593b991010b8::t_4eded4b6b80b7b 120-122,124
+test/self-update.test.ts
+  s_45593b991010b8::t_8c8db83dbeae44 55-58
+  s_45593b991010b8::t_383cf2dde8c9af 2
+eslint.config.js
+  s_45593b991010b8::t_f203f1a65efe78 19-23
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.13",
+  "base_commit_sha": "11bb4158cb50958d8d7987940bd0810d4c0ba73f",
+  "prompts": {},
+  "sessions": {
+    "s_45593b991010b8": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "29a0c011-efee-49f2-9d30-193309048f81",
+        "model": "claude-opus-4-8"
+      },
+      "human_author": "Minsu Lee <minsu.lee@pleaseai.dev>"
+    }
+  }
+}
