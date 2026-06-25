@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'bun:test'
 
-import { buildCliGuidance, parseAsanaUrl } from '../../hooks/intercept-webfetch'
+import { buildCliGuidance, decideForToolCall, parseAsanaUrl } from '../../hooks/intercept-webfetch'
 
 describe('parseAsanaUrl', () => {
   describe('V0 (legacy) format', () => {
@@ -116,5 +116,71 @@ describe('buildCliGuidance', () => {
   test('falls back to `asana --help` for an unknown shape', () => {
     const guidance = buildCliGuidance({ type: 'unknown' })
     expect(guidance).toContain('asana --help')
+  })
+})
+
+describe('parseAsanaUrl host boundary', () => {
+  test('rejects a look-alike host with app.asana.com as a prefix', () => {
+    expect(parseAsanaUrl('https://app.asana.com.evil.com/0/123/456')).toBeNull()
+  })
+
+  test('rejects app.asana.com appearing in the path of another host', () => {
+    expect(parseAsanaUrl('https://evil.com/app.asana.com/0/123/456')).toBeNull()
+  })
+
+  test('rejects app.asana.com embedded in a query string (proxy/redirect)', () => {
+    expect(parseAsanaUrl('https://proxy.example.com/fetch?target=https://app.asana.com/0/123/456')).toBeNull()
+  })
+
+  test('rejects a different asana subdomain', () => {
+    expect(parseAsanaUrl('https://myapp.asana.com/0/123/456')).toBeNull()
+  })
+
+  test('returns null for a non-URL string instead of throwing', () => {
+    expect(parseAsanaUrl('not a url')).toBeNull()
+  })
+
+  test('ignores a URL fragment after a project id', () => {
+    expect(parseAsanaUrl('https://app.asana.com/0/1206043162733419#section')).toEqual({
+      type: 'project',
+      projectId: '1206043162733419',
+    })
+  })
+})
+
+describe('decideForToolCall', () => {
+  const taskUrl = 'https://app.asana.com/1/15793206719/task/12058909747493732'
+
+  test('denies a WebFetch of an Asana task URL with CLI guidance', () => {
+    const out = decideForToolCall({ tool_name: 'WebFetch', tool_input: { url: taskUrl } })
+    expect(out.hookSpecificOutput?.permissionDecision).toBe('deny')
+    expect(out.systemMessage).toContain('asana task get 12058909747493732 --format toon')
+  })
+
+  test('denies the Fetch tool path the same way as WebFetch', () => {
+    const out = decideForToolCall({ tool_name: 'Fetch', tool_input: { url: taskUrl } })
+    expect(out.hookSpecificOutput?.permissionDecision).toBe('deny')
+    expect(out.systemMessage).toContain('asana task get 12058909747493732 --format toon')
+  })
+
+  test('does not prefix the deny message with a success checkmark', () => {
+    const out = decideForToolCall({ tool_name: 'WebFetch', tool_input: { url: taskUrl } })
+    expect(out.systemMessage?.startsWith('✓')).toBe(false)
+    expect(out.systemMessage?.startsWith('⚠️')).toBe(true)
+  })
+
+  test('allows (empty output) a non-Asana WebFetch', () => {
+    const out = decideForToolCall({ tool_name: 'WebFetch', tool_input: { url: 'https://github.com/owner/repo' } })
+    expect(out).toEqual({})
+  })
+
+  test('passes through a non-fetch tool', () => {
+    const out = decideForToolCall({ tool_name: 'Bash', tool_input: { command: 'ls' } })
+    expect(out).toEqual({})
+  })
+
+  test('allows a fetch with no url field', () => {
+    const out = decideForToolCall({ tool_name: 'Fetch', tool_input: {} })
+    expect(out).toEqual({})
   })
 })
