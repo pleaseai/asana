@@ -333,6 +333,7 @@ describe('oauth module', () => {
       expect(resolveRedirectPort()).toBe(8080)
       expect(resolveRedirectPort(0)).toBe(8080)
       expect(resolveRedirectPort(-5)).toBe(8080)
+      expect(resolveRedirectPort(999999)).toBe(8080)
     })
 
     test('buildAuthorizeUrl reflects the configured redirect_uri and uses PKCE S256', () => {

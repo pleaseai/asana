@@ -52,7 +52,15 @@ export function createAuthCommand(): Command {
           console.log(chalk.gray('  Docs: https://developers.asana.com/docs/getting-started-with-asana-oauth\n'))
 
           const scopes = options.scope ? options.scope.trim().split(/\s+/) : undefined
-          const redirectPort = options.redirectPort ? Number.parseInt(options.redirectPort, 10) : undefined
+          // Fail fast on a malformed --redirect-port instead of silently
+          // falling back to the default and binding an unexpected port.
+          let redirectPort: number | undefined
+          if (options.redirectPort !== undefined) {
+            redirectPort = Number(options.redirectPort)
+            if (!Number.isInteger(redirectPort) || redirectPort < 1 || redirectPort > 65535) {
+              throw new Error(`Invalid --redirect-port "${options.redirectPort}"; expected an integer between 1 and 65535.`)
+            }
+          }
           const tokenResponse = await startOAuthFlow({ scopes, oob: options.browser === false, redirectPort })
 
           // Calculate expiration time
@@ -81,7 +89,7 @@ export function createAuthCommand(): Command {
         console.error(message)
         // A redirect_uri mismatch almost always means the app is a command-line
         // app type, which only accepts the out-of-band flow.
-        if (/redirect_uri|invalid_request/i.test(message)) {
+        if (/redirect_uri/i.test(message)) {
           console.error(chalk.yellow('  Hint: If your Asana app is a "command-line app", re-run with --no-browser.'))
         }
         process.exit(1)

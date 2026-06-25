@@ -22,11 +22,11 @@ const OOB_REDIRECT_URI = 'urn:ietf:wg:oauth:2.0:oob'
  * The resulting redirect URL must be registered on the Asana OAuth app.
  */
 export function resolveRedirectPort(port?: number): number {
-  if (port !== undefined && Number.isInteger(port) && port > 0) {
+  if (port !== undefined && Number.isInteger(port) && port > 0 && port <= 65535) {
     return port
   }
   const envPort = Number(process.env.ASANA_OAUTH_REDIRECT_PORT)
-  if (Number.isInteger(envPort) && envPort > 0) {
+  if (Number.isInteger(envPort) && envPort > 0 && envPort <= 65535) {
     return envPort
   }
   return OAUTH_CONFIG.defaultRedirectPort
@@ -183,9 +183,16 @@ export async function startOAuthFlow(options: OAuthFlowOptions = {}): Promise<OA
       }
     })
 
-    server.listen(port, () => {
+    // Bind to loopback only — the OAuth callback listener must not be
+    // reachable beyond localhost.
+    server.listen(port, 'localhost', () => {
       console.log(chalk.gray('Waiting for authentication...'))
-      open(authUrl.toString())
+      // open() rejects if no browser can be launched (e.g. headless host);
+      // fall back to printing the URL instead of an unhandled rejection.
+      open(authUrl.toString()).catch(() => {
+        console.log(chalk.yellow('Could not open a browser automatically. Open this URL to authorize:'))
+        console.log(chalk.cyan(authUrl.toString()))
+      })
     })
 
     server.on('error', (err) => {
