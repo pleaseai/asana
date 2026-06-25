@@ -46,11 +46,19 @@ object including its `gid` and `permalink_url`.
   - `--token <token>` — use Personal Access Token (recommended; from https://app.asana.com/0/my-apps)
   - `-w, --workspace <workspace>` — set default workspace at login
   - `--scope <scopes>` — OAuth scopes, space-separated
-  - `--no-browser` — copy-paste flow for headless/CI
+  - `--no-browser` — copy-paste (out-of-band) flow for headless/CI and **command-line app** types
+  - `--redirect-port <port>` — local port for the browser redirect (default 8080); must match the URL registered on the Asana app
 - `asana auth logout` — remove stored credentials
 - `asana auth whoami` — show current user, auth type, default workspace
 
 OAuth requires env vars `ASANA_CLIENT_ID` and `ASANA_CLIENT_SECRET`.
+
+Pick the flow by Asana app type:
+
+- **Web / server app** (a loopback redirect URL can be registered) → `asana auth login` (browser flow, redirects to `http://localhost:8080/callback`).
+- **Command-line app** (only accepts the OOB redirect `urn:ietf:wg:oauth:2.0:oob`), or headless / CI → `asana auth login --no-browser`.
+
+An `invalid_request: redirect_uri does not match` error means the app is a command-line app — re-run with `--no-browser`. Override the browser-flow port with `--redirect-port <port>` or `ASANA_OAUTH_REDIRECT_PORT`.
 
 ## workspace
 

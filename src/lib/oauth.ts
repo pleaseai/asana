@@ -8,11 +8,57 @@ import open from 'open'
 const OAUTH_CONFIG = {
   authUrl: 'https://app.asana.com/-/oauth_authorize',
   tokenUrl: 'https://app.asana.com/-/oauth_token',
-  redirectUri: 'http://localhost:8080/callback',
+  defaultRedirectPort: 8080,
+  redirectPath: '/callback',
   defaultScopes: 'default',
 }
 
 const OOB_REDIRECT_URI = 'urn:ietf:wg:oauth:2.0:oob'
+
+/**
+ * Resolve the loopback redirect port for the browser flow:
+ * explicit option → `ASANA_OAUTH_REDIRECT_PORT` env → default 8080. Pure.
+ *
+ * The resulting redirect URL must be registered on the Asana OAuth app.
+ */
+export function resolveRedirectPort(port?: number): number {
+  if (port !== undefined && Number.isInteger(port) && port > 0) {
+    return port
+  }
+  const envPort = Number(process.env.ASANA_OAUTH_REDIRECT_PORT)
+  if (Number.isInteger(envPort) && envPort > 0) {
+    return envPort
+  }
+  return OAUTH_CONFIG.defaultRedirectPort
+}
+
+/**
+ * Build the loopback redirect URI (e.g. http://localhost:8080/callback). Pure.
+ */
+export function buildLoopbackRedirectUri(port: number): string {
+  return `http://localhost:${port}${OAUTH_CONFIG.redirectPath}`
+}
+
+/**
+ * Build the Asana authorize URL with PKCE (S256). Pure.
+ */
+export function buildAuthorizeUrl(params: {
+  clientId: string
+  redirectUri: string
+  scope: string
+  state: string
+  codeChallenge: string
+}): string {
+  const authUrl = new URL(OAUTH_CONFIG.authUrl)
+  authUrl.searchParams.set('client_id', params.clientId)
+  authUrl.searchParams.set('redirect_uri', params.redirectUri)
+  authUrl.searchParams.set('response_type', 'code')
+  authUrl.searchParams.set('state', params.state)
+  authUrl.searchParams.set('scope', params.scope)
+  authUrl.searchParams.set('code_challenge', params.codeChallenge)
+  authUrl.searchParams.set('code_challenge_method', 'S256')
+  return authUrl.toString()
+}
 
 export interface OAuthTokenResponse {
   access_token: string
@@ -24,6 +70,8 @@ export interface OAuthTokenResponse {
 export interface OAuthFlowOptions {
   scopes?: string[]
   oob?: boolean
+  /** Local port for the browser-flow redirect (default 8080, or env). */
+  redirectPort?: number
 }
 
 function base64urlEncode(bytes: Uint8Array): string {
@@ -79,16 +127,10 @@ export async function startOAuthFlow(options: OAuthFlowOptions = {}): Promise<OA
   const state = generateSecureState()
   const { codeVerifier, codeChallenge } = await generatePKCE()
   const scopeStr = options.scopes?.join(' ') || OAUTH_CONFIG.defaultScopes
-  const redirectUri = options.oob ? OOB_REDIRECT_URI : OAUTH_CONFIG.redirectUri
+  const port = resolveRedirectPort(options.redirectPort)
+  const redirectUri = options.oob ? OOB_REDIRECT_URI : buildLoopbackRedirectUri(port)
 
-  const authUrl = new URL(OAUTH_CONFIG.authUrl)
-  authUrl.searchParams.set('client_id', clientId)
-  authUrl.searchParams.set('redirect_uri', redirectUri)
-  authUrl.searchParams.set('response_type', 'code')
-  authUrl.searchParams.set('state', state)
-  authUrl.searchParams.set('scope', scopeStr)
-  authUrl.searchParams.set('code_challenge', codeChallenge)
-  authUrl.searchParams.set('code_challenge_method', 'S256')
+  const authUrl = new URL(buildAuthorizeUrl({ clientId, redirectUri, scope: scopeStr, state, codeChallenge }))
 
   if (options.oob) {
     return startOobFlow(authUrl, codeVerifier, clientId, clientSecret)
@@ -96,12 +138,13 @@ export async function startOAuthFlow(options: OAuthFlowOptions = {}): Promise<OA
 
   console.log(chalk.blue('Opening browser for authentication...'))
   console.log(chalk.gray(`If the browser doesn't open, visit: ${authUrl.toString()}`))
+  console.log(chalk.gray('  If your Asana app is a "command-line app", re-run with --no-browser.'))
 
   return new Promise((resolve, reject) => {
     const server = createServer(async (req, res) => {
-      const url = new URL(req.url || '', 'http://localhost:8080')
+      const url = new URL(req.url || '', `http://localhost:${port}`)
 
-      if (url.pathname === '/callback') {
+      if (url.pathname === OAUTH_CONFIG.redirectPath) {
         const code = url.searchParams.get('code') || ''
         const returnedState = url.searchParams.get('state') || ''
         const error = url.searchParams.get('error') || ''
@@ -123,7 +166,7 @@ export async function startOAuthFlow(options: OAuthFlowOptions = {}): Promise<OA
         }
 
         try {
-          const token = await exchangeCodeForToken(code, clientId, clientSecret, OAUTH_CONFIG.redirectUri, codeVerifier)
+          const token = await exchangeCodeForToken(code, clientId, clientSecret, redirectUri, codeVerifier)
 
           res.writeHead(200, { 'Content-Type': 'text/html' })
           res.end('<h1>Authentication Successful!</h1><p>You can close this window and return to the terminal.</p>')
@@ -140,13 +183,13 @@ export async function startOAuthFlow(options: OAuthFlowOptions = {}): Promise<OA
       }
     })
 
-    server.listen(8080, () => {
+    server.listen(port, () => {
       console.log(chalk.gray('Waiting for authentication...'))
       open(authUrl.toString())
     })
 
     server.on('error', (err) => {
-      reject(new Error(`Failed to start local server: ${err.message}`))
+      reject(new Error(`Failed to start local server on port ${port}: ${err.message}. Try a different port with --redirect-port.`))
     })
   })
 }

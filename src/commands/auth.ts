@@ -18,6 +18,7 @@ export function createAuthCommand(): Command {
     .option('-w, --workspace <workspace>', 'Default workspace ID')
     .option('--scope <scopes>', 'OAuth scopes, space-separated (e.g. "tasks:read projects:read")')
     .option('--no-browser', 'Use copy-paste flow instead of opening browser (for headless/CI environments)')
+    .option('--redirect-port <port>', 'Local port for the OAuth browser redirect (default 8080); must match the URL registered on the Asana app')
     .action(async (options) => {
       try {
         if (options.token) {
@@ -51,7 +52,8 @@ export function createAuthCommand(): Command {
           console.log(chalk.gray('  Docs: https://developers.asana.com/docs/getting-started-with-asana-oauth\n'))
 
           const scopes = options.scope ? options.scope.trim().split(/\s+/) : undefined
-          const tokenResponse = await startOAuthFlow({ scopes, oob: options.browser === false })
+          const redirectPort = options.redirectPort ? Number.parseInt(options.redirectPort, 10) : undefined
+          const tokenResponse = await startOAuthFlow({ scopes, oob: options.browser === false, redirectPort })
 
           // Calculate expiration time
           const expiresAt = Date.now() + (tokenResponse.expires_in * 1000)
@@ -75,7 +77,13 @@ export function createAuthCommand(): Command {
       }
       catch (error) {
         console.error(chalk.red('✗ Authentication failed:'))
-        console.error(error instanceof Error ? error.message : error)
+        const message = error instanceof Error ? error.message : String(error)
+        console.error(message)
+        // A redirect_uri mismatch almost always means the app is a command-line
+        // app type, which only accepts the out-of-band flow.
+        if (/redirect_uri|invalid_request/i.test(message)) {
+          console.error(chalk.yellow('  Hint: If your Asana app is a "command-line app", re-run with --no-browser.'))
+        }
         process.exit(1)
       }
     })
