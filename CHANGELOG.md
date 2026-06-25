@@ -1,5 +1,32 @@
 # Changelog
 
+## [0.7.0](https://github.com/pleaseai/asana/compare/v0.6.0...v0.7.0) (2026-06-25)
+
+
+### Features
+
+* **auth:** support brokered auth for sandbox egress ([#46](https://github.com/pleaseai/asana/issues/46)) ([71b3e64](https://github.com/pleaseai/asana/commit/71b3e64cce1cb5e480bd52d57b101f0f03bba2da))
+
+## [0.6.0](https://github.com/pleaseai/asana/compare/v0.5.1...v0.6.0) (2026-06-23)
+
+
+### Features
+
+* **plugin:** package asana-cli skill as a Claude Code plugin ([#41](https://github.com/pleaseai/asana/issues/41)) ([8f85083](https://github.com/pleaseai/asana/commit/8f850836f38e9f5708cd6a829ce582dca7104feb))
+* structured agent-readable error output (AXI §6, Phase 1) ([#42](https://github.com/pleaseai/asana/issues/42)) ([ada6138](https://github.com/pleaseai/asana/commit/ada6138ecdadc8e8513a7506e043e1e8f4446c52))
+
+
+### Bug Fixes
+
+* **docs:** use canonical www.conventionalcommits.org URL ([#40](https://github.com/pleaseai/asana/issues/40)) ([daa9694](https://github.com/pleaseai/asana/commit/daa9694745374bc28dc76f583697fa2faa1f16ff))
+* **task:** apply due date on `task create` via --due-on ([#34](https://github.com/pleaseai/asana/issues/34)) ([b342180](https://github.com/pleaseai/asana/commit/b342180cc3531bca84ab168eb928136484d6de6f))
+* **task:** honor global --format in `task list` ([#35](https://github.com/pleaseai/asana/issues/35)) ([eca2d2f](https://github.com/pleaseai/asana/commit/eca2d2fb48893749689f594588026b6f90e9deb3))
+
+
+### Documentation
+
+* **skill:** add asana-cli Claude Code skill ([#37](https://github.com/pleaseai/asana/issues/37)) ([619826c](https://github.com/pleaseai/asana/commit/619826c0a3a9a3fd2d89e96d21ff13ffe7fb48fb))
+
 ## [0.5.1](https://github.com/pleaseai/asana/compare/v0.5.0...v0.5.1) (2026-06-19)
 
 
