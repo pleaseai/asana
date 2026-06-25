@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.7.0](https://github.com/pleaseai/asana/compare/v0.6.0...v0.7.0) (2026-06-25)
+
+
+### Features
+
+* **auth:** support brokered auth for sandbox egress ([#46](https://github.com/pleaseai/asana/issues/46)) ([71b3e64](https://github.com/pleaseai/asana/commit/71b3e64cce1cb5e480bd52d57b101f0f03bba2da))
+
 ## [0.6.0](https://github.com/pleaseai/asana/compare/v0.5.1...v0.6.0) (2026-06-23)
 
 
