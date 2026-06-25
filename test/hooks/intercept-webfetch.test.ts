@@ -6,10 +6,10 @@ import { buildCliGuidance, decideForToolCall } from '../../hooks/intercept-webfe
 // the hook-specific guidance and tool-call decision built on top of it.
 
 describe('buildCliGuidance', () => {
-  test('recommends `asana fetch <url>` with the URL passed verbatim', () => {
+  test('recommends `asana fetch "<url>"` with the URL quoted for the shell', () => {
     const url = 'https://app.asana.com/1/15793206719/task/12058909747493732'
     const guidance = buildCliGuidance(url)
-    expect(guidance).toContain(`asana fetch ${url} --format toon`)
+    expect(guidance).toContain(`asana fetch "${url}" --format toon`)
   })
 })
 
@@ -19,13 +19,13 @@ describe('decideForToolCall', () => {
   test('denies a WebFetch of an Asana task URL with `asana fetch` guidance', () => {
     const out = decideForToolCall({ tool_name: 'WebFetch', tool_input: { url: taskUrl } })
     expect(out.hookSpecificOutput?.permissionDecision).toBe('deny')
-    expect(out.systemMessage).toContain(`asana fetch ${taskUrl} --format toon`)
+    expect(out.systemMessage).toContain(`asana fetch "${taskUrl}" --format toon`)
   })
 
   test('denies the Fetch tool path the same way as WebFetch', () => {
     const out = decideForToolCall({ tool_name: 'Fetch', tool_input: { url: taskUrl } })
     expect(out.hookSpecificOutput?.permissionDecision).toBe('deny')
-    expect(out.systemMessage).toContain(`asana fetch ${taskUrl} --format toon`)
+    expect(out.systemMessage).toContain(`asana fetch "${taskUrl}" --format toon`)
   })
 
   test('does not prefix the deny message with a success checkmark', () => {

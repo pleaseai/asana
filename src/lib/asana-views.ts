@@ -16,6 +16,9 @@ export interface TaskView {
 }
 
 export function toTaskView(task: any): TaskView {
+  if (!task) {
+    throw new Error('Invalid task data provided to toTaskView')
+  }
   return {
     gid: task.gid,
     name: task.name,
@@ -38,6 +41,9 @@ export interface ProjectView {
 }
 
 export function toProjectView(project: any): ProjectView {
+  if (!project) {
+    throw new Error('Invalid project data provided to toProjectView')
+  }
   return {
     gid: project.gid,
     name: project.name,
@@ -69,7 +75,7 @@ export const COMMENT_SUBTYPE = 'comment_added'
  */
 export function toCommentViews(stories: any[]): CommentView[] {
   return (stories || [])
-    .filter(story => story.resource_subtype === COMMENT_SUBTYPE)
+    .filter(story => story?.resource_subtype === COMMENT_SUBTYPE)
     .map(story => ({
       gid: story.gid,
       created_at: story.created_at,

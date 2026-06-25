@@ -154,4 +154,35 @@ describe('parseAsanaUrl', () => {
       })
     })
   })
+
+  describe('project view suffixes', () => {
+    test.each(['list', 'board', 'calendar', 'timeline', 'overview'])('resolves a V0 project %s view to the project', (view) => {
+      expect(parseAsanaUrl(`https://app.asana.com/0/1206043162733419/${view}`)).toEqual({
+        type: 'project',
+        projectId: '1206043162733419',
+      })
+    })
+
+    test.each(['list', 'board', 'calendar', 'timeline', 'overview'])('resolves a V1 project %s view to the project', (view) => {
+      expect(parseAsanaUrl(`https://app.asana.com/1/15793206719/project/1206043162733419/${view}`)).toEqual({
+        type: 'project',
+        workspaceId: '15793206719',
+        projectId: '1206043162733419',
+      })
+    })
+
+    test('rejects an extra numeric segment on a V1 project (not a view)', () => {
+      expect(parseAsanaUrl('https://app.asana.com/1/15793206719/project/1206043162733419/9999')).toBeNull()
+    })
+  })
+
+  describe('id segment boundaries', () => {
+    test('rejects a task id with trailing non-boundary characters', () => {
+      expect(parseAsanaUrl('https://app.asana.com/1/15793206719/task/12058909747493732abc')).toBeNull()
+    })
+
+    test('rejects a V0 task id with trailing non-boundary characters', () => {
+      expect(parseAsanaUrl('https://app.asana.com/0/1206043162733419/12058909747493732abc')).toBeNull()
+    })
+  })
 })

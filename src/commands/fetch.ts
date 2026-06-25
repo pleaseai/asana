@@ -95,5 +95,10 @@ async function fetchResource(target: FetchTarget): Promise<Record<string, unknow
       const response = await client.stories.findByTask(target.gid, COMMENT_FIELDS)
       return { comments: toCommentViews(response.data) }
     }
+    default: {
+      // Exhaustiveness: a new FetchTarget kind must add a case above.
+      const exhaustiveCheck: never = target.kind
+      throw new Error(`Unsupported fetch target kind: ${String(exhaustiveCheck)}`)
+    }
   }
 }

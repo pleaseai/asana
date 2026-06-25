@@ -72,7 +72,7 @@ export function decideForToolCall(hookInput: PreToolUseHookInput): HookJSONOutpu
 export function buildCliGuidance(url: string): string {
   return `Asana URL detected. Use the asana CLI instead of WebFetch:
 
-  asana fetch ${url} --format toon`
+  asana fetch "${url}" --format toon`
 }
 
 async function main(): Promise<void> {

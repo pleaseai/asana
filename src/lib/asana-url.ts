@@ -24,49 +24,52 @@ export interface AsanaUrlMatch {
  * Match the Asana identifiers in a URL *pathname* (host already verified).
  * Pathname excludes query/fragment, so anchored `^…$` patterns are exact.
  *
- * Task/comment routes are matched by prefix on purpose: Asana appends view/focus
- * segments to real task URLs (e.g. the `/f` focus suffix), and those must still
- * resolve to the task. Project routes stay exact-anchored, and the comment route
- * is ordered before task so it is never shadowed.
+ * Each captured id is followed by an id boundary (`/` or end) so a malformed
+ * segment like `456abc` does not resolve as id `456`. Task/comment routes still
+ * accept a trailing segment on purpose — Asana appends a `/f` focus suffix to
+ * real task URLs — and the comment route is ordered before task so it is never
+ * shadowed. Project routes accept an optional trailing standard-view suffix
+ * (`/list`, `/board`, `/calendar`, `/timeline`, `/overview`) but reject extra
+ * numeric segments.
  */
 function matchAsanaPath(path: string): AsanaUrlMatch | null {
   // V1: Task with comment - /1/{workspace}/[project/{project}/]task/{task}/comment/{comment}
-  const v1Comment = /^\/1\/(\d+)\/(?:project\/(\d+)\/)?task\/(\d+)\/comment\/(\d+)/.exec(path)
+  const v1Comment = /^\/1\/(\d+)\/(?:project\/(\d+)\/)?task\/(\d+)\/comment\/(\d+)(?:\/|$)/.exec(path)
   if (v1Comment) {
     const [, workspaceId, projectId, taskId, commentId] = v1Comment
     return { type: 'comment', workspaceId, projectId, taskId, commentId }
   }
 
   // V1: Task in project - /1/{workspace}/project/{project}/task/{task}
-  const v1TaskInProject = /^\/1\/(\d+)\/project\/(\d+)\/task\/(\d+)/.exec(path)
+  const v1TaskInProject = /^\/1\/(\d+)\/project\/(\d+)\/task\/(\d+)(?:\/|$)/.exec(path)
   if (v1TaskInProject) {
     const [, workspaceId, projectId, taskId] = v1TaskInProject
     return { type: 'task', workspaceId, projectId, taskId }
   }
 
   // V1: Task without project - /1/{workspace}/task/{task}
-  const v1Task = /^\/1\/(\d+)\/task\/(\d+)/.exec(path)
+  const v1Task = /^\/1\/(\d+)\/task\/(\d+)(?:\/|$)/.exec(path)
   if (v1Task) {
     const [, workspaceId, taskId] = v1Task
     return { type: 'task', workspaceId, taskId }
   }
 
-  // V1: Project - /1/{workspace}/project/{project}
-  const v1Project = /^\/1\/(\d+)\/project\/(\d+)\/?$/.exec(path)
+  // V1: Project (optional standard-view suffix) - /1/{workspace}/project/{project}[/{view}]
+  const v1Project = /^\/1\/(\d+)\/project\/(\d+)(?:\/[a-z]+)?\/?$/.exec(path)
   if (v1Project) {
     const [, workspaceId, projectId] = v1Project
     return { type: 'project', workspaceId, projectId }
   }
 
   // V0 (legacy): Task - /0/{project}/{task}
-  const v0Task = /^\/0\/(\d+)\/(\d+)/.exec(path)
+  const v0Task = /^\/0\/(\d+)\/(\d+)(?:\/|$)/.exec(path)
   if (v0Task) {
     const [, projectId, taskId] = v0Task
     return { type: 'task', projectId, taskId }
   }
 
-  // V0 (legacy): Project - /0/{project}
-  const v0Project = /^\/0\/(\d+)\/?$/.exec(path)
+  // V0 (legacy): Project (optional standard-view suffix) - /0/{project}[/{view}]
+  const v0Project = /^\/0\/(\d+)(?:\/[a-z]+)?\/?$/.exec(path)
   if (v0Project) {
     const [, projectId] = v0Project
     return { type: 'project', projectId }
