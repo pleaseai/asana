@@ -1,0 +1,23 @@
+src/lib/asana-client.ts
+  s_85c9f156fd120c::t_dd7ec5009f88b7 28-29,33
+src/lib/config.ts
+  s_85c9f156fd120c::t_a1ffcf3e4c9a69 35
+dev-docs/adr/005-brokered-auth-sandbox-egress.md
+  s_85c9f156fd120c::t_e2f18aec8e702f 68
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.13",
+  "base_commit_sha": "9c6fb6c6fbd7fb808bb9268e757ca22404ed8747",
+  "prompts": {},
+  "sessions": {
+    "s_85c9f156fd120c": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "da6c1796-1786-4c23-8938-51b5d4979c8d",
+        "model": "claude-opus-4-8"
+      },
+      "human_author": "Minsu Lee <minsu.lee@pleaseai.dev>"
+    }
+  }
+}
