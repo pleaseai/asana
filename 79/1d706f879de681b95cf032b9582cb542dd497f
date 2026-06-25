@@ -1,0 +1,26 @@
+src/lib/asana-client.ts
+  s_bc6d1672bf12c5::t_09131dcd0f61fe 382-396
+  s_bc6d1672bf12c5::t_aeb7c00ce47a51 31-33
+test/lib/auth-refresh-hook.test.ts
+  s_bc6d1672bf12c5::t_77626c1d6c57d9 1-22
+src/index.ts
+  s_bc6d1672bf12c5::t_d5636626db902d 2
+  s_bc6d1672bf12c5::t_d751b2dc6e3495 16
+  s_bc6d1672bf12c5::t_72a10f50656c46 43-67,69
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.13",
+  "base_commit_sha": "791d706f879de681b95cf032b9582cb542dd497f",
+  "prompts": {},
+  "sessions": {
+    "s_bc6d1672bf12c5": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "31a3a4f4-fb23-41b3-bc10-6e0c89334376",
+        "model": "claude-opus-4-8"
+      },
+      "human_author": "Minsu Lee <minsu.lee@pleaseai.dev>"
+    }
+  }
+}
