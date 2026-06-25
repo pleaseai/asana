@@ -58,7 +58,10 @@ export function createAuthCommand(): Command {
           if (options.redirectPort !== undefined) {
             redirectPort = Number(options.redirectPort)
             if (!Number.isInteger(redirectPort) || redirectPort < 1 || redirectPort > 65535) {
-              throw new Error(`Invalid --redirect-port "${options.redirectPort}"; expected an integer between 1 and 65535.`)
+              // Strip line breaks from the echoed user value to avoid log
+              // injection when this message is later logged (SonarCloud S5145).
+              const shownPort = options.redirectPort.replace(/[\r\n]/g, '')
+              throw new Error(`Invalid --redirect-port "${shownPort}"; expected an integer between 1 and 65535.`)
             }
           }
           const tokenResponse = await startOAuthFlow({ scopes, oob: options.browser === false, redirectPort })
@@ -88,8 +91,10 @@ export function createAuthCommand(): Command {
         const message = error instanceof Error ? error.message : String(error)
         console.error(message)
         // A redirect_uri mismatch almost always means the app is a command-line
-        // app type, which only accepts the out-of-band flow.
-        if (/redirect_uri/i.test(message)) {
+        // app type, which only accepts the out-of-band flow. Asana surfaces this
+        // through the callback as `OAuth error: invalid_request` (no redirect_uri
+        // token), so match both shapes.
+        if (/redirect_uri|invalid_request/i.test(message)) {
           console.error(chalk.yellow('  Hint: If your Asana app is a "command-line app", re-run with --no-browser.'))
         }
         process.exit(1)
