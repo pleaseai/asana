@@ -1,5 +1,5 @@
 import Asana from 'asana'
-import { loadConfig, saveConfig } from './config'
+import { getAccessToken, loadConfig, saveConfig } from './config'
 import { refreshAccessToken } from './oauth'
 
 let apiClientInstance: typeof Asana.ApiClient.instance | null = null
@@ -22,14 +22,19 @@ function initializeApiClient(): typeof Asana.ApiClient.instance {
 
   const config = loadConfig()
 
-  if (!config || !config.accessToken) {
+  // Resolve the token via getAccessToken() so the ASANA_ACCESS_TOKEN env
+  // fallback is honored. This enables brokered-egress sandboxes (ADR-005) to
+  // run with a placeholder token while a broker injects the real credential.
+  const accessToken = getAccessToken()
+
+  if (!accessToken) {
     throw new Error(
       'Asana access token not found. Please run "asana auth login" first.',
     )
   }
 
   // Check if OAuth token is expired and refresh if needed
-  if (config.authType === 'oauth' && config.expiresAt && config.refreshToken) {
+  if (config?.authType === 'oauth' && config.expiresAt && config.refreshToken) {
     const isExpired = Date.now() >= config.expiresAt
 
     if (isExpired) {
@@ -39,7 +44,7 @@ function initializeApiClient(): typeof Asana.ApiClient.instance {
 
   apiClientInstance = Asana.ApiClient.instance
   const token = apiClientInstance.authentications.token
-  token.accessToken = config.accessToken
+  token.accessToken = accessToken
 
   return apiClientInstance
 }
