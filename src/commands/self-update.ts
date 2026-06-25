@@ -117,8 +117,11 @@ async function verifyChecksum(filePath: string, checksumUrl: string): Promise<bo
 
 /**
  * Compare versions (simple semver comparison)
+ *
+ * Non-numeric segments (e.g. pre-release tags like `0.7.0-beta.1`) become `NaN`
+ * via `Number`, which the `|| 0` fallback coerces to `0` since `NaN` is falsy.
  */
-function compareVersions(current: string, latest: string): number {
+export function compareVersions(current: string, latest: string): number {
   const cleanCurrent = current.replace(/^v/, '')
   const cleanLatest = latest.replace(/^v/, '')
 

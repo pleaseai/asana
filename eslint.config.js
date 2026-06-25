@@ -16,6 +16,11 @@ export default pleaseai(
       'no-console': 'off',
       // Allow process.env in Node.js CLI
       'node/prefer-global/process': 'off',
+    },
+  },
+  {
+    files: ['test/**', 'tests/**'],
+    rules: {
       // Allow global in tests (for mocking fetch)
       'no-restricted-globals': 'off',
     },
