@@ -1,0 +1,23 @@
+test/hooks/intercept-webfetch.test.ts
+  s_a6b01afcbdb21d::t_80066ba0cef553 1-120
+hooks/intercept-webfetch.ts
+  s_a6b01afcbdb21d::t_7b8df125189114 1-178,180
+hooks/hooks.json
+  s_a6b01afcbdb21d::t_f5bc645852566e 1-12
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.13",
+  "base_commit_sha": "12e0ec26c24241b90d8811b2a825f09199d30cf3",
+  "prompts": {},
+  "sessions": {
+    "s_a6b01afcbdb21d": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "a80b6f43-0fb6-429d-9d15-95e63b625fa2",
+        "model": "claude-opus-4-8"
+      },
+      "human_author": "Minsu Lee <minsu.lee@pleaseai.dev>"
+    }
+  }
+}
