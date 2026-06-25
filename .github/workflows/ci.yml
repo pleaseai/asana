@@ -16,7 +16,7 @@ jobs:
     name: Tests
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - name: Setup mise (node + bun)
         uses: jdx/mise-action@v2
@@ -41,7 +41,7 @@ jobs:
     name: Build
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - name: Setup mise (node + bun)
         uses: jdx/mise-action@v2
@@ -66,7 +66,7 @@ jobs:
     name: Lint
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - name: Setup mise (node + bun)
         uses: jdx/mise-action@v2
@@ -81,7 +81,7 @@ jobs:
     name: Markdown Link Check
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - name: Setup mise (node + markdown-link-check)
         uses: jdx/mise-action@v2
