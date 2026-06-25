@@ -1,0 +1,28 @@
+scripts/prepare-npm.ts
+  s_0d3dfa8b740f04::t_2d207fd2020a16 22-29,35,39,43
+scripts/npm-dist.ts
+  s_0d3dfa8b740f04::t_fb08782d940f40 17
+test/scripts/launcher.test.ts
+  s_0d3dfa8b740f04::t_6c5c183c4daba4 25,27-42
+npm/asana.cjs
+  s_0d3dfa8b740f04::t_66526f916783f8 49-51,53
+.github/workflows/release-please.yml
+  s_0d3dfa8b740f04::t_34be540f46d690 141-143,146,154
+  s_0d3dfa8b740f04::t_579632e0f1054b 167-168,174-177,181-182,185-190
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.13",
+  "base_commit_sha": "a4f4f74b07b6d16b49d1befd35b48f87f6286a48",
+  "prompts": {},
+  "sessions": {
+    "s_0d3dfa8b740f04": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "35396373-17eb-4e5c-bca8-78672bd6a25f",
+        "model": "claude-opus-4-8"
+      },
+      "human_author": "Minsu Lee <minsu.lee@pleaseai.dev>"
+    }
+  }
+}
