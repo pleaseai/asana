@@ -1,0 +1,21 @@
+dev-docs/adr/README.md
+  s_85c9f156fd120c::t_08ef6040df3aa2 17
+dev-docs/adr/005-brokered-auth-sandbox-egress.md
+  s_85c9f156fd120c::t_65cd95c58d93bb 1-163
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.13",
+  "base_commit_sha": "4b750b0624be5a2fe3f2d1185405674b817b9f32",
+  "prompts": {},
+  "sessions": {
+    "s_85c9f156fd120c": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "da6c1796-1786-4c23-8938-51b5d4979c8d",
+        "model": "claude-opus-4-8"
+      },
+      "human_author": "Minsu Lee <minsu.lee@pleaseai.dev>"
+    }
+  }
+}
