@@ -174,6 +174,14 @@ describe('parseAsanaUrl', () => {
     test('rejects an extra numeric segment on a V1 project (not a view)', () => {
       expect(parseAsanaUrl('https://app.asana.com/1/15793206719/project/1206043162733419/9999')).toBeNull()
     })
+
+    test('rejects an unsupported alphabetic suffix on a V1 project', () => {
+      expect(parseAsanaUrl('https://app.asana.com/1/15793206719/project/1206043162733419/foo')).toBeNull()
+    })
+
+    test('rejects an unsupported alphabetic suffix on a V0 project', () => {
+      expect(parseAsanaUrl('https://app.asana.com/0/1206043162733419/foo')).toBeNull()
+    })
   })
 
   describe('id segment boundaries', () => {

@@ -55,7 +55,7 @@ function matchAsanaPath(path: string): AsanaUrlMatch | null {
   }
 
   // V1: Project (optional standard-view suffix) - /1/{workspace}/project/{project}[/{view}]
-  const v1Project = /^\/1\/(\d+)\/project\/(\d+)(?:\/[a-z]+)?\/?$/.exec(path)
+  const v1Project = /^\/1\/(\d+)\/project\/(\d+)(?:\/(?:list|board|calendar|timeline|overview))?\/?$/.exec(path)
   if (v1Project) {
     const [, workspaceId, projectId] = v1Project
     return { type: 'project', workspaceId, projectId }
@@ -69,7 +69,7 @@ function matchAsanaPath(path: string): AsanaUrlMatch | null {
   }
 
   // V0 (legacy): Project (optional standard-view suffix) - /0/{project}[/{view}]
-  const v0Project = /^\/0\/(\d+)(?:\/[a-z]+)?\/?$/.exec(path)
+  const v0Project = /^\/0\/(\d+)(?:\/(?:list|board|calendar|timeline|overview))?\/?$/.exec(path)
   if (v0Project) {
     const [, projectId] = v0Project
     return { type: 'project', projectId }
