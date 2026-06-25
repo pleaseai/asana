@@ -1,0 +1,19 @@
+.github/workflows/release-please.yml
+  s_0d3dfa8b740f04::t_e43e9ce45a8b54 150
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.13",
+  "base_commit_sha": "c2cde7e5e55b6ee8f616616dbc14a0472fed59c5",
+  "prompts": {},
+  "sessions": {
+    "s_0d3dfa8b740f04": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "35396373-17eb-4e5c-bca8-78672bd6a25f",
+        "model": "claude-opus-4-8"
+      },
+      "human_author": "Minsu Lee <minsu.lee@pleaseai.dev>"
+    }
+  }
+}
