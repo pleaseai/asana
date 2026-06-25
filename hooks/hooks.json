@@ -1,0 +1,12 @@
+{
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "WebFetch|Fetch",
+        "hooks": [
+          { "type": "command", "command": "bun ${CLAUDE_PLUGIN_ROOT}/hooks/intercept-webfetch.ts" }
+        ]
+      }
+    ]
+  }
+}
