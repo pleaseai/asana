@@ -1,4 +1,3 @@
-import type { OutputFormat } from '../utils/formatter'
 import asana from 'asana'
 import chalk from 'chalk'
 import { Command } from 'commander'
@@ -6,7 +5,7 @@ import { getAsanaClient, resetClient } from '../lib/asana-client'
 import { loadConfig, saveConfig } from '../lib/config'
 import { handleAsanaError } from '../lib/error-handler'
 import { startOAuthFlow } from '../lib/oauth'
-import { formatOutput } from '../utils/formatter'
+import { formatOutput, getOutputFormat } from '../utils/formatter'
 
 export function createAuthCommand(): Command {
   const auth = new Command('auth')
@@ -101,7 +100,7 @@ export function createAuthCommand(): Command {
     .description('Display current authenticated user')
     .action(async (options: any, command: Command) => {
       // Resolve format up front so it is available in the catch block too.
-      const format = (command.parent?.parent?.opts()?.format || 'toon') as OutputFormat
+      const format = getOutputFormat(command)
 
       try {
         const client = getAsanaClient()
@@ -137,8 +136,10 @@ export function createAuthCommand(): Command {
         console.log(output)
       }
       catch (error) {
-        // No stored credentials at all → keep the friendly login hint.
-        if (error instanceof Error && /access token not found/i.test(error.message)) {
+        // No stored credentials at all → keep the friendly login hint for humans.
+        // For machine formats (json/toon) fall through to handleAsanaError so the
+        // failure is emitted as structured output instead of a plain colored line.
+        if (format === 'plain' && error instanceof Error && error.message.includes('Asana access token not found')) {
           console.error(chalk.red('✗ Not authenticated. Run "asana auth login" first.'))
           process.exit(1)
         }
