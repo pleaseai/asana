@@ -1,0 +1,26 @@
+test/lib/asana-url.test.ts
+  s_a6b01afcbdb21d::t_19bf6de4c4627d 1-157
+test/hooks/intercept-webfetch.test.ts
+  s_a6b01afcbdb21d::t_9c5e6f25277bc9 3,5-6,28-29
+src/lib/asana-url.ts
+  s_a6b01afcbdb21d::t_e78b268f575bf4 1-102
+hooks/intercept-webfetch.ts
+  s_a6b01afcbdb21d::t_878a2f763bec74 13
+  s_a6b01afcbdb21d::t_e561946aba1996 16,18
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.13",
+  "base_commit_sha": "42461eac065fddabcb715ce8d4aa139c81e11f44",
+  "prompts": {},
+  "sessions": {
+    "s_a6b01afcbdb21d": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "a80b6f43-0fb6-429d-9d15-95e63b625fa2",
+        "model": "claude-opus-4-8"
+      },
+      "human_author": "Minsu Lee <minsu.lee@pleaseai.dev>"
+    }
+  }
+}
