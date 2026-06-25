@@ -148,6 +148,40 @@ describe('parseAsanaUrl host boundary', () => {
   })
 })
 
+// Task/comment routes are matched by prefix on purpose: Asana appends view/focus
+// segments to real task URLs (e.g. the `/f` focus suffix), and those must still
+// redirect to the task. Project routes stay exact-anchored, and the comment
+// route is ordered before task so it is never shadowed. Locking this so a future
+// "tighten to exact match" change can't silently drop real focus URLs.
+describe('parseAsanaUrl trailing view/focus segments (intentional leniency)', () => {
+  test('treats a V0 focus URL (/f suffix) as its task', () => {
+    expect(parseAsanaUrl('https://app.asana.com/0/1206043162733419/12058909747493732/f')).toEqual({
+      type: 'task',
+      projectId: '1206043162733419',
+      taskId: '12058909747493732',
+    })
+  })
+
+  test('treats a V1 focus URL (/f suffix) as its task', () => {
+    expect(parseAsanaUrl('https://app.asana.com/1/15793206719/project/1206043162733419/task/12058909747493732/f')).toEqual({
+      type: 'task',
+      workspaceId: '15793206719',
+      projectId: '1206043162733419',
+      taskId: '12058909747493732',
+    })
+  })
+
+  test('still prioritizes the comment route over task when both could match', () => {
+    expect(parseAsanaUrl('https://app.asana.com/1/15793206719/task/12058909747493732/comment/9876543210')).toEqual({
+      type: 'comment',
+      workspaceId: '15793206719',
+      projectId: undefined,
+      taskId: '12058909747493732',
+      commentId: '9876543210',
+    })
+  })
+})
+
 describe('decideForToolCall', () => {
   const taskUrl = 'https://app.asana.com/1/15793206719/task/12058909747493732'
 
