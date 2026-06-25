@@ -1,0 +1,43 @@
+test/scripts/launcher.test.ts
+  s_0d3dfa8b740f04::t_25334ac926d993 1-31
+.github/workflows/release-please.yml
+  s_0d3dfa8b740f04::t_7908ba30a4a922 126-169
+LICENSE
+  s_0d3dfa8b740f04::t_89e44aba614eb6 1-21
+scripts/prepare-npm.ts
+  s_0d3dfa8b740f04::t_b614808d0e1164 1-62
+npm/asana.cjs
+  s_0d3dfa8b740f04::t_f940de175f0a30 1-48,50-52,54-60
+  s_0d3dfa8b740f04::t_95a1ecec48cf35 49,53
+.gitignore
+  s_0d3dfa8b740f04::t_83fbf2298976a6 43-46
+scripts/npm-dist.ts
+  s_0d3dfa8b740f04::t_d2af9c3de79155 205-213
+  s_0d3dfa8b740f04::t_f111ca2fa81801 183
+  s_0d3dfa8b740f04::t_526fa745f3666b 194
+  s_0d3dfa8b740f04::t_601916d36dc71f 1-182,184-193,195-204,214-215
+test/scripts/npm-dist.test.ts
+  s_0d3dfa8b740f04::t_d7284532fa35ff 10
+  s_0d3dfa8b740f04::t_0727933adf18a8 2-9,11-111,113,116-155,164
+  s_0d3dfa8b740f04::t_4f9d7720539877 1
+  s_0d3dfa8b740f04::t_52123e028aff4a 112,114-115
+  s_0d3dfa8b740f04::t_61304d2f8f82e0 156-163
+README.md
+  s_0d3dfa8b740f04::t_3a087699bb62b2 33-42
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.13",
+  "base_commit_sha": "b2558bf2920daea6a5a1f96d52dae445f3a9d05c",
+  "prompts": {},
+  "sessions": {
+    "s_0d3dfa8b740f04": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "35396373-17eb-4e5c-bca8-78672bd6a25f",
+        "model": "claude-opus-4-8"
+      },
+      "human_author": "Minsu Lee <minsu.lee@pleaseai.dev>"
+    }
+  }
+}
