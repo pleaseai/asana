@@ -1,5 +1,25 @@
 # Changelog
 
+## [0.8.0](https://github.com/pleaseai/asana/compare/v0.7.0...v0.8.0) (2026-06-25)
+
+
+### Features
+
+* add `asana fetch <url>` to resolve Asana URLs ([#72](https://github.com/pleaseai/asana/issues/72)) ([7e7b60b](https://github.com/pleaseai/asana/commit/7e7b60b899813d08513cad5e9d165b1d2321fd91))
+* distribute CLI as npm binary packages ([#71](https://github.com/pleaseai/asana/issues/71)) ([2f9a910](https://github.com/pleaseai/asana/commit/2f9a9108428e240d6fe4d0cd3175df6f0ca5215d))
+* **hooks:** redirect Asana URL WebFetch to the asana CLI ([#55](https://github.com/pleaseai/asana/issues/55)) ([886dd39](https://github.com/pleaseai/asana/commit/886dd390c899e516ef0625c91788727ca1974210))
+
+
+### Bug Fixes
+
+* **auth:** auto-refresh expiring OAuth token before authenticated commands ([#48](https://github.com/pleaseai/asana/issues/48)) ([8f3e84a](https://github.com/pleaseai/asana/commit/8f3e84a3f4572d78f66c4a239d2b480e12a2ba44))
+* **auth:** surface real errors in whoami instead of masking as not authenticated ([#47](https://github.com/pleaseai/asana/issues/47)) ([ef62698](https://github.com/pleaseai/asana/commit/ef6269846e22c685964716371f8d1c878b35df63))
+
+
+### Documentation
+
+* add SonarCloud badge and Dependabot config ([#53](https://github.com/pleaseai/asana/issues/53)) ([c988102](https://github.com/pleaseai/asana/commit/c988102ec85ba353db1a40b9032d7c98d8c83018))
+
 ## [0.7.0](https://github.com/pleaseai/asana/compare/v0.6.0...v0.7.0) (2026-06-25)
 
 
