@@ -3,6 +3,7 @@
 [![CI](https://github.com/pleaseai/asana/actions/workflows/ci.yml/badge.svg)](https://github.com/pleaseai/asana/actions/workflows/ci.yml)
 [![codecov](https://codecov.io/gh/pleaseai/asana/branch/main/graph/badge.svg)](https://codecov.io/gh/pleaseai/asana)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=pleaseai_asana&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=pleaseai_asana)
 
 명령줄에서 Asana 작업을 효율적으로 관리하세요.
 
