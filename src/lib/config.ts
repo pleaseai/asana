@@ -32,7 +32,6 @@ export function loadConfig(): AsanaConfig | null {
   }
 }
 
-export function getAccessToken(): string | null {
-  const config = loadConfig()
+export function getAccessToken(config: AsanaConfig | null = loadConfig()): string | null {
   return config?.accessToken || process.env.ASANA_ACCESS_TOKEN || null
 }

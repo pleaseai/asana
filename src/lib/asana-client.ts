@@ -25,11 +25,12 @@ function initializeApiClient(): typeof Asana.ApiClient.instance {
   // Resolve the token via getAccessToken() so the ASANA_ACCESS_TOKEN env
   // fallback is honored. This enables brokered-egress sandboxes (ADR-005) to
   // run with a placeholder token while a broker injects the real credential.
-  const accessToken = getAccessToken()
+  // Pass the already-loaded config to avoid a second readFileSync.
+  const accessToken = getAccessToken(config)
 
   if (!accessToken) {
     throw new Error(
-      'Asana access token not found. Please run "asana auth login" first.',
+      'Asana access token not found. Set ASANA_ACCESS_TOKEN or run "asana auth login" first.',
     )
   }
 

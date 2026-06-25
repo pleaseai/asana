@@ -65,7 +65,7 @@ contract. Concretely:
 reading `config.accessToken` directly. This activates the existing
 `ASANA_ACCESS_TOKEN` fallback so a sandbox can run:
 
-```
+```sh
 ASANA_ACCESS_TOKEN=brokered asana task list -w <gid>
 ```
 
