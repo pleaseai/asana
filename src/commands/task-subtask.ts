@@ -117,12 +117,15 @@ export function createSubtaskCommand(): Command {
         const client = getAsanaClient()
 
         const taskData: Record<string, any> = { name: options.name }
-        if (options.notes)
+        if (options.notes) {
           taskData.notes = options.notes
-        if (options.assignee)
+        }
+        if (options.assignee) {
           taskData.assignee = options.assignee
-        if (options.dueOn)
+        }
+        if (options.dueOn) {
           taskData.due_on = options.dueOn
+        }
 
         const result = await client.tasks.createSubtask(parentGid, taskData)
 

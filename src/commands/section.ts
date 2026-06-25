@@ -108,8 +108,9 @@ export function createSectionCommand(): Command {
           name: string
         }> = {}
 
-        if (options.name !== undefined)
+        if (options.name !== undefined) {
           updateData.name = options.name
+        }
 
         validateUpdateFields(updateData)
 

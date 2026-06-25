@@ -1,4 +1,5 @@
 import { afterEach, beforeEach, describe, expect, mock, test } from 'bun:test'
+import { compareVersions } from '../src/commands/self-update'
 
 describe('self-update command', () => {
   beforeEach(() => {
@@ -44,32 +45,17 @@ describe('self-update command', () => {
   })
 
   test('should compare versions correctly', () => {
-    // Simple version comparison tests
-    const compareVersions = (v1: string, v2: string): number => {
-      const clean1 = v1.replace(/^v/, '')
-      const clean2 = v2.replace(/^v/, '')
-
-      const parts1 = clean1.split('.').map(Number)
-      const parts2 = clean2.split('.').map(Number)
-
-      for (let i = 0; i < 3; i++) {
-        const p1 = parts1[i] || 0
-        const p2 = parts2[i] || 0
-
-        if (p1 < p2)
-          return -1
-        if (p1 > p2)
-          return 1
-      }
-
-      return 0
-    }
-
     expect(compareVersions('0.1.0', '0.2.0')).toBe(-1)
     expect(compareVersions('0.2.0', '0.1.0')).toBe(1)
     expect(compareVersions('0.1.0', '0.1.0')).toBe(0)
     expect(compareVersions('v0.1.0', 'v0.2.0')).toBe(-1)
     expect(compareVersions('1.0.0', '0.9.9')).toBe(1)
+  })
+
+  test('should treat non-numeric (pre-release) segments as zero', () => {
+    // `Number('0-beta')` is NaN, which the `|| 0` fallback coerces to 0,
+    // so a pre-release tag compares equal to its release version.
+    expect(compareVersions('0.7.0-beta.1', '0.7.0')).toBe(0)
   })
 
   test('should fetch latest release from GitHub', async () => {

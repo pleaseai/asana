@@ -76,10 +76,12 @@ export function createTagCommand(): Command {
           name: options.name,
           workspace,
         }
-        if (options.color)
+        if (options.color) {
           tagData.color = options.color
-        if (options.notes)
+        }
+        if (options.notes) {
           tagData.notes = options.notes
+        }
 
         const client = getAsanaClient()
         const result = await client.tags.create(tagData)
@@ -149,14 +151,16 @@ export function createTagCommand(): Command {
         validateGid(tagGid, 'Tag GID')
 
         const updateData: Record<string, any> = {}
-        if (options.name !== undefined)
+        if (options.name !== undefined) {
           updateData.name = options.name
+        }
         if (options.color !== undefined) {
           validateTagColor(options.color)
           updateData.color = options.color
         }
-        if (options.notes !== undefined)
+        if (options.notes !== undefined) {
           updateData.notes = options.notes
+        }
 
         if (Object.keys(updateData).length === 0) {
           console.error(chalk.red('✗ At least one field must be specified for update'))
