@@ -1,0 +1,39 @@
+dev-docs/adr/README.md
+  s_604eade5c6f3dd::t_abab4fd76b77b2 17
+src/commands/auth.ts
+  s_604eade5c6f3dd::t_abab4fd76b77b2 6,8,102-104,138-149
+test/lib/asana-client.test.ts
+  s_604eade5c6f3dd::t_abab4fd76b77b2 5,7,25-27,37,109-157
+CHANGELOG.md
+  s_604eade5c6f3dd::t_abab4fd76b77b2 3-29
+package.json
+  s_604eade5c6f3dd::t_abab4fd76b77b2 4
+.release-please-manifest.json
+  s_604eade5c6f3dd::t_abab4fd76b77b2 2
+docs/package.json
+  s_604eade5c6f3dd::t_abab4fd76b77b2 3
+src/lib/asana-client.ts
+  s_604eade5c6f3dd::t_abab4fd76b77b2 2,25-31,33,43
+src/lib/config.ts
+  s_604eade5c6f3dd::t_abab4fd76b77b2 35
+test/commands/auth-whoami.test.ts
+  s_604eade5c6f3dd::t_abab4fd76b77b2 1-139
+dev-docs/adr/005-brokered-auth-sandbox-egress.md
+  s_604eade5c6f3dd::t_abab4fd76b77b2 1-163
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.13",
+  "base_commit_sha": "daca6ef9016103c758ac26426295fe13f14bd0fa",
+  "prompts": {},
+  "sessions": {
+    "s_604eade5c6f3dd": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "7e1ea719-4c08-4f70-885c-94ba00af4ed9",
+        "model": "claude-opus-4-8"
+      },
+      "human_author": "Minsu Lee <minsu.lee@pleaseai.dev>"
+    }
+  }
+}
