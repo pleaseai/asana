@@ -3,32 +3,32 @@
 version: 2
 updates:
   # Bun dependencies (package.json / bun.lock)
-  - package-ecosystem: "bun"
-    directory: "/"
+  - package-ecosystem: bun
+    directory: /
     schedule:
-      interval: "weekly"
+      interval: weekly
     open-pull-requests-limit: 10
     commit-message:
-      prefix: "chore"
-      include: "scope"
+      prefix: chore
+      include: scope
     groups:
       # Group non-major dev/runtime dependency bumps into a single PR
       minor-and-patch:
         update-types:
-          - "minor"
-          - "patch"
+          - minor
+          - patch
 
   # GitHub Actions used in .github/workflows
-  - package-ecosystem: "github-actions"
-    directory: "/"
+  - package-ecosystem: github-actions
+    directory: /
     schedule:
-      interval: "weekly"
+      interval: weekly
     open-pull-requests-limit: 10
     commit-message:
-      prefix: "ci"
-      include: "scope"
+      prefix: ci
+      include: scope
     groups:
       actions:
         update-types:
-          - "minor"
-          - "patch"
+          - minor
+          - patch
