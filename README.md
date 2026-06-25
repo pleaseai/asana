@@ -2,6 +2,8 @@
 
 [![CI](https://github.com/pleaseai/asana/actions/workflows/ci.yml/badge.svg)](https://github.com/pleaseai/asana/actions/workflows/ci.yml)
 [![codecov](https://codecov.io/gh/pleaseai/asana/branch/main/graph/badge.svg)](https://codecov.io/gh/pleaseai/asana)
+[![npm version](https://img.shields.io/npm/v/@pleaseai/asana)](https://www.npmjs.com/package/@pleaseai/asana)
+[![Socket Badge](https://socket.dev/api/badge/npm/package/@pleaseai/asana)](https://socket.dev/npm/package/@pleaseai/asana)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=pleaseai_asana&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=pleaseai_asana)
 
@@ -29,6 +31,16 @@ Manage your Asana tasks efficiently from the command line.
 ```bash
 brew install pleaseai/tap/asana-cli
 ```
+
+### npm (Node.js)
+
+```bash
+npm install -g @pleaseai/asana
+# or run without installing
+npx @pleaseai/asana --help
+```
+
+npm installs the prebuilt binary matching your platform (macOS/Linux, x64/arm64); no Bun runtime is required.
 
 ### Install Script (All Platforms)
 
