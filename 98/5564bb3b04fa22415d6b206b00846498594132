@@ -1,0 +1,40 @@
+src/lib/github.ts
+  s_23f73006ddb4aa::t_d6e4c284a00f52 89,94,96-101
+  s_23f73006ddb4aa::t_57094fa23e3076 74-77
+  s_23f73006ddb4aa::t_ee0eb7ee8d1f9d 16-21,32-39
+  s_23f73006ddb4aa::t_9c0f9ab51c7958 124-125,127,133
+  s_23f73006ddb4aa::t_c8b5db41f5e2c8 40-41
+  s_23f73006ddb4aa::t_345e1d347ce8c5 152-180
+test/commands/feedback.test.ts
+  s_23f73006ddb4aa::t_8a6bb93d0fe987 3
+  s_23f73006ddb4aa::t_3c1262226d8537 11,22-24,31
+  s_23f73006ddb4aa::t_6011c5b58e3c2d 77-95
+src/lib/validators.ts
+  s_23f73006ddb4aa::t_8b5388daf867bb 190-207
+  s_23f73006ddb4aa::t_471b2431ab6de1 189
+test/lib/github.test.ts
+  s_23f73006ddb4aa::t_4539db990e6b30 66-72
+  s_23f73006ddb4aa::t_6e88713e535a69 90-100
+src/constants/errorIds.ts
+  s_23f73006ddb4aa::t_829e34727491b3 47
+src/commands/feedback.ts
+  s_23f73006ddb4aa::t_c078edd6cee64a 15
+  s_23f73006ddb4aa::t_f0cb35cd1ddcef 49
+  s_23f73006ddb4aa::t_139ca6cf0d6494 130-148
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.5",
+  "base_commit_sha": "985564bb3b04fa22415d6b206b00846498594132",
+  "prompts": {},
+  "sessions": {
+    "s_23f73006ddb4aa": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "14382876-2c02-455e-9ec0-af776869df79",
+        "model": "claude-opus-4-8"
+      },
+      "human_author": "Minsu Lee <minsu.lee@pleaseai.dev>"
+    }
+  }
+}
