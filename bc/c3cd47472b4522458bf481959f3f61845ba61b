@@ -1,0 +1,20 @@
+test/self-update.test.ts
+  s_23f73006ddb4aa::t_69a43c27a23dca 42
+  s_23f73006ddb4aa::t_a161f077968436 5-9
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.5",
+  "base_commit_sha": "bcc3cd47472b4522458bf481959f3f61845ba61b",
+  "prompts": {},
+  "sessions": {
+    "s_23f73006ddb4aa": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "14382876-2c02-455e-9ec0-af776869df79",
+        "model": "claude-opus-4-8"
+      },
+      "human_author": "Minsu Lee <minsu.lee@pleaseai.dev>"
+    }
+  }
+}
