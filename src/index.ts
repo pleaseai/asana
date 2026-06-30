@@ -4,6 +4,7 @@ import { Command } from 'commander'
 import packageJson from '../package.json'
 import { createAuthCommand } from './commands/auth'
 import { createCustomFieldCommand } from './commands/custom-field'
+import { createFeedbackCommand } from './commands/feedback'
 import { createFetchCommand } from './commands/fetch'
 import { createProjectCommand } from './commands/project'
 import { createSearchCommand } from './commands/search'
@@ -40,6 +41,7 @@ program.addCommand(createSearchCommand())
 program.addCommand(createTeamCommand())
 program.addCommand(createWorkspaceCommand())
 program.addCommand(createUserCommand())
+program.addCommand(createFeedbackCommand())
 program.addCommand(createSelfUpdateCommand())
 
 // Refresh an expiring OAuth token before any authenticated command runs, so a
