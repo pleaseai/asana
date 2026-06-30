@@ -1,0 +1,19 @@
+hooks/session-start.ts
+  s_d0fe08bbf8be6e::t_b68d136f6a61d8 45-48,51-54
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.5",
+  "base_commit_sha": "b48985136652194b6834b4b15353559fcc7da797",
+  "prompts": {},
+  "sessions": {
+    "s_d0fe08bbf8be6e": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "6bf4b27b-b0c6-47ea-9510-5c182dc801d8",
+        "model": "claude-opus-4-8"
+      },
+      "human_author": "Minsu Lee <minsu.lee@pleaseai.dev>"
+    }
+  }
+}
