@@ -142,6 +142,25 @@ Asana caps combined dependencies + dependents at 50.
 
 - `asana task custom-field set <task-gid> <field-gid> <value>` — value coerced to field type (text/number/enum name or gid)
 - `asana task custom-field list <task-gid>`
+  - Each field reports `gid`, `name`, `type`, and `value` (the display string). For
+    `people`-type fields the output also carries a `people` array of `{gid, name}` —
+    use those gids to @-mention someone in a comment (see below).
+
+### @-mention a person from a people field
+
+`task comment add --html` renders an Asana mention from `<a data-asana-gid="USER_GID"/>`.
+Read the user gid out of a people custom field, then post the comment (use `--format json`
+to parse reliably):
+
+```bash
+# 1. Read the reporter's gid from a people field
+asana task custom-field list 1207891234567890 --format json
+#    → custom_fields[].people[].gid for the people-type field
+
+# 2. Mention them in a comment
+asana task comment add 1207891234567890 \
+  '<a data-asana-gid="111"/> resolved — see PR #482' --html
+```
 
 ## task batch operations
 

@@ -21,6 +21,50 @@ export interface CustomFieldDefinition {
 
 export const SUPPORTED_CUSTOM_FIELD_TYPES = ['text', 'number', 'enum'] as const
 
+/** A single user referenced by a `people`-type custom field. */
+export interface CustomFieldUser {
+  gid: string
+  name?: string
+}
+
+/** Compact summary of a custom field value as read from a task. */
+export interface TaskCustomFieldSummary {
+  gid: string
+  name?: string
+  type: string
+  value: string
+  /** Present only for `people`-type fields: the assigned users with their gids. */
+  people?: CustomFieldUser[]
+}
+
+/**
+ * Map a raw Asana task custom field into the compact summary the CLI prints.
+ *
+ * For `people`-type fields the raw `people_value` array (compact user objects
+ * with `gid`/`name`) is surfaced as a `people` array, so JSON consumers can read
+ * the underlying user gids needed to build an @-mention. `value` keeps the
+ * documented `display_value` string for every type, so the shape stays
+ * backward compatible.
+ */
+export function mapTaskCustomField(field: any): TaskCustomFieldSummary {
+  const type = field.resource_subtype ?? 'unknown'
+  const summary: TaskCustomFieldSummary = {
+    gid: field.gid,
+    name: field.name,
+    type,
+    value: field.display_value ?? '',
+  }
+
+  if (type === 'people') {
+    summary.people = (field.people_value ?? []).map((user: any) => ({
+      gid: user.gid,
+      name: user.name,
+    }))
+  }
+
+  return summary
+}
+
 /**
  * Coerce a raw CLI string into the value the Asana API expects for the field.
  *
