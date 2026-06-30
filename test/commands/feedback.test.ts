@@ -1,5 +1,6 @@
 import { afterEach, beforeEach, describe, expect, mock, spyOn, test } from 'bun:test'
 import { createFeedbackCommand } from '../../src/commands/feedback'
+import * as axiOutput from '../../src/lib/axi-output'
 import * as github from '../../src/lib/github'
 
 const ORIGINAL_GITHUB_TOKEN = process.env.GITHUB_TOKEN
@@ -7,6 +8,7 @@ const ORIGINAL_GH_TOKEN = process.env.GH_TOKEN
 const ORIGINAL_FETCH = global.fetch
 
 let openSpy: ReturnType<typeof spyOn>
+let emitErrorSpy: ReturnType<typeof spyOn>
 
 async function runFeedback(args: string[]): Promise<void> {
   const feedback = createFeedbackCommand()
@@ -17,12 +19,16 @@ describe('feedback command', () => {
   beforeEach(() => {
     // Stub the browser side effect so tests never launch a real browser.
     openSpy = spyOn(github, 'openIssueUrl').mockResolvedValue(undefined)
+    // emitError writes structured output straight to fd 1 (stdout) for toon/json,
+    // which bypasses console spies; stub it so error-path tests don't leak to CI.
+    emitErrorSpy = spyOn(axiOutput, 'emitError').mockImplementation(() => {})
     delete process.env.GITHUB_TOKEN
     delete process.env.GH_TOKEN
   })
 
   afterEach(() => {
     openSpy.mockRestore()
+    emitErrorSpy.mockRestore()
     global.fetch = ORIGINAL_FETCH
     restoreEnv('GITHUB_TOKEN', ORIGINAL_GITHUB_TOKEN)
     restoreEnv('GH_TOKEN', ORIGINAL_GH_TOKEN)
@@ -65,6 +71,25 @@ describe('feedback command', () => {
         exitSpy.mockRestore()
         errorSpy.mockRestore()
         logSpy.mockRestore()
+      }
+    })
+
+    test('rejects an invalid --repo and exits without submitting', async () => {
+      const exitSpy = spyOn(process, 'exit').mockImplementation((() => {
+        throw new Error('process.exit called')
+      }) as never)
+      const errorSpy = spyOn(console, 'error').mockImplementation(() => {})
+
+      try {
+        await expect(
+          runFeedback(['--type', 'bug', '--title', 'x', '--repo', 'not-a-valid-repo']),
+        ).rejects.toThrow('process.exit called')
+        expect(exitSpy).toHaveBeenCalledWith(1)
+        expect(openSpy).not.toHaveBeenCalled()
+      }
+      finally {
+        exitSpy.mockRestore()
+        errorSpy.mockRestore()
       }
     })
 

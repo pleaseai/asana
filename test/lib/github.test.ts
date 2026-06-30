@@ -63,6 +63,13 @@ describe('buildIssueBody', () => {
     expect(result.startsWith('---')).toBe(true)
     expect(result).toContain('- Type: feature')
   })
+
+  test('separates the body from the footer with a blank line (no Setext heading)', () => {
+    const result = buildIssueBody({ type: 'bug', body: 'last line of body' })
+    // A blank line before `---` keeps it a horizontal rule, not an <h2> underline.
+    expect(result).toContain('last line of body\n\n---')
+    expect(result).not.toContain('last line of body\n---')
+  })
 })
 
 describe('buildNewIssueUrl', () => {
@@ -79,6 +86,17 @@ describe('buildNewIssueUrl', () => {
     expect(params.get('title')).toBe('Bug: a & b')
     expect(params.get('body')).toBe('line1\nline2')
     expect(params.get('labels')).toBe('feedback,bug')
+  })
+
+  test('honors an explicit web base URL (GitHub Enterprise / emulator)', () => {
+    const url = buildNewIssueUrl({
+      repo: DEFAULT_REPO,
+      title: 'T',
+      body: 'B',
+      labels: ['feedback'],
+      webBaseUrl: 'https://github.example.com',
+    })
+    expect(url.startsWith(`https://github.example.com/${DEFAULT_REPO}/issues/new?`)).toBe(true)
   })
 })
 

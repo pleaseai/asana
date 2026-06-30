@@ -12,7 +12,7 @@ import {
   mapTypeToLabels,
   openIssueUrl,
 } from '../lib/github'
-import { validateFeedbackType, ValidationError } from '../lib/validators'
+import { validateFeedbackType, validateRepoFormat, ValidationError } from '../lib/validators'
 import { getOutputFormat } from '../utils/formatter'
 
 interface FeedbackOptions {
@@ -46,6 +46,7 @@ export function createFeedbackCommand(): Command {
 
       try {
         validateFeedbackType(options.type)
+        validateRepoFormat(options.repo)
       }
       catch (error) {
         if (error instanceof ValidationError) {
@@ -126,7 +127,25 @@ async function submitViaBrowser(
     process.exit(1)
   }
 
-  await openIssueUrl(url)
+  try {
+    await openIssueUrl(url)
+  }
+  catch (error) {
+    // Headless / CI environments have no browser; surface a structured error
+    // with the URL so the user can still file the feedback manually.
+    const detail = error instanceof Error ? error.message : 'Unknown error'
+    emitError(
+      {
+        code: ERROR_IDS.FEEDBACK_SUBMISSION_FAILED,
+        message: `Failed to open browser: ${detail}`,
+        help: `Could not open a browser automatically. Open this URL to file feedback:\n${url}`,
+        context: { url },
+      },
+      format,
+    )
+    process.exit(1)
+  }
+
   emitResult(
     { url, opened: true, type: params.type, repo: params.repo },
     `Opened browser to file feedback: ${url}`,

@@ -187,6 +187,25 @@ export function validateFeedbackType(type: string): void {
 }
 
 /**
+ * Validate that a repository identifier is in the `owner/repo` format.
+ *
+ * Each segment allows the characters GitHub permits in owner and repo names
+ * (alphanumerics, `-`, `_`, `.`), preventing a malformed `--repo` value from
+ * producing a broken API path or browser URL.
+ */
+export function validateRepoFormat(repo: string): void {
+  if (!/^[\w.-]+\/[\w.-]+$/.test(repo)) {
+    console.error(chalk.red(`✗ Invalid repository: ${repo}`))
+    console.error(chalk.gray('  Expected format: owner/repo (e.g., pleaseai/asana)'))
+    throw new ValidationError(
+      ERROR_IDS.INVALID_REPO_FORMAT,
+      'Invalid repository format',
+      { repo },
+    )
+  }
+}
+
+/**
  * Validate that at least one field is provided for update
  */
 export function validateUpdateFields(fields: Record<string, any>): void {

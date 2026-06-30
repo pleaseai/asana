@@ -13,6 +13,12 @@ export const DEFAULT_REPO = 'pleaseai/asana'
 /** Public GitHub REST API base, used when no override is configured. */
 export const DEFAULT_GITHUB_API_BASE_URL = 'https://api.github.com'
 
+/** Public GitHub web base, used when no override is configured. */
+export const DEFAULT_GITHUB_WEB_BASE_URL = 'https://github.com'
+
+/** Abort the GitHub API request after this many ms so the command never hangs. */
+export const GITHUB_REQUEST_TIMEOUT_MS = 30_000
+
 /**
  * Resolve the GitHub REST API base URL.
  *
@@ -21,6 +27,16 @@ export const DEFAULT_GITHUB_API_BASE_URL = 'https://api.github.com'
  */
 export function getGitHubApiBaseUrl(): string {
   return process.env.GITHUB_API_URL || DEFAULT_GITHUB_API_BASE_URL
+}
+
+/**
+ * Resolve the GitHub web base URL used by the browser fallback.
+ *
+ * Mirrors `getGitHubApiBaseUrl` via `GITHUB_WEB_URL` so GitHub Enterprise or
+ * emulator setups open the correct host instead of the public site.
+ */
+export function getGitHubWebBaseUrl(): string {
+  return process.env.GITHUB_WEB_URL || DEFAULT_GITHUB_WEB_BASE_URL
 }
 
 /** Feedback categories accepted by the command. */
@@ -55,9 +71,10 @@ export function getGitHubToken(): string | null {
 /**
  * Map a feedback type to GitHub labels.
  *
- * The GitHub Issues API auto-creates a label that does not yet exist, so these
- * stay safe to send without pre-provisioning. Every issue also gets a common
- * `feedback` label so submissions are easy to triage.
+ * Every issue gets a common `feedback` label plus a type label so submissions
+ * are easy to triage. GitHub applies only labels that already exist in the
+ * target repo and silently drops unknown ones (it never auto-creates them), so
+ * these are best-effort and never block submission.
  */
 export function mapTypeToLabels(type: FeedbackType): string[] {
   const typeLabel = type === 'bug' ? 'bug' : 'enhancement'
@@ -69,20 +86,19 @@ export function mapTypeToLabels(type: FeedbackType): string[] {
  * (especially for bug reports).
  */
 export function buildIssueBody(input: IssueInput): string {
-  const parts: string[] = []
-
-  if (input.body && input.body.trim().length > 0) {
-    parts.push(input.body.trim())
-  }
-
-  parts.push(
+  const footer = [
     '---',
     `- Type: ${input.type}`,
     `- CLI version: ${packageJson.version}`,
     `- Platform: ${process.platform} ${process.arch}`,
-  )
+  ].join('\n')
 
-  return parts.join('\n')
+  const trimmed = input.body?.trim()
+
+  // Separate the body from the footer with a blank line. Without it, the `---`
+  // sits directly under the body's last line and CommonMark/GFM renders that
+  // line as a Setext <h2> heading instead of a horizontal rule.
+  return trimmed ? `${trimmed}\n\n${footer}` : footer
 }
 
 /**
@@ -105,13 +121,16 @@ export function buildNewIssueUrl(params: {
   title: string
   body: string
   labels: string[]
+  /** Override the web base URL (GitHub Enterprise / emulator). */
+  webBaseUrl?: string
 }): string {
+  const baseUrl = params.webBaseUrl ?? getGitHubWebBaseUrl()
   const query = new URLSearchParams({
     title: params.title,
     body: params.body,
     labels: params.labels.join(','),
   })
-  return `https://github.com/${params.repo}/issues/new?${query.toString()}`
+  return `${baseUrl}/${params.repo}/issues/new?${query.toString()}`
 }
 
 /**
@@ -130,21 +149,35 @@ export async function createGitHubIssue(params: {
   baseUrl?: string
 }): Promise<CreatedIssue> {
   const baseUrl = params.baseUrl ?? getGitHubApiBaseUrl()
-  const response = await fetch(`${baseUrl}/repos/${params.repo}/issues`, {
-    method: 'POST',
-    headers: {
-      'Authorization': `Bearer ${params.token}`,
-      'Accept': 'application/vnd.github+json',
-      'Content-Type': 'application/json',
-      'User-Agent': 'asana-cli',
-      'X-GitHub-Api-Version': '2022-11-28',
-    },
-    body: JSON.stringify({
-      title: params.title,
-      body: params.body,
-      labels: params.labels,
-    }),
-  })
+
+  let response: Response
+  try {
+    response = await fetch(`${baseUrl}/repos/${params.repo}/issues`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${params.token}`,
+        'Accept': 'application/vnd.github+json',
+        'Content-Type': 'application/json',
+        'User-Agent': 'asana-cli',
+        'X-GitHub-Api-Version': '2022-11-28',
+      },
+      body: JSON.stringify({
+        title: params.title,
+        body: params.body,
+        labels: params.labels,
+      }),
+      // Abort a stalled connection so `asana feedback` never hangs.
+      signal: AbortSignal.timeout(GITHUB_REQUEST_TIMEOUT_MS),
+    })
+  }
+  catch (error) {
+    // Timeout (TimeoutError) or a network failure — surface both through the
+    // same structured error path the caller already handles (status 0).
+    const detail = error instanceof Error && error.name === 'TimeoutError'
+      ? `request timed out after ${GITHUB_REQUEST_TIMEOUT_MS}ms`
+      : error instanceof Error ? error.message : 'network error'
+    throw new GitHubApiError(0, detail)
+  }
 
   if (!response.ok) {
     const detail = await readErrorDetail(response)
