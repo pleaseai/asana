@@ -1,6 +1,7 @@
 import type { ErrorId } from '../constants/errorIds'
 import type { OutputFormat } from '../utils/formatter'
-import { readFileSync } from 'node:fs'
+import { existsSync, readFileSync, statSync } from 'node:fs'
+import { resolve } from 'node:path'
 import { Command } from 'commander'
 import { getApiBaseUrl } from '../constants/api'
 import { ERROR_IDS } from '../constants/errorIds'
@@ -36,15 +37,42 @@ interface ApiOptions {
 }
 
 /**
- * Resolve an endpoint to an absolute URL. A full `http(s)` URL passes through;
- * a relative path (`/tasks/123` or `tasks/123`) is joined onto the API base.
+ * Resolve an endpoint to an absolute URL on the configured Asana origin.
+ *
+ * A relative path (`/tasks/123` or `tasks/123`) is resolved against the API
+ * base; a full `http(s)` URL is accepted only when it shares the base's origin
+ * (e.g. an Asana `next_page.uri`). An off-origin URL is rejected — otherwise the
+ * bearer token added in `buildRequest` would be sent to an arbitrary host. The
+ * base keeps a trailing slash so relative paths resolve under the API prefix
+ * (and `../` cannot climb above the origin we already validate).
  */
 export function normalizeEndpoint(endpoint: string, baseUrl: string = getApiBaseUrl()): string {
+  const base = new URL(`${baseUrl.replace(/\/+$/, '')}/`)
   const trimmed = endpoint.trim()
-  if (/^https?:\/\//i.test(trimmed)) {
-    return trimmed
+
+  let resolved: URL
+  try {
+    resolved = /^https?:\/\//i.test(trimmed)
+      ? new URL(trimmed)
+      : new URL(trimmed.replace(/^\/+/, ''), base)
   }
-  return `${baseUrl}/${trimmed.replace(/^\/+/, '')}`
+  catch {
+    throw new ApiUsageError(
+      ERROR_IDS.INVALID_API_ARGUMENT,
+      `Invalid endpoint: "${endpoint}"`,
+      'Pass a path like /tasks/123, or a full Asana API URL.',
+    )
+  }
+
+  if (resolved.origin !== base.origin) {
+    throw new ApiUsageError(
+      ERROR_IDS.INVALID_API_ARGUMENT,
+      `Refusing to send Asana credentials to a non-Asana host: ${resolved.origin}`,
+      `Only ${base.origin} endpoints are allowed. Pass a path like /tasks/123.`,
+    )
+  }
+
+  return resolved.toString()
 }
 
 /**
@@ -181,18 +209,45 @@ export function buildRequest(opts: BuildRequestOptions): { url: string, init: Re
   return { url: url.toString(), init }
 }
 
-/** Read `--input`: a file path, or `-` for stdin (fd 0). */
-function readInput(input: string): string {
+/** Read `--input` from stdin (fd 0). */
+function readStdin(): string {
   try {
-    return readFileSync(input === '-' ? 0 : input, 'utf-8')
+    return readFileSync(0, 'utf-8')
   }
   catch {
     throw new ApiUsageError(
+      ERROR_IDS.API_INPUT_READ_FAILED,
+      'Could not read request body from stdin',
+      'Pipe a JSON body into the command, or pass a file path to --input.',
+    )
+  }
+}
+
+/** Read `--input` from a file, validating the path before access. */
+function readInputFile(input: string): string {
+  const path = resolve(input)
+  if (!existsSync(path) || !statSync(path).isFile()) {
+    throw new ApiUsageError(
       ERROR_IDS.FILE_NOT_FOUND,
-      `Could not read request body from ${input === '-' ? 'stdin' : `"${input}"`}`,
+      `Request body file not found: "${input}"`,
       'Pass a readable file path, or "-" to read the body from stdin.',
     )
   }
+  try {
+    return readFileSync(path, 'utf-8')
+  }
+  catch {
+    throw new ApiUsageError(
+      ERROR_IDS.API_INPUT_READ_FAILED,
+      `Could not read request body file: "${input}"`,
+      'Ensure the file is readable.',
+    )
+  }
+}
+
+/** Read `--input`: a file path, or `-` for stdin. */
+function readInput(input: string): string {
+  return input === '-' ? readStdin() : readInputFile(input)
 }
 
 function headersToObject(headers: Headers): Record<string, string> {
@@ -229,23 +284,6 @@ export function createApiCommand(): Command {
 async function runApi(endpoint: string, options: ApiOptions, command: Command): Promise<void> {
   const format = getOutputFormat(command)
 
-  // Validate inputs before any network call (usage errors → exit 2, AXI §6 / D5).
-  let fields: Record<string, unknown>
-  let headers: Record<string, string>
-  let body: string | undefined
-  try {
-    fields = parseFields(options.rawField, options.field)
-    headers = parseHeaders(options.header)
-    body = options.input === undefined ? undefined : readInput(options.input)
-  }
-  catch (error) {
-    if (error instanceof ApiUsageError) {
-      emitError({ code: error.errorId, message: error.message, help: error.help }, format)
-      process.exit(2)
-    }
-    throw error
-  }
-
   const token = getAccessToken()
   if (!token) {
     emitError({
@@ -256,9 +294,38 @@ async function runApi(endpoint: string, options: ApiOptions, command: Command): 
     process.exit(1)
   }
 
-  const hasBody = body !== undefined || Object.keys(fields).length > 0
-  const method = resolveMethod(options.method, hasBody)
-  const { url, init } = buildRequest({ endpoint, method, fields, body, headers, token })
+  // Validate inputs and build the request before any network call
+  // (usage errors → exit 2, AXI §6 / D5). normalizeEndpoint (inside
+  // buildRequest) rejects off-origin URLs and malformed endpoints.
+  let url: string
+  let init: RequestInit
+  try {
+    const fields = parseFields(options.rawField, options.field)
+    const headers = parseHeaders(options.header)
+    const body = options.input === undefined ? undefined : readInput(options.input)
+    const hasBody = body !== undefined || Object.keys(fields).length > 0
+    const method = resolveMethod(options.method, hasBody)
+
+    // A raw body with a bodyless method would be silently dropped — fail loudly.
+    if (body !== undefined && BODYLESS_METHODS.has(method)) {
+      throw new ApiUsageError(
+        ERROR_IDS.INVALID_API_ARGUMENT,
+        `A request body (--input) cannot be sent with a ${method} request`,
+        'Use a body method (POST/PUT/PATCH), or remove --input.',
+      )
+    }
+
+    const built = buildRequest({ endpoint, method, fields, body, headers, token })
+    url = built.url
+    init = built.init
+  }
+  catch (error) {
+    if (error instanceof ApiUsageError) {
+      emitError({ code: error.errorId, message: error.message, help: error.help }, format)
+      process.exit(2)
+    }
+    throw error
+  }
 
   try {
     const response = await fetch(url, init)

@@ -23,9 +23,16 @@ describe('normalizeEndpoint', () => {
     expect(normalizeEndpoint('tasks/123', BASE)).toBe(`${BASE}/tasks/123`)
   })
 
-  test('passes a full https URL through unchanged', () => {
-    expect(normalizeEndpoint('https://app.asana.com/api/1.0/users/me', BASE))
-      .toBe('https://app.asana.com/api/1.0/users/me')
+  test('accepts a full URL on the same origin as the base (e.g. next_page.uri)', () => {
+    expect(normalizeEndpoint(`${BASE}/tasks?offset=abc`, BASE)).toBe(`${BASE}/tasks?offset=abc`)
+  })
+
+  test('rejects an off-origin URL so the bearer token is never leaked', () => {
+    expect(() => normalizeEndpoint('https://evil.example/steal', BASE)).toThrow(ApiUsageError)
+  })
+
+  test('keeps the API prefix when resolving a bare path (no prefix climbing)', () => {
+    expect(normalizeEndpoint('users/me', BASE)).toBe(`${BASE}/users/me`)
   })
 })
 
@@ -262,6 +269,36 @@ describe('api command execution', () => {
     }) as never)
 
     await expect(runApi(['--format', 'json', 'api', '/tasks', '--raw-field', 'name'])).rejects.toThrow('__exit__')
+
+    expect(exitSpy).toHaveBeenCalledWith(2)
+    expect(fetchCalls).toHaveLength(0)
+
+    exitSpy.mockRestore()
+  })
+
+  test('an off-origin endpoint is rejected (exit 2) and never fetched', async () => {
+    const exitSpy = spyOn(process, 'exit').mockImplementation((() => {
+      throw new Error('__exit__')
+    }) as never)
+
+    await expect(runApi(['--format', 'json', 'api', 'https://evil.example/steal'])).rejects.toThrow('__exit__')
+
+    expect(exitSpy).toHaveBeenCalledWith(2)
+    expect(fetchCalls).toHaveLength(0)
+
+    exitSpy.mockRestore()
+  })
+
+  test('--input with an explicit bodyless method (GET) is a usage error, not a silent drop', async () => {
+    const exitSpy = spyOn(process, 'exit').mockImplementation((() => {
+      throw new Error('__exit__')
+    }) as never)
+
+    // package.json is a real, readable file so readInput succeeds and the
+    // body-drop guard (not file validation) is what trips the usage error.
+    await expect(
+      runApi(['--format', 'json', 'api', '/tasks', '-X', 'GET', '--input', 'package.json']),
+    ).rejects.toThrow('__exit__')
 
     expect(exitSpy).toHaveBeenCalledWith(2)
     expect(fetchCalls).toHaveLength(0)

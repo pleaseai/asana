@@ -98,12 +98,13 @@ asana api /users/me
 asana api /tasks/TASK_ID -F opt_fields=name,completed
 
 # Create a task (a body switches the default method to POST)
-# Note: Asana wraps writes in a `data` envelope — supply it via --input.
+# Asana wraps writes in a `data` envelope — supply it via --input (raw passthrough).
 echo '{"data":{"name":"New task","workspace":"WORKSPACE_ID"}}' \
   | asana api /tasks --input -
 
-# Explicit method, typed and string fields
-asana api /tasks/TASK_ID -X PUT --raw-field name="Renamed" -F completed=true
+# Update a task (PUT/PATCH bodies need the data envelope too)
+echo '{"data":{"name":"Renamed","completed":true}}' \
+  | asana api /tasks/TASK_ID -X PUT --input -
 
 # Include the HTTP status and headers in the output
 asana api /users/me -i
@@ -113,8 +114,10 @@ Flags: `-X/--method` (default GET, or POST when a body is present),
 `--raw-field key=value` (string), `-F/--field key=value`
 (typed — `true`/`false`/`null`/number parsed), `--input <file|->` (raw body,
 no envelope wrapping), `-H/--header key:value`, `-i/--include`.
-The string-field flag is the long `--raw-field` because the global `-f` is
-`--format`.
+Fields (`--raw-field`/`-F`) become query parameters for GET/HEAD and a flat JSON
+body otherwise; because writes are raw passthrough (no `data` wrapping), send
+write bodies via `--input`. The string-field flag is the long `--raw-field`
+because the global `-f` is `--format`.
 
 ### Output Formats
 

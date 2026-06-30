@@ -44,6 +44,7 @@ export const ERROR_IDS = {
 
   // Raw `api` command usage errors
   INVALID_API_ARGUMENT: 'INVALID_API_ARGUMENT',
+  API_INPUT_READ_FAILED: 'API_INPUT_READ_FAILED',
 } as const
 
 export type ErrorId = typeof ERROR_IDS[keyof typeof ERROR_IDS]

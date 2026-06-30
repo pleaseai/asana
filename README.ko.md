@@ -84,12 +84,13 @@ asana api /users/me
 asana api /tasks/TASK_ID -F opt_fields=name,completed
 
 # 작업 생성 (본문이 있으면 기본 메서드가 POST로 전환됨)
-# 참고: Asana는 쓰기 본문을 `data` 봉투로 감쌉니다 — --input으로 직접 구성하세요.
+# Asana는 쓰기 본문을 `data` 봉투로 감쌉니다 — --input으로 직접 구성하세요(원시 전달).
 echo '{"data":{"name":"새 작업","workspace":"WORKSPACE_ID"}}' \
   | asana api /tasks --input -
 
-# 명시적 메서드, 타입/문자열 필드
-asana api /tasks/TASK_ID -X PUT --raw-field name="이름 변경" -F completed=true
+# 작업 수정 (PUT/PATCH 본문에도 data 봉투가 필요함)
+echo '{"data":{"name":"이름 변경","completed":true}}' \
+  | asana api /tasks/TASK_ID -X PUT --input -
 
 # HTTP 상태와 헤더를 출력에 포함
 asana api /users/me -i
@@ -97,7 +98,9 @@ asana api /users/me -i
 
 플래그: `-X/--method`(기본 GET, 본문이 있으면 POST), `--raw-field key=value`(문자열),
 `-F/--field key=value`(타입 추론 — `true`/`false`/`null`/숫자 파싱),
-`--input <file|->`(원시 본문, 봉투 미래핑), `-H/--header key:value`, `-i/--include`.
+`--input <file|->`(원시 본문, `data` 봉투 래핑 없음), `-H/--header key:value`, `-i/--include`.
+필드(`--raw-field`/`-F`)는 GET/HEAD에서는 쿼리 파라미터로, 그 외에는 평면 JSON 본문이 됩니다.
+쓰기 본문은 원시 전달(봉투 자동 래핑 없음)이므로 `--input`으로 보내세요.
 전역 `-f`가 `--format`이므로 문자열 필드 플래그는 long 형식 `--raw-field`입니다.
 
 ### 출력 포맷
