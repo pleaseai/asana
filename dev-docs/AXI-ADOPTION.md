@@ -44,13 +44,13 @@ against both.
 | Axis | Now | Target | Basis |
 |------|-----|--------|-------|
 | 1. Machine-readable output | 1 | 3 | Success output consistent (TOON/JSON, all cmds); errors still stderr+Chalk → fixed by Phase 1 |
-| 2. Raw payload input | 1 | 3 | Only `batch-update --file` passes through arbitrary API fields; single mutations are flag-only, no stdin → Phase 6 |
+| 2. Raw payload input | 2 | 3 | `asana api` (ADR-006) reaches any endpoint with raw body/stdin (`gh api`-style); reaches 3 when typed single mutations also accept `--json`/stdin → Phase 6 |
 | 3. Schema introspection | 0 | 2 | Only commander `--help` text; no machine schema → Phase 7 |
 | 4. Context window discipline | 0 | 2 | No `--fields` mask / pagination control (TOON is orthogonal) → Phase 3 |
 | 5. Input hardening | 2 | 3 | Strict numeric GID (`^\d+$`) blocks traversal/encoding in IDs; gaps: no CWD path sandbox on `--file`, coverage unaudited |
 | 6. Safety rails | 0 | 2 | No `--dry-run`, no response sanitization → Phase 8 |
 | 7. Agent knowledge packaging | 1 | 3 | CLAUDE.md exists; no CLI-usage skill library/guardrails → Phase 5 |
-| **Total** | **5 / 21** | **~18 / 21** | Now: *Human-only* (top edge). After roadmap: *Agent-first* |
+| **Total** | **6 / 21** | **~18 / 21** | Now: *Human-only* (top edge). After roadmap: *Agent-first* |
 
 **Multi-surface (bonus, unscored):** MCP ❌ (not in this binary) · extension/plugin ❌
 (Homebrew distribution is not agent-native) · headless auth ✅ (`ASANA_ACCESS_TOKEN`,
@@ -69,7 +69,7 @@ PAT). MCP is tracked as D9 below.
 | D5 | Exit codes: 0 success/no-op, 1 error, 2 usage | ✅ Decided — ADR-003 |
 | D3 | Home view: tiered "light live" (workspaces + hints; offline/auth fallback) (§8) | ✅ Decided — ADR-004 |
 | D4 | Keep `formatter.ts` as canonical boundary; adopt toolkit `parseFields`/`filterFields` underneath | ✅ Decided — ADR-004 |
-| D6 | Raw JSON payload input (`--json`/stdin) on single mutations, mapping to API schema (Agent DX axis 2) | ⏳ Open — future ADR |
+| D6 | Raw JSON payload input — generic `asana api` escape hatch ✅ (ADR-006); `--json`/stdin on typed single mutations still open (Agent DX axis 2) | 🟡 Partial — ADR-006 |
 | D7 | Machine-readable schema introspection (`--help --json` or `describe`) (axis 3) | ⏳ Open — future ADR |
 | D8 | `--dry-run` on all mutating commands (axis 6) | ⏳ Open — future ADR |
 | D9 | MCP (stdio JSON-RPC) surface from the same binary (multi-surface) | ⏳ Open — separate ADR (large) |
@@ -134,10 +134,14 @@ low-risk and may be pulled forward right after Phase 1.**
 
 ### Phase 6 — Raw payload input (axis 2, D6)
 
-- Accept a raw JSON payload on single mutating commands via `--json '<obj>'` or
-  stdin, mapping directly to the Asana API schema (the `batch-update --file`
-  passthrough in `toTaskData` is the existing precedent).
-- Convenience flags remain; raw payload is additive (no translation loss).
+- ✅ **Done:** `asana api <endpoint>` — a `gh api`-style escape hatch reaching any
+  Asana REST endpoint with an arbitrary method, raw body (`--input`/stdin), and
+  headers (ADR-006). Raw passthrough — no `data` envelope wrapping; no
+  `--paginate` in v1.
+- **Remaining:** accept a raw JSON payload on the typed single mutating commands
+  via `--json '<obj>'` or stdin, mapping directly to the Asana API schema (the
+  `batch-update --file` passthrough in `toTaskData` is the existing precedent).
+  Convenience flags remain; raw payload is additive (no translation loss).
 
 ### Phase 7 — Schema introspection (axis 3, D7)
 

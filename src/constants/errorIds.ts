@@ -41,6 +41,9 @@ export const ERROR_IDS = {
   RATE_LIMIT_EXCEEDED: 'RATE_LIMIT_EXCEEDED',
   NETWORK_ERROR: 'NETWORK_ERROR',
   API_ERROR: 'API_ERROR',
+
+  // Raw `api` command usage errors
+  INVALID_API_ARGUMENT: 'INVALID_API_ARGUMENT',
 } as const
 
 export type ErrorId = typeof ERROR_IDS[keyof typeof ERROR_IDS]

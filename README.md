@@ -84,6 +84,38 @@ asana task list -a me -w WORKSPACE_ID
 asana task complete TASK_ID
 ```
 
+### Direct API Access
+
+Call any Asana REST endpoint directly, like `gh api` — an escape hatch for
+endpoints not covered by the typed commands. Responses use the same
+`--format` (TOON/JSON/plain) as every other command.
+
+```bash
+# GET the authenticated user
+asana api /users/me
+
+# GET with query parameters (added to the query string for GET/HEAD)
+asana api /tasks/TASK_ID -F opt_fields=name,completed
+
+# Create a task (a body switches the default method to POST)
+# Note: Asana wraps writes in a `data` envelope — supply it via --input.
+echo '{"data":{"name":"New task","workspace":"WORKSPACE_ID"}}' \
+  | asana api /tasks --input -
+
+# Explicit method, typed and string fields
+asana api /tasks/TASK_ID -X PUT --raw-field name="Renamed" -F completed=true
+
+# Include the HTTP status and headers in the output
+asana api /users/me -i
+```
+
+Flags: `-X/--method` (default GET, or POST when a body is present),
+`--raw-field key=value` (string), `-F/--field key=value`
+(typed — `true`/`false`/`null`/number parsed), `--input <file|->` (raw body,
+no envelope wrapping), `-H/--header key:value`, `-i/--include`.
+The string-field flag is the long `--raw-field` because the global `-f` is
+`--format`.
+
 ### Output Formats
 
 Choose output format based on your needs:

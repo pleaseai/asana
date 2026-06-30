@@ -70,6 +70,36 @@ asana task list -a me -w WORKSPACE_ID
 asana task complete TASK_ID
 ```
 
+### 직접 API 호출
+
+`gh api`처럼 임의의 Asana REST 엔드포인트를 직접 호출합니다 — 타입화된 명령이
+다루지 않는 엔드포인트를 위한 이스케이프 해치입니다. 응답은 다른 명령과 동일하게
+`--format`(TOON/JSON/plain)을 따릅니다.
+
+```bash
+# 인증된 사용자 조회
+asana api /users/me
+
+# 쿼리 파라미터와 함께 GET (GET/HEAD는 쿼리 문자열로 추가됨)
+asana api /tasks/TASK_ID -F opt_fields=name,completed
+
+# 작업 생성 (본문이 있으면 기본 메서드가 POST로 전환됨)
+# 참고: Asana는 쓰기 본문을 `data` 봉투로 감쌉니다 — --input으로 직접 구성하세요.
+echo '{"data":{"name":"새 작업","workspace":"WORKSPACE_ID"}}' \
+  | asana api /tasks --input -
+
+# 명시적 메서드, 타입/문자열 필드
+asana api /tasks/TASK_ID -X PUT --raw-field name="이름 변경" -F completed=true
+
+# HTTP 상태와 헤더를 출력에 포함
+asana api /users/me -i
+```
+
+플래그: `-X/--method`(기본 GET, 본문이 있으면 POST), `--raw-field key=value`(문자열),
+`-F/--field key=value`(타입 추론 — `true`/`false`/`null`/숫자 파싱),
+`--input <file|->`(원시 본문, 봉투 미래핑), `-H/--header key:value`, `-i/--include`.
+전역 `-f`가 `--format`이므로 문자열 필드 플래그는 long 형식 `--raw-field`입니다.
+
 ### 출력 포맷
 
 필요에 따라 출력 포맷을 선택하세요:
