@@ -1,0 +1,57 @@
+src/lib/asana-client.ts
+  s_23f73006ddb4aa::t_64896071108ec3 392-393,395
+src/constants/errorIds.ts
+  s_23f73006ddb4aa::t_b4cf9dfb766acd 44-48
+.env.example
+  s_23f73006ddb4aa::t_55186eae446d9d 7-12
+package.json
+  s_23f73006ddb4aa::t_5a818dea211f49 62
+src/lib/validators.ts
+  s_23f73006ddb4aa::t_a4e07bc730900e 12
+  s_23f73006ddb4aa::t_5b8c2af68cd7f7 175-184
+  s_23f73006ddb4aa::t_5778f115c0cea4 174
+  s_23f73006ddb4aa::t_d91ab32c8d12c7 185-187
+  s_23f73006ddb4aa::t_9ae3e21fbaddf0 188
+src/lib/github.ts
+  s_23f73006ddb4aa::t_ac62c2c7a7dacc 1-12,26-88,101-128,131,134-181
+  s_23f73006ddb4aa::t_3ec722b0f0f60e 13-25
+  s_23f73006ddb4aa::t_7a9631c9392c3c 89-100
+  s_23f73006ddb4aa::t_6564d41b95238e 129-130,132-133
+test/commands/feedback.emulate.test.ts
+  s_23f73006ddb4aa::t_de846a02b3c7fe 23-29
+  s_23f73006ddb4aa::t_e6c86bae161bf2 1-22,30-59,62-69,71-132
+  s_23f73006ddb4aa::t_1c942854feb47f 60-61,70
+test/lib/github.test.ts
+  s_23f73006ddb4aa::t_dbe66ffd9ce072 2-148
+  s_23f73006ddb4aa::t_b7f9764ad3715f 1
+test/commands/feedback.test.ts
+  s_23f73006ddb4aa::t_72f8447c8ff61a 1-3,9-10,18-19,25,32,38,104
+  s_23f73006ddb4aa::t_ce22ddfe011306 4-8,11-17,20-24,26-31,34-37,40-103,105-141
+  s_23f73006ddb4aa::t_c3389d886f7a17 33,39
+src/commands/feedback.ts
+  s_23f73006ddb4aa::t_f292e62d5618f2 129
+  s_23f73006ddb4aa::t_6ea02288297e09 1-12,14-61,63-128,130-135
+  s_23f73006ddb4aa::t_d96c1c63d1acf3 62
+  s_23f73006ddb4aa::t_8a4da22173070b 13
+src/index.ts
+  s_23f73006ddb4aa::t_320cb815fdc680 7
+  s_23f73006ddb4aa::t_b8d63c934d3caa 44
+bun.lock
+  s_23f73006ddb4aa::t_b0d9afc020a4dc 18,373-374,1033-1034
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.5",
+  "base_commit_sha": "b69b175f55db4af8dfce23496a666b152cd23f9d",
+  "prompts": {},
+  "sessions": {
+    "s_23f73006ddb4aa": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "14382876-2c02-455e-9ec0-af776869df79",
+        "model": "claude-opus-4-8"
+      },
+      "human_author": "Minsu Lee <minsu.lee@pleaseai.dev>"
+    }
+  }
+}
