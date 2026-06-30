@@ -258,6 +258,24 @@ describe('mapTaskCustomField', () => {
     expect(mapped.date).toBeNull()
   })
 
+  test('falls back to the legacy `type` property when resource_subtype is absent', () => {
+    const field = {
+      gid: '700',
+      name: 'Reporter',
+      type: 'people',
+      display_value: 'Minsu Lee',
+      people_value: [{ gid: '111', name: 'Minsu Lee' }],
+    }
+
+    expect(mapTaskCustomField(field)).toEqual({
+      gid: '700',
+      name: 'Reporter',
+      type: 'people',
+      value: 'Minsu Lee',
+      people: [{ gid: '111', name: 'Minsu Lee' }],
+    })
+  })
+
   test('does not add typed keys from other types onto a text field', () => {
     const mapped = mapTaskCustomField({
       gid: '600',

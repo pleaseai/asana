@@ -73,7 +73,9 @@ function toOption(option: any): CustomFieldOption {
  * - `date` → `date`: the raw `{date, date_time}` ISO value, or `null`
  */
 export function mapTaskCustomField(field: any): TaskCustomFieldSummary {
-  const type = field.resource_subtype ?? 'unknown'
+  // Mirror `coerceCustomFieldValue`: prefer `resource_subtype`, fall back to the
+  // legacy `type` property so legacy-shaped inputs still map to the right type.
+  const type = field.resource_subtype ?? field.type ?? 'unknown'
   const summary: TaskCustomFieldSummary = {
     gid: field.gid,
     name: field.name,
