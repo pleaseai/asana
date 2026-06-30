@@ -3,13 +3,25 @@ import chalk from 'chalk'
 import { Command } from 'commander'
 import { getAsanaClient } from '../lib/asana-client'
 import { loadConfig } from '../lib/config'
-import { coerceCustomFieldValue } from '../lib/custom-fields'
+import { coerceCustomFieldValue, mapTaskCustomField } from '../lib/custom-fields'
 import { handleAsanaError } from '../lib/error-handler'
 import { validateGid, ValidationError } from '../lib/validators'
 import { formatOutput, getOutputFormat } from '../utils/formatter'
 
 const TASK_CUSTOM_FIELD_FIELDS = {
-  opt_fields: 'custom_fields.name,custom_fields.resource_subtype,custom_fields.display_value',
+  opt_fields: [
+    'custom_fields.name',
+    'custom_fields.resource_subtype',
+    'custom_fields.display_value',
+    'custom_fields.people_value.gid',
+    'custom_fields.people_value.name',
+    'custom_fields.enum_value.gid',
+    'custom_fields.enum_value.name',
+    'custom_fields.multi_enum_values.gid',
+    'custom_fields.multi_enum_values.name',
+    'custom_fields.date_value.date',
+    'custom_fields.date_value.date_time',
+  ].join(','),
 }
 const FIELD_DEFINITION_FIELDS = {
   opt_fields: 'name,resource_subtype,enum_options.name,enum_options.enabled',
@@ -74,12 +86,7 @@ export function createTaskCustomFieldCommand(): Command {
         validateGid(taskGid, 'Task GID')
         const client = getAsanaClient()
         const task = await client.tasks.findById(taskGid, TASK_CUSTOM_FIELD_FIELDS)
-        const fields = (task.custom_fields || []).map((field: any) => ({
-          gid: field.gid,
-          name: field.name,
-          type: field.resource_subtype ?? 'unknown',
-          value: field.display_value ?? '',
-        }))
+        const fields = (task.custom_fields || []).map(mapTaskCustomField)
 
         if (fields.length === 0) {
           console.log(chalk.yellow('No custom fields found'))
