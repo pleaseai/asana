@@ -47,7 +47,9 @@ interface ApiOptions {
  * (and `../` cannot climb above the origin we already validate).
  */
 export function normalizeEndpoint(endpoint: string, baseUrl: string = getApiBaseUrl()): string {
-  const base = new URL(`${baseUrl.replace(/\/+$/, '')}/`)
+  // Ensure a single trailing slash so relative paths resolve under the API
+  // prefix. Avoids a regex (Sonar flags `/\/+$/` for backtracking).
+  const base = new URL(baseUrl.endsWith('/') ? baseUrl : `${baseUrl}/`)
   const trimmed = endpoint.trim()
 
   let resolved: URL
