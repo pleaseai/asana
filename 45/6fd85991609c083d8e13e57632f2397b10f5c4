@@ -1,0 +1,19 @@
+src/commands/api.ts
+  s_94b98e166d572b::t_86b6050e943f85 50-52
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.5",
+  "base_commit_sha": "456fd85991609c083d8e13e57632f2397b10f5c4",
+  "prompts": {},
+  "sessions": {
+    "s_94b98e166d572b": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "1452d7c0-83d5-4855-acbd-f94779f812d5",
+        "model": "claude-opus-4-8"
+      },
+      "human_author": "Minsu Lee <minsu.lee@pleaseai.dev>"
+    }
+  }
+}
