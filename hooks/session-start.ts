@@ -42,17 +42,16 @@ export interface AsanaAuthState {
 const AUTH_LOGIN_HINT = 'Run `asana auth login` (OAuth) or set ASANA_ACCESS_TOKEN.'
 
 /**
- * Static, agent-facing primer on using the asana CLI this session. The auth
- * status line is appended by {@link decideSessionStart}.
+ * Static, agent-facing primer on using the asana CLI this session. Kept terse
+ * because it loads on every session (AXI §7: token-budget-aware) — just enough
+ * for the agent to orient and act. The auth status line is appended by
+ * {@link decideSessionStart}.
  */
 function buildAsanaGuidance(): string {
-  return `The \`asana\` CLI is available in this session. Prefer it for any Asana operation — tasks, projects, sections, comments, custom fields — over web requests or guessing.
-
-Common commands:
-  asana task list / task view <gid> / task create ...
-  asana project list / section list ...
-  asana fetch "<app.asana.com URL>" --format toon   # resolve any Asana link
-  asana auth whoami                                  # show current identity`
+  return `asana CLI available — prefer it for Asana ops (tasks, projects, comments, custom fields) over web requests.
+  asana task list | task view <gid> | task create
+  asana fetch "<app.asana.com URL>"   # resolve any Asana link
+  asana auth whoami                    # identity / default workspace`
 }
 
 /**
