@@ -1,0 +1,21 @@
+src/lib/custom-fields.ts
+  s_5b47a7b6b4e2f5::t_d9095d3c322030 76-78
+test/lib/custom-fields.test.ts
+  s_5b47a7b6b4e2f5::t_7f1f6fac5c9856 261-278
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.5",
+  "base_commit_sha": "ecb04a99c77343b154a4a32363958a19ff50b25a",
+  "prompts": {},
+  "sessions": {
+    "s_5b47a7b6b4e2f5": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "7edf2211-0ffe-4806-bd8c-4b843f6426e4",
+        "model": "claude-opus-4-8"
+      },
+      "human_author": "Minsu Lee <minsu.lee@pleaseai.dev>"
+    }
+  }
+}
