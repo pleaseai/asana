@@ -9,6 +9,7 @@ import type { ErrorId } from '../constants/errorIds'
 import { existsSync, statSync } from 'node:fs'
 import chalk from 'chalk'
 import { ERROR_IDS } from '../constants/errorIds'
+import { FEEDBACK_TYPES } from './github'
 
 export class ValidationError extends Error {
   constructor(
@@ -166,6 +167,40 @@ export function validateFileExists(filePath: string, fieldName: string = 'File')
       ERROR_IDS.FILE_NOT_FOUND,
       `${fieldName} not found`,
       { filePath, fieldName },
+    )
+  }
+}
+
+/**
+ * Validate that a feedback type is one the `feedback` command accepts.
+ */
+export function validateFeedbackType(type: string): void {
+  if (!FEEDBACK_TYPES.includes(type as typeof FEEDBACK_TYPES[number])) {
+    console.error(chalk.red(`✗ Invalid feedback type: ${type}`))
+    console.error(chalk.gray(`  Valid types: ${FEEDBACK_TYPES.join(', ')}`))
+    throw new ValidationError(
+      ERROR_IDS.INVALID_FEEDBACK_TYPE,
+      'Invalid feedback type',
+      { type, validTypes: FEEDBACK_TYPES },
+    )
+  }
+}
+
+/**
+ * Validate that a repository identifier is in the `owner/repo` format.
+ *
+ * Each segment allows the characters GitHub permits in owner and repo names
+ * (alphanumerics, `-`, `_`, `.`), preventing a malformed `--repo` value from
+ * producing a broken API path or browser URL.
+ */
+export function validateRepoFormat(repo: string): void {
+  if (!/^[\w.-]+\/[\w.-]+$/.test(repo)) {
+    console.error(chalk.red(`✗ Invalid repository: ${repo}`))
+    console.error(chalk.gray('  Expected format: owner/repo (e.g., pleaseai/asana)'))
+    throw new ValidationError(
+      ERROR_IDS.INVALID_REPO_FORMAT,
+      'Invalid repository format',
+      { repo },
     )
   }
 }

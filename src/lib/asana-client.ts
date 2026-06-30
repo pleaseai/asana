@@ -389,8 +389,10 @@ export function getAsanaClient() {
  * Commands that must NOT trigger an OAuth token refresh before running:
  * - `auth login` / `auth logout` manage credentials directly
  * - `self-update` does not call the Asana API
+ * - `feedback` files a GitHub issue and never touches the Asana API, so a
+ *   missing/expired Asana token must not block it
  */
-const NO_REFRESH_COMMANDS = new Set(['auth login', 'auth logout', 'self-update'])
+const NO_REFRESH_COMMANDS = new Set(['auth login', 'auth logout', 'self-update', 'feedback'])
 
 /**
  * Whether the given space-joined command path (e.g. "auth whoami", "task list")
