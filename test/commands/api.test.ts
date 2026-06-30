@@ -241,16 +241,40 @@ describe('api command execution', () => {
     expect(logs.join('\n')).toContain('"name": "Me"')
   })
 
-  test('a field with no explicit method defaults to POST with a JSON body', async () => {
+  test('fields alone stay GET and become query parameters (no auto-POST)', async () => {
+    nextResponse = new Response(JSON.stringify({ data: [] }), {
+      status: 200,
+      headers: { 'content-type': 'application/json' },
+    })
+
+    await runApi(['api', '/tasks/1', '-F', 'opt_fields=name,completed'])
+
+    expect(fetchCalls[0]?.init.method).toBe('GET')
+    expect(fetchCalls[0]?.url).toBe(`${BASE}/tasks/1?opt_fields=name%2Ccompleted`)
+    expect(fetchCalls[0]?.init.body).toBeUndefined()
+  })
+
+  test('an explicit POST sends fields as a JSON body', async () => {
     nextResponse = new Response(JSON.stringify({ data: { gid: '99' } }), {
       status: 201,
       headers: { 'content-type': 'application/json' },
     })
 
-    await runApi(['api', '/tasks', '--raw-field', 'name=New Task'])
+    await runApi(['api', '/tasks', '-X', 'POST', '--raw-field', 'name=New Task'])
 
     expect(fetchCalls[0]?.init.method).toBe('POST')
     expect(fetchCalls[0]?.init.body).toBe('{"name":"New Task"}')
+  })
+
+  test('--input flips the default method to POST', async () => {
+    nextResponse = new Response(JSON.stringify({ data: { gid: '7' } }), {
+      status: 201,
+      headers: { 'content-type': 'application/json' },
+    })
+
+    await runApi(['api', '/tasks', '--input', 'package.json'])
+
+    expect(fetchCalls[0]?.init.method).toBe('POST')
   })
 
   test('routes an HTTP error response through handleAsanaError (plain → stderr, exit 1)', async () => {

@@ -145,7 +145,7 @@ export function parseHeaders(headerStrings: string[] = []): Record<string, strin
   return result
 }
 
-/** Default to GET, or POST when a body is present, unless an explicit method is given (gh behavior). */
+/** Default to GET, or POST when a request body is present, unless an explicit method is given. */
 export function resolveMethod(explicit: string | undefined, hasBody: boolean): string {
   if (explicit) {
     return explicit.toUpperCase()
@@ -305,7 +305,10 @@ async function runApi(endpoint: string, options: ApiOptions, command: Command): 
     const fields = parseFields(options.rawField, options.field)
     const headers = parseHeaders(options.header)
     const body = options.input === undefined ? undefined : readInput(options.input)
-    const hasBody = body !== undefined || Object.keys(fields).length > 0
+    // Only a real request body (--input) flips the default to POST. Fields alone
+    // stay GET and become query parameters (the common read case, e.g.
+    // `-F opt_fields=…`); pass `-X POST` explicitly to send fields as a body.
+    const hasBody = body !== undefined
     const method = resolveMethod(options.method, hasBody)
 
     // A raw body with a bodyless method would be silently dropped — fail loudly.
