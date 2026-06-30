@@ -2,6 +2,11 @@ import { afterEach, beforeEach, describe, expect, mock, test } from 'bun:test'
 import { compareVersions } from '../src/commands/self-update'
 
 describe('self-update command', () => {
+  // `mock.restore()` does NOT revert a direct `global.fetch = ...` assignment,
+  // so capture and reinstate the real fetch to keep the mock from leaking into
+  // later suites (e.g. integration tests that make real HTTP calls).
+  const originalFetch = global.fetch
+
   beforeEach(() => {
     // Mock fetch for GitHub API calls
     global.fetch = mock(async (url: string | URL | Request) => {
@@ -34,6 +39,7 @@ describe('self-update command', () => {
 
   afterEach(() => {
     mock.restore()
+    global.fetch = originalFetch
   })
 
   test('should detect platform correctly', () => {
