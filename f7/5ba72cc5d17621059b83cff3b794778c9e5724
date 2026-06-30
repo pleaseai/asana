@@ -1,0 +1,25 @@
+test/lib/custom-fields.test.ts
+  s_5b47a7b6b4e2f5::t_1436c8415cb0e1 155-273
+src/commands/custom-field.ts
+  s_5b47a7b6b4e2f5::t_26bd9d179f72c3 12-24
+skills/asana-cli/references/commands.md
+  s_5b47a7b6b4e2f5::t_721d9eebdb5300 145-151
+src/lib/custom-fields.ts
+  s_5b47a7b6b4e2f5::t_65e2453e2d40f3 30-41,50-59,65-73,84-104
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.5",
+  "base_commit_sha": "f75ba72cc5d17621059b83cff3b794778c9e5724",
+  "prompts": {},
+  "sessions": {
+    "s_5b47a7b6b4e2f5": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "7edf2211-0ffe-4806-bd8c-4b843f6426e4",
+        "model": "claude-opus-4-8"
+      },
+      "human_author": "Minsu Lee <minsu.lee@pleaseai.dev>"
+    }
+  }
+}
