@@ -185,6 +185,8 @@ describe('api command execution', () => {
   let fetchCalls: Array<{ url: string, init: RequestInit }>
   let nextResponse: Response
   let logs: string[]
+  let exitSpy: ReturnType<typeof spyOn>
+  let errorSpy: ReturnType<typeof spyOn>
   const originalFetch = globalThis.fetch
   const originalLog = console.log
 
@@ -200,11 +202,19 @@ describe('api command execution', () => {
       fetchCalls.push({ url, init })
       return nextResponse
     }) as unknown as typeof fetch
+    // Spy here, restore in afterEach — so a failing assertion mid-test can never
+    // leak the process.exit / console.error mock into later tests.
+    exitSpy = spyOn(process, 'exit').mockImplementation((() => {
+      throw new Error('__exit__')
+    }) as never)
+    errorSpy = spyOn(console, 'error').mockImplementation(() => {})
   })
 
   afterEach(() => {
     globalThis.fetch = originalFetch
     console.log = originalLog
+    exitSpy.mockRestore()
+    errorSpy.mockRestore()
     delete process.env.ASANA_ACCESS_TOKEN
     delete process.env.ASANA_API_BASE_URL
   })
@@ -249,51 +259,27 @@ describe('api command execution', () => {
       headers: { 'content-type': 'application/json' },
     })
 
-    const errorSpy = spyOn(console, 'error').mockImplementation(() => {})
-    const exitSpy = spyOn(process, 'exit').mockImplementation((() => {
-      throw new Error('__exit__')
-    }) as never)
-
     await expect(runApi(['--format', 'plain', 'api', '/tasks/bad'])).rejects.toThrow('__exit__')
 
     const printed = errorSpy.mock.calls.flat().join(' ')
     expect(printed).toContain('Not a recognized id')
-
-    errorSpy.mockRestore()
-    exitSpy.mockRestore()
   })
 
   test('a malformed --raw-field is a usage error (exit 2) before any request', async () => {
-    const exitSpy = spyOn(process, 'exit').mockImplementation((() => {
-      throw new Error('__exit__')
-    }) as never)
-
     await expect(runApi(['--format', 'json', 'api', '/tasks', '--raw-field', 'name'])).rejects.toThrow('__exit__')
 
     expect(exitSpy).toHaveBeenCalledWith(2)
     expect(fetchCalls).toHaveLength(0)
-
-    exitSpy.mockRestore()
   })
 
   test('an off-origin endpoint is rejected (exit 2) and never fetched', async () => {
-    const exitSpy = spyOn(process, 'exit').mockImplementation((() => {
-      throw new Error('__exit__')
-    }) as never)
-
     await expect(runApi(['--format', 'json', 'api', 'https://evil.example/steal'])).rejects.toThrow('__exit__')
 
     expect(exitSpy).toHaveBeenCalledWith(2)
     expect(fetchCalls).toHaveLength(0)
-
-    exitSpy.mockRestore()
   })
 
   test('--input with an explicit bodyless method (GET) is a usage error, not a silent drop', async () => {
-    const exitSpy = spyOn(process, 'exit').mockImplementation((() => {
-      throw new Error('__exit__')
-    }) as never)
-
     // package.json is a real, readable file so readInput succeeds and the
     // body-drop guard (not file validation) is what trips the usage error.
     await expect(
@@ -302,7 +288,5 @@ describe('api command execution', () => {
 
     expect(exitSpy).toHaveBeenCalledWith(2)
     expect(fetchCalls).toHaveLength(0)
-
-    exitSpy.mockRestore()
   })
 })
