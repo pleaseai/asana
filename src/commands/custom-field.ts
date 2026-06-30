@@ -9,7 +9,19 @@ import { validateGid, ValidationError } from '../lib/validators'
 import { formatOutput, getOutputFormat } from '../utils/formatter'
 
 const TASK_CUSTOM_FIELD_FIELDS = {
-  opt_fields: 'custom_fields.name,custom_fields.resource_subtype,custom_fields.display_value,custom_fields.people_value.gid,custom_fields.people_value.name',
+  opt_fields: [
+    'custom_fields.name',
+    'custom_fields.resource_subtype',
+    'custom_fields.display_value',
+    'custom_fields.people_value.gid',
+    'custom_fields.people_value.name',
+    'custom_fields.enum_value.gid',
+    'custom_fields.enum_value.name',
+    'custom_fields.multi_enum_values.gid',
+    'custom_fields.multi_enum_values.name',
+    'custom_fields.date_value.date',
+    'custom_fields.date_value.date_time',
+  ].join(','),
 }
 const FIELD_DEFINITION_FIELDS = {
   opt_fields: 'name,resource_subtype,enum_options.name,enum_options.enabled',

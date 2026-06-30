@@ -142,9 +142,13 @@ Asana caps combined dependencies + dependents at 50.
 
 - `asana task custom-field set <task-gid> <field-gid> <value>` — value coerced to field type (text/number/enum name or gid)
 - `asana task custom-field list <task-gid>`
-  - Each field reports `gid`, `name`, `type`, and `value` (the display string). For
-    `people`-type fields the output also carries a `people` array of `{gid, name}` —
-    use those gids to @-mention someone in a comment (see below).
+  - Each field reports `gid`, `name`, `type`, and `value` (the display string).
+    Types whose `value` hides machine-readable data also carry a structured key
+    (use `--format json` to read them):
+    - `people` → `people`: `[{gid, name}]` — user gids for @-mentions (see below)
+    - `enum` → `enum_option`: the selected `{gid, name}`, or `null` if unset
+    - `multi_enum` → `enum_options`: the selected `[{gid, name}]`
+    - `date` → `date`: the raw `{date, date_time}` ISO value, or `null` if unset
 
 ### @-mention a person from a people field
 

@@ -27,6 +27,18 @@ export interface CustomFieldUser {
   name?: string
 }
 
+/** A single enum option selected on an `enum`/`multi_enum` field. */
+export interface CustomFieldOption {
+  gid: string
+  name?: string
+}
+
+/** The raw value of a `date`-type field (ISO date, optional ISO date-time). */
+export interface CustomFieldDate {
+  date?: string
+  date_time?: string | null
+}
+
 /** Compact summary of a custom field value as read from a task. */
 export interface TaskCustomFieldSummary {
   gid: string
@@ -35,16 +47,30 @@ export interface TaskCustomFieldSummary {
   value: string
   /** Present only for `people`-type fields: the assigned users with their gids. */
   people?: CustomFieldUser[]
+  /** Present only for `enum`-type fields: the selected option, or `null` if unset. */
+  enum_option?: CustomFieldOption | null
+  /** Present only for `multi_enum`-type fields: the selected options. */
+  enum_options?: CustomFieldOption[]
+  /** Present only for `date`-type fields: the raw ISO value, or `null` if unset. */
+  date?: CustomFieldDate | null
+}
+
+function toOption(option: any): CustomFieldOption {
+  return { gid: option.gid, name: option.name }
 }
 
 /**
  * Map a raw Asana task custom field into the compact summary the CLI prints.
  *
- * For `people`-type fields the raw `people_value` array (compact user objects
- * with `gid`/`name`) is surfaced as a `people` array, so JSON consumers can read
- * the underlying user gids needed to build an @-mention. `value` keeps the
- * documented `display_value` string for every type, so the shape stays
- * backward compatible.
+ * `value` keeps the documented `display_value` string for every type, so the
+ * shape stays backward compatible. For types whose `display_value` hides
+ * machine-readable data, the structured value is surfaced as an extra key so
+ * JSON consumers can read it:
+ *
+ * - `people` → `people`: assigned users with their `gid`s (needed for @-mentions)
+ * - `enum` → `enum_option`: the selected option `{gid, name}`, or `null`
+ * - `multi_enum` → `enum_options`: the selected options `[{gid, name}]`
+ * - `date` → `date`: the raw `{date, date_time}` ISO value, or `null`
  */
 export function mapTaskCustomField(field: any): TaskCustomFieldSummary {
   const type = field.resource_subtype ?? 'unknown'
@@ -55,11 +81,27 @@ export function mapTaskCustomField(field: any): TaskCustomFieldSummary {
     value: field.display_value ?? '',
   }
 
-  if (type === 'people') {
-    summary.people = (field.people_value ?? []).map((user: any) => ({
-      gid: user.gid,
-      name: user.name,
-    }))
+  switch (type) {
+    case 'people':
+      summary.people = (field.people_value ?? []).map((user: any) => ({
+        gid: user.gid,
+        name: user.name,
+      }))
+      break
+
+    case 'enum':
+      summary.enum_option = field.enum_value ? toOption(field.enum_value) : null
+      break
+
+    case 'multi_enum':
+      summary.enum_options = (field.multi_enum_values ?? []).map(toOption)
+      break
+
+    case 'date':
+      summary.date = field.date_value
+        ? { date: field.date_value.date, date_time: field.date_value.date_time ?? null }
+        : null
+      break
   }
 
   return summary
