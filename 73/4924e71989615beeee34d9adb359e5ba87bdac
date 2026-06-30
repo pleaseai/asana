@@ -1,0 +1,54 @@
+test/lib/custom-fields.test.ts
+  s_94b98e166d572b::t_2e3bf1b6672fec 3,82-291
+  s_94b98e166d572b::t_ad1201b4924b88 292
+test/self-update.test.ts
+  s_94b98e166d572b::t_2e3bf1b6672fec 5-9,42
+test/commands/feedback.test.ts
+  s_94b98e166d572b::t_2e3bf1b6672fec 1-166
+skills/asana-cli/references/commands.md
+  s_94b98e166d572b::t_2e3bf1b6672fec 145-167
+test/lib/github.test.ts
+  s_94b98e166d572b::t_2e3bf1b6672fec 1-166
+package.json
+  s_94b98e166d572b::t_2e3bf1b6672fec 62
+src/constants/errorIds.ts
+  s_94b98e166d572b::t_2e3bf1b6672fec 49-53
+  s_94b98e166d572b::t_8f8abb54492e69 48
+src/commands/custom-field.ts
+  s_94b98e166d572b::t_2e3bf1b6672fec 6,12-24,89
+src/lib/github.ts
+  s_94b98e166d572b::t_2e3bf1b6672fec 1-214
+test/commands/feedback.emulate.test.ts
+  s_94b98e166d572b::t_2e3bf1b6672fec 1-132
+src/lib/asana-client.ts
+  s_94b98e166d572b::t_2e3bf1b6672fec 392-393,395
+src/index.ts
+  s_94b98e166d572b::t_2e3bf1b6672fec 8,46
+.env.example
+  s_94b98e166d572b::t_2e3bf1b6672fec 7-12
+src/lib/custom-fields.ts
+  s_94b98e166d572b::t_2e3bf1b6672fec 24-111
+src/lib/validators.ts
+  s_94b98e166d572b::t_2e3bf1b6672fec 12,174-206
+  s_94b98e166d572b::t_128c6ab1dc6d2a 207
+src/commands/feedback.ts
+  s_94b98e166d572b::t_2e3bf1b6672fec 1-154
+bun.lock
+  s_94b98e166d572b::t_7004d64c12fe0d 18,373-374,1033-1034
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.5",
+  "base_commit_sha": "734924e71989615beeee34d9adb359e5ba87bdac",
+  "prompts": {},
+  "sessions": {
+    "s_94b98e166d572b": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "1452d7c0-83d5-4855-acbd-f94779f812d5",
+        "model": "claude-opus-4-8"
+      },
+      "human_author": "Minsu Lee <minsu.lee@pleaseai.dev>"
+    }
+  }
+}
