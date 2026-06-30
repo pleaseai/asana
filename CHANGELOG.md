@@ -1,5 +1,14 @@
 # Changelog
 
+## [0.9.0](https://github.com/pleaseai/asana/compare/v0.8.0...v0.9.0) (2026-06-30)
+
+
+### Features
+
+* **api:** add gh-style direct API passthrough command ([#76](https://github.com/pleaseai/asana/issues/76)) ([f3bc1a5](https://github.com/pleaseai/asana/commit/f3bc1a5084979383c9912ff55787235b627591f7))
+* **custom-field:** expose structured custom-field values in task custom-field list ([#75](https://github.com/pleaseai/asana/issues/75)) ([8b3e477](https://github.com/pleaseai/asana/commit/8b3e4775d4e7562288372805f8b82859ca1b700b)), closes [#74](https://github.com/pleaseai/asana/issues/74)
+* **feedback:** add command to submit GitHub issues ([#78](https://github.com/pleaseai/asana/issues/78)) ([2836ca3](https://github.com/pleaseai/asana/commit/2836ca3af317be0819ecf88ae51d3f4a2302babd))
+
 ## [0.8.0](https://github.com/pleaseai/asana/compare/v0.7.0...v0.8.0) (2026-06-25)
 
 
