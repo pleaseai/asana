@@ -12,8 +12,9 @@
  * Auth resolution is shared with the CLI via src/lib/config.ts.
  */
 
+import type { AsanaConfig } from '../src/types'
 import process from 'node:process'
-import { getAccessToken, loadConfig } from '../src/lib/config'
+import { loadConfig } from '../src/lib/config'
 
 // Minimal local shapes — avoids depending on @anthropic-ai/claude-agent-sdk.
 interface HookJSONOutput {
@@ -36,7 +37,7 @@ export interface AsanaAuthState {
   /** OAuth access-token expiry, epoch ms. */
   expiresAt?: number
   /** Whether an OAuth refresh token is stored (enables auto-refresh). */
-  hasRefreshToken?: boolean
+  hasRefreshToken: boolean
 }
 
 const AUTH_LOGIN_HINT = 'Run `asana auth login` (OAuth) or set ASANA_ACCESS_TOKEN.'
@@ -114,35 +115,61 @@ export function decideSessionStart(state: AsanaAuthState, now: number): HookJSON
 }
 
 /**
+ * Map a stored config + env token to the auth state, mirroring
+ * `getAccessToken`'s precedence (`config?.accessToken || ASANA_ACCESS_TOKEN`):
+ * a config token wins, the env var is the fallback. Crucially, OAuth metadata
+ * (authType/expiresAt/refreshToken) is read ONLY when the config token is the
+ * one that resolves — never paired with an env-resolved token, so a stale OAuth
+ * config can't trigger a false re-auth warning when ASANA_ACCESS_TOKEN is set.
+ * Pure, so the source-precedence logic is unit-testable.
+ */
+export function deriveAuthState(config: AsanaConfig | null, envToken: string | undefined): AsanaAuthState {
+  if (config?.accessToken) {
+    return {
+      hasToken: true,
+      authType: config.authType,
+      expiresAt: config.expiresAt,
+      hasRefreshToken: config.refreshToken != null,
+    }
+  }
+
+  if (envToken) {
+    return { hasToken: true, authType: 'pat', hasRefreshToken: false }
+  }
+
+  return { hasToken: false, hasRefreshToken: false }
+}
+
+/**
  * Read the stored credential into an {@link AsanaAuthState}. Impure (touches
- * config.json + process.env); kept thin so the decision logic stays testable.
+ * config.json + process.env); kept thin so {@link deriveAuthState} stays testable.
  */
 export function readAuthState(): AsanaAuthState {
-  const config = loadConfig()
-  const hasToken = getAccessToken(config) != null
-
-  return {
-    hasToken,
-    authType: config?.authType,
-    expiresAt: config?.expiresAt,
-    hasRefreshToken: config?.refreshToken != null,
-  }
+  return deriveAuthState(loadConfig(), process.env.ASANA_ACCESS_TOKEN)
 }
 
 async function main(): Promise<void> {
   try {
     // SessionStart input is consumed but not needed; drain stdin so the hook
-    // doesn't block on an unread pipe.
-    await Bun.stdin.text()
+    // doesn't block on an unread pipe. Skip when attached to an interactive TTY
+    // (manual runs / debugging) — there's no EOF coming, so the read would hang.
+    if (!process.stdin.isTTY) {
+      await Bun.stdin.text()
+    }
     const output = decideSessionStart(readAuthState(), Date.now())
     process.stdout.write(`${JSON.stringify(output)}\n`)
     process.exit(0)
   }
   catch (error) {
-    // Never hard-fail session startup: report and emit empty output.
+    // Never hard-fail session startup. Surface the failure via systemMessage
+    // (same contract as intercept-webfetch.ts) instead of a silent `{}`, so a
+    // config read/parse error is visible in-session rather than disappearing.
     const errorMessage = error instanceof Error ? error.message : String(error)
     await Bun.write(Bun.stderr, `Hook error: ${errorMessage}\n`)
-    process.stdout.write('{}\n')
+    const output: HookJSONOutput = {
+      systemMessage: `⚠️ Asana SessionStart hook error: ${errorMessage}. Session guidance was not injected.`,
+    }
+    process.stdout.write(`${JSON.stringify(output)}\n`)
     process.exit(0)
   }
 }
