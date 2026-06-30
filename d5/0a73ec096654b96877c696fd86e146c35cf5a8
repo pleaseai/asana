@@ -1,0 +1,50 @@
+src/constants/api.ts
+  s_94b98e166d572b::t_fd242a25532b19 1-13
+dev-docs/adr/006-raw-api-passthrough-command.md
+  s_94b98e166d572b::t_e094fed89e6d1d 1-125
+dev-docs/AXI-ADOPTION.md
+  s_94b98e166d572b::t_c74f05420223f4 47
+  s_94b98e166d572b::t_35f9f7c5244692 72
+  s_61c7be22a380c5::t_5c79a9df9130a8 53,137-144
+README.md
+  s_94b98e166d572b::t_fee67d4eb99d49 87-118
+src/commands/api.ts
+  s_94b98e166d572b::t_9c9314de931837 1-160,163-286
+  s_94b98e166d572b::t_76ad9a570e5ed4 161-162
+src/constants/errorIds.ts
+  s_94b98e166d572b::t_e9708ab7a650d5 44-46
+src/index.ts
+  s_94b98e166d572b::t_8995578cb133d5 35
+  s_94b98e166d572b::t_afe14a6281d605 5
+README.ko.md
+  s_94b98e166d572b::t_4e1029248ac968 73-102
+test/commands/api.test.ts
+  s_94b98e166d572b::t_d1b34d28205b1b 189-191
+  s_94b98e166d572b::t_4a4169535f8e24 1-188,192-271
+dev-docs/adr/README.md
+  s_94b98e166d572b::t_8d4e11c8527910 18
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.5",
+  "base_commit_sha": "d50a73ec096654b96877c696fd86e146c35cf5a8",
+  "prompts": {},
+  "sessions": {
+    "s_61c7be22a380c5": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "fba7e65c-d0ee-4a6b-9475-a26b18fc5610",
+        "model": "claude-opus-4-8"
+      },
+      "human_author": "Minsu Lee <minsu.lee@pleaseai.dev>"
+    },
+    "s_94b98e166d572b": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "1452d7c0-83d5-4855-acbd-f94779f812d5",
+        "model": "claude-opus-4-8"
+      },
+      "human_author": "Minsu Lee <minsu.lee@pleaseai.dev>"
+    }
+  }
+}
