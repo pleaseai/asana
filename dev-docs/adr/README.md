@@ -15,6 +15,7 @@ An Architecture Decision Record (ADR) is a document that captures an important a
 | [003](./003-axi-agent-experience.md) | AXI (Agent eXperience Interface) Conventions | Accepted | 2026-06-23 |
 | [004](./004-axi-home-view-and-formatter.md) | AXI Home View and Output-Formatter Boundary | Accepted | 2026-06-23 |
 | [005](./005-brokered-auth-sandbox-egress.md) | Brokered Authentication for Sandbox Egress | Proposed | 2026-06-25 |
+| [006](./006-raw-api-passthrough-command.md) | Raw API Passthrough Command (`asana api`) | Accepted | 2026-06-30 |
 
 ## ADR Template
 

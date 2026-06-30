@@ -2,6 +2,7 @@
 import chalk from 'chalk'
 import { Command } from 'commander'
 import packageJson from '../package.json'
+import { createApiCommand } from './commands/api'
 import { createAuthCommand } from './commands/auth'
 import { createCustomFieldCommand } from './commands/custom-field'
 import { createFeedbackCommand } from './commands/feedback'
@@ -32,6 +33,7 @@ program
 // Register commands
 program.addCommand(createAuthCommand())
 program.addCommand(createTaskCommand())
+program.addCommand(createApiCommand())
 program.addCommand(createFetchCommand())
 program.addCommand(createProjectCommand())
 program.addCommand(createSectionCommand())
