@@ -1,7 +1,12 @@
 import type { AsanaConfig } from '../../src/types'
+import { mkdirSync, rmSync, writeFileSync } from 'node:fs'
+import { tmpdir } from 'node:os'
+import { join } from 'node:path'
 import { describe, expect, test } from 'bun:test'
 
 import { decideSessionStart, deriveAuthState } from '../../hooks/session-start'
+
+const HOOK_PATH = join(import.meta.dir, '../../hooks/session-start.ts')
 
 // `deriveAuthState` maps config + env token to the auth state; `decideSessionStart`
 // is the pure decision built on top of it. Both are tested here.
@@ -104,5 +109,47 @@ describe('deriveAuthState', () => {
   test('reports no token when neither config nor env provides one', () => {
     const state = deriveAuthState(null, undefined)
     expect(state).toEqual({ hasToken: false, hasRefreshToken: false })
+  })
+
+  test('treats an empty stored refresh token as no refresh token (CLI truthiness)', () => {
+    const config: AsanaConfig = {
+      accessToken: 'config-oauth-token',
+      authType: 'oauth',
+      expiresAt: NOW - 1,
+      refreshToken: '',
+    }
+    // Empty refresh token is unusable, so the CLI won't auto-refresh — the hook
+    // must reflect that rather than claiming auto-refresh will work.
+    expect(deriveAuthState(config, undefined).hasRefreshToken).toBe(false)
+  })
+})
+
+describe('main() error path (subprocess)', () => {
+  test('a corrupt config surfaces a hook-error systemMessage, not an auth warning', async () => {
+    const home = join(tmpdir(), `asana-hook-corrupt-${process.pid}`)
+    mkdirSync(join(home, '.asana-cli'), { recursive: true })
+    writeFileSync(join(home, '.asana-cli', 'config.json'), 'not valid json {')
+
+    try {
+      const proc = Bun.spawn(['bun', HOOK_PATH], {
+        // HOME points loadConfigStrict at the corrupt file; cwd avoids the repo
+        // .env; empty token keeps the credential path from masking the error.
+        env: { ...process.env, HOME: home, ASANA_ACCESS_TOKEN: '' },
+        cwd: tmpdir(),
+        stdin: 'ignore',
+        stdout: 'pipe',
+        stderr: 'ignore',
+      })
+
+      const parsed = JSON.parse(await new Response(proc.stdout).text())
+
+      expect(parsed.systemMessage).toContain('SessionStart hook error')
+      // A hard failure must not masquerade as a normal auth-state decision.
+      expect(parsed.systemMessage).not.toContain('not authenticated')
+      expect(parsed.hookSpecificOutput).toBeUndefined()
+    }
+    finally {
+      rmSync(home, { recursive: true, force: true })
+    }
   })
 })

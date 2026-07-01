@@ -32,6 +32,23 @@ export function loadConfig(): AsanaConfig | null {
   }
 }
 
+/**
+ * Load the config while distinguishing "no config" from "corrupt config".
+ * Returns null only when the file is absent; unlike {@link loadConfig}, it
+ * throws when the file exists but can't be read or parsed, so callers that need
+ * to surface a real configuration failure (e.g. the SessionStart hook) can tell
+ * a broken config apart from a logged-out state. {@link loadConfig} keeps its
+ * swallow-and-return-null contract for the CLI's degrade-gracefully paths.
+ */
+export function loadConfigStrict(): AsanaConfig | null {
+  if (!existsSync(CONFIG_FILE)) {
+    return null
+  }
+
+  const data = readFileSync(CONFIG_FILE, 'utf-8')
+  return JSON.parse(data) as AsanaConfig
+}
+
 export function getAccessToken(config: AsanaConfig | null = loadConfig()): string | null {
   return config?.accessToken || process.env.ASANA_ACCESS_TOKEN || null
 }

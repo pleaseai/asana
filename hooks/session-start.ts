@@ -14,7 +14,7 @@
 
 import type { AsanaConfig } from '../src/types'
 import process from 'node:process'
-import { loadConfig } from '../src/lib/config'
+import { loadConfigStrict } from '../src/lib/config'
 
 // Minimal local shapes — avoids depending on @anthropic-ai/claude-agent-sdk.
 interface HookJSONOutput {
@@ -129,7 +129,10 @@ export function deriveAuthState(config: AsanaConfig | null, envToken: string | u
       hasToken: true,
       authType: config.authType,
       expiresAt: config.expiresAt,
-      hasRefreshToken: config.refreshToken != null,
+      // Match the CLI's truthiness check (`!config.refreshToken` in
+      // refreshTokenIfNeeded): an empty stored refresh token isn't usable, so
+      // it must not read as "auto-refresh will work".
+      hasRefreshToken: Boolean(config.refreshToken),
     }
   }
 
@@ -143,9 +146,12 @@ export function deriveAuthState(config: AsanaConfig | null, envToken: string | u
 /**
  * Read the stored credential into an {@link AsanaAuthState}. Impure (touches
  * config.json + process.env); kept thin so {@link deriveAuthState} stays testable.
+ * Uses the strict loader so a corrupt config throws here and is surfaced by
+ * main()'s catch as a hook-error systemMessage, rather than being silently
+ * collapsed to a misleading "not authenticated" warning.
  */
 export function readAuthState(): AsanaAuthState {
-  return deriveAuthState(loadConfig(), process.env.ASANA_ACCESS_TOKEN)
+  return deriveAuthState(loadConfigStrict(), process.env.ASANA_ACCESS_TOKEN)
 }
 
 async function main(): Promise<void> {
