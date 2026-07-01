@@ -7,6 +7,19 @@ import { loadConfig, saveConfig } from '../lib/config'
 import { startOAuthFlow } from '../lib/oauth'
 import { formatOutput } from '../utils/formatter'
 
+/**
+ * Parse and validate a redirect-port value from a CLI flag or env var. Throws a
+ * clear error when the value is not an integer in the valid TCP range. Line
+ * breaks are stripped from the echoed value to avoid log injection (S5145).
+ */
+function parseRedirectPort(raw: string, source: string): number {
+  const port = Number(raw)
+  if (!Number.isInteger(port) || port < 1 || port > 65535) {
+    throw new Error(`Invalid ${source} "${raw.replace(/[\r\n]/g, '')}"; expected an integer between 1 and 65535.`)
+  }
+  return port
+}
+
 export function createAuthCommand(): Command {
   const auth = new Command('auth')
     .description('Manage Asana authentication')
@@ -52,17 +65,15 @@ export function createAuthCommand(): Command {
           console.log(chalk.gray('  Docs: https://developers.asana.com/docs/getting-started-with-asana-oauth\n'))
 
           const scopes = options.scope ? options.scope.trim().split(/\s+/) : undefined
-          // Fail fast on a malformed --redirect-port instead of silently
-          // falling back to the default and binding an unexpected port.
+          // Fail fast on a malformed port from either source instead of
+          // silently falling back to the default and binding an unexpected
+          // port. The CLI flag takes precedence over the env var.
           let redirectPort: number | undefined
           if (options.redirectPort !== undefined) {
-            redirectPort = Number(options.redirectPort)
-            if (!Number.isInteger(redirectPort) || redirectPort < 1 || redirectPort > 65535) {
-              // Strip line breaks from the echoed user value to avoid log
-              // injection when this message is later logged (SonarCloud S5145).
-              const shownPort = options.redirectPort.replace(/[\r\n]/g, '')
-              throw new Error(`Invalid --redirect-port "${shownPort}"; expected an integer between 1 and 65535.`)
-            }
+            redirectPort = parseRedirectPort(options.redirectPort, '--redirect-port')
+          }
+          else if (process.env.ASANA_OAUTH_REDIRECT_PORT !== undefined) {
+            redirectPort = parseRedirectPort(process.env.ASANA_OAUTH_REDIRECT_PORT, 'ASANA_OAUTH_REDIRECT_PORT')
           }
           const tokenResponse = await startOAuthFlow({ scopes, oob: options.browser === false, redirectPort })
 
