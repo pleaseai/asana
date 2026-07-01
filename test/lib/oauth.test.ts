@@ -1,6 +1,6 @@
 import type { OAuthTokenResponse } from '../../src/lib/oauth'
 import { afterEach, beforeEach, describe, expect, mock, test } from 'bun:test'
-import { generatePKCE, generateSecureState, refreshAccessToken } from '../../src/lib/oauth'
+import { buildAuthorizeUrl, buildLoopbackRedirectUri, generatePKCE, generateSecureState, refreshAccessToken, resolveRedirectPort } from '../../src/lib/oauth'
 
 describe('oauth module', () => {
   beforeEach(() => {
@@ -303,6 +303,52 @@ describe('oauth module', () => {
           /OAuth requires ASANA_CLIENT_ID and ASANA_CLIENT_SECRET/,
         )
       })
+    })
+  })
+
+  describe('redirect configuration', () => {
+    afterEach(() => {
+      delete process.env.ASANA_OAUTH_REDIRECT_PORT
+    })
+
+    test('buildLoopbackRedirectUri builds a localhost callback URL', () => {
+      expect(buildLoopbackRedirectUri(8080)).toBe('http://localhost:8080/callback')
+      expect(buildLoopbackRedirectUri(7777)).toBe('http://localhost:7777/callback')
+    })
+
+    test('resolveRedirectPort prefers an explicit option over env and default', () => {
+      process.env.ASANA_OAUTH_REDIRECT_PORT = '9999'
+      expect(resolveRedirectPort(7000)).toBe(7000)
+    })
+
+    test('resolveRedirectPort falls back to env, then the 8080 default', () => {
+      process.env.ASANA_OAUTH_REDIRECT_PORT = '9100'
+      expect(resolveRedirectPort()).toBe(9100)
+      delete process.env.ASANA_OAUTH_REDIRECT_PORT
+      expect(resolveRedirectPort()).toBe(8080)
+    })
+
+    test('resolveRedirectPort ignores invalid values', () => {
+      process.env.ASANA_OAUTH_REDIRECT_PORT = 'not-a-port'
+      expect(resolveRedirectPort()).toBe(8080)
+      expect(resolveRedirectPort(0)).toBe(8080)
+      expect(resolveRedirectPort(-5)).toBe(8080)
+      expect(resolveRedirectPort(999999)).toBe(8080)
+    })
+
+    test('buildAuthorizeUrl reflects the configured redirect_uri and uses PKCE S256', () => {
+      const url = new URL(buildAuthorizeUrl({
+        clientId: 'cid',
+        redirectUri: 'http://localhost:7777/callback',
+        scope: 'default',
+        state: 'st',
+        codeChallenge: 'cc',
+      }))
+      expect(url.searchParams.get('redirect_uri')).toBe('http://localhost:7777/callback')
+      expect(url.searchParams.get('client_id')).toBe('cid')
+      expect(url.searchParams.get('scope')).toBe('default')
+      expect(url.searchParams.get('code_challenge')).toBe('cc')
+      expect(url.searchParams.get('code_challenge_method')).toBe('S256')
     })
   })
 })

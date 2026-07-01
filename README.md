@@ -67,9 +67,19 @@ bun run dev --help
 # Using Personal Access Token (recommended)
 asana auth login --token YOUR_TOKEN
 
-# Using OAuth 2.0
+# Using OAuth 2.0 — choose the flow that matches your Asana app type:
+#   Web / server app (a loopback redirect URL can be registered):
 asana auth login
+#   Command-line app (OOB only), or headless / CI:
+asana auth login --no-browser
 ```
+
+OAuth requires `ASANA_CLIENT_ID` and `ASANA_CLIENT_SECRET` (create an app at
+<https://app.asana.com/0/my-apps>). The browser flow redirects to
+`http://localhost:8080/callback` — this exact URL must be registered on the app;
+change the port with `--redirect-port <port>` (or `ASANA_OAUTH_REDIRECT_PORT`).
+A `redirect_uri does not match` error means your app is a **command-line app** —
+use `--no-browser`.
 
 ### Manage Tasks
 
