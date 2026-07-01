@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.10.0](https://github.com/pleaseai/asana/compare/v0.9.0...v0.10.0) (2026-07-01)
+
+
+### Features
+
+* **auth:** configurable OAuth redirect port and app-type flow guidance ([#49](https://github.com/pleaseai/asana/issues/49)) ([c3d49e9](https://github.com/pleaseai/asana/commit/c3d49e9b564053d22548c01b9a83e4aa4ef50d52))
+* **hooks:** add SessionStart hook announcing the asana CLI and checking auth ([#81](https://github.com/pleaseai/asana/issues/81)) ([815c325](https://github.com/pleaseai/asana/commit/815c32596431528a69b7b9a17ced0a0876b96766))
+
 ## [0.9.0](https://github.com/pleaseai/asana/compare/v0.8.0...v0.9.0) (2026-06-30)
 
 
