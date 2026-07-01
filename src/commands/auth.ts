@@ -9,13 +9,13 @@ import { formatOutput } from '../utils/formatter'
 
 /**
  * Parse and validate a redirect-port value from a CLI flag or env var. Throws a
- * clear error when the value is not an integer in the valid TCP range. Line
- * breaks are stripped from the echoed value to avoid log injection (S5145).
+ * clear error when the value is not an integer in the valid TCP range. The
+ * echoed value is sanitized at the logging sink (see the catch block below).
  */
 function parseRedirectPort(raw: string, source: string): number {
   const port = Number(raw)
   if (!Number.isInteger(port) || port < 1 || port > 65535) {
-    throw new Error(`Invalid ${source} "${raw.replace(/[\r\n]/g, '')}"; expected an integer between 1 and 65535.`)
+    throw new Error(`Invalid ${source} "${raw}"; expected an integer between 1 and 65535.`)
   }
   return port
 }
@@ -99,7 +99,9 @@ export function createAuthCommand(): Command {
       }
       catch (error) {
         console.error(chalk.red('✗ Authentication failed:'))
-        const message = error instanceof Error ? error.message : String(error)
+        // Strip line breaks before logging so user-controlled values embedded
+        // in an error message cannot forge log lines (SonarCloud S5145).
+        const message = (error instanceof Error ? error.message : String(error)).replace(/[\r\n]+/g, ' ')
         console.error(message)
         // A redirect_uri mismatch almost always means the app is a command-line
         // app type, which only accepts the out-of-band flow. Asana surfaces this
