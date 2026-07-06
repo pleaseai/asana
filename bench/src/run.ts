@@ -198,7 +198,7 @@ async function createBenchProject(client: AsanaClient, workspaceGid: string, ses
 
 async function cleanup(client: AsanaClient, ctx: BenchContext, seededGids: string[]): Promise<void> {
   const gids = new Set(seededGids)
-  const remaining = await client.tasksInProject(ctx.projectGid).catch(() => [] as Awaited<ReturnType<AsanaClient['tasksInProject']>>)
+  const remaining = await client.tasksInProject(ctx.projectGid).catch(() => [])
   for (const task of remaining) {
     if (typeof task.name === 'string' && task.name.startsWith(ctx.prefix)) {
       gids.add(task.gid)
