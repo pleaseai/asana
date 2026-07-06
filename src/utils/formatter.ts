@@ -40,7 +40,7 @@ export function getOutputFormat(command: { optsWithGlobals: () => Record<string,
  * @returns Formatted string ready for output
  *
  * @example
- * // TOON format (default) - uses tab delimiter for 58.9% token savings
+ * // TOON format (default) - uses tab delimiter, ~37% token savings vs JSON
  * formatOutput({ tasks: [{ id: 1, name: 'Task 1' }] }, { format: 'toon' })
  * // Output: tasks[1<TAB>]{id<TAB>name}:\n  1<TAB>Task 1
  *
@@ -72,7 +72,9 @@ export function formatOutput(data: any, options: FormatterOptions): string {
 /**
  * Format data as TOON (Token-Oriented Object Notation)
  *
- * Uses tab delimiter for maximum token efficiency (58.9% savings vs JSON).
+ * Uses tab delimiter for token efficiency: ~37% savings vs JSON, measured
+ * with the o200k/cl100k tokenizers on TaskView-shaped list output (10-200
+ * rows). Savings on single-item detail views with long notes are ~6%.
  * Powered by @pleaseai/cli-toolkit.
  *
  * @param data - The data to format

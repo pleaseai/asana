@@ -23,7 +23,7 @@ describe('formatOutput', () => {
       }
       const result = formatOutput(data, { format: 'toon' })
 
-      // cli-toolkit uses tab delimiter (not comma) for 58.9% token savings
+      // cli-toolkit uses tab delimiter (not comma) for ~37% token savings vs JSON
       expect(result).toContain('\t')
       // Should have tabular structure with field names separated by tabs
       expect(result).toMatch(/\{[^\t}]*\t[^}]*\}/)
