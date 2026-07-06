@@ -250,6 +250,24 @@ describe('formatOutput', () => {
       ])
     })
 
+    test('should correctly indent multiline strings in plain format', () => {
+      const data = {
+        description: 'Line 1\nLine 2',
+        tasks: [
+          { name: 'Task 1\nDetail 1' },
+        ],
+      }
+      const result = formatOutput(data, { format: 'plain', colors: false })
+
+      expect(result.split('\n')).toEqual([
+        'description: Line 1',
+        '  Line 2',
+        'tasks:',
+        '  - name: Task 1',
+        '      Detail 1',
+      ])
+    })
+
     test('should not throw error with colors enabled in plain format', () => {
       const data = { name: 'John', completed: true }
 

@@ -164,7 +164,9 @@ function formatPlainObject(data: Record<string, any>, colors: boolean, indent: s
       }
     }
     else {
-      lines.push(`${indent}${keyLabel}: ${formatPlainScalar(value, colors)}`)
+      // Indent continuation lines of multiline strings under their key.
+      const scalar = formatPlainScalar(value, colors).split('\n').join(`\n${indent}  `)
+      lines.push(`${indent}${keyLabel}: ${scalar}`)
     }
   }
 
