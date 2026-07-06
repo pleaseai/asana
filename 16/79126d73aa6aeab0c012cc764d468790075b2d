@@ -1,0 +1,19 @@
+bench/src/run.ts
+  s_0e0ff23c99e691::t_96ca145aa00211 201
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.10",
+  "base_commit_sha": "1679126d73aa6aeab0c012cc764d468790075b2d",
+  "prompts": {},
+  "sessions": {
+    "s_0e0ff23c99e691": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "25fc0972-b10c-4c36-a05d-a157f00bc3b3",
+        "model": "claude-fable-5"
+      },
+      "human_author": "Minsu Lee <minsu.lee@pleaseai.dev>"
+    }
+  }
+}
