@@ -19,8 +19,14 @@ async function loadRecords(files: string[]): Promise<RunRecord[]> {
   for (const file of files) {
     const text = await Bun.file(file).text()
     for (const line of text.split('\n')) {
-      if (line.trim()) {
+      if (!line.trim()) {
+        continue
+      }
+      try {
         records.push(JSON.parse(line))
+      }
+      catch {
+        console.warn(`skipping malformed line in ${file}: ${line.slice(0, 80)}`)
       }
     }
   }

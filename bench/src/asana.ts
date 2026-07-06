@@ -4,7 +4,15 @@ import process from 'node:process'
 
 const API_BASE = 'https://app.asana.com/api/1.0'
 
-async function loadToken(): Promise<string> {
+let cachedToken: Promise<string> | undefined
+
+/** Memoized so repeated AsanaClient.create() calls (one per seed/verify) read the config file once. */
+function loadToken(): Promise<string> {
+  cachedToken ??= resolveToken()
+  return cachedToken
+}
+
+async function resolveToken(): Promise<string> {
   if (process.env.ASANA_ACCESS_TOKEN) {
     return process.env.ASANA_ACCESS_TOKEN
   }

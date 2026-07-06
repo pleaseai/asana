@@ -2,7 +2,7 @@
   "mcpServers": {
     "executor": {
       "type": "http",
-      "url": "https://executor.sh/minsu-lee-s-organization/mcp"
+      "url": "https://executor.sh/<your-org>/mcp"
     }
   }
 }

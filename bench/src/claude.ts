@@ -1,5 +1,5 @@
 import type { ClaudeMetrics, Condition } from './types'
-import { mkdtempSync } from 'node:fs'
+import { mkdtempSync, rmSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import process from 'node:process'
@@ -19,8 +19,18 @@ export interface RunClaudeOptions {
  * cannot contaminate the measurement.
  */
 export async function runClaude(options: RunClaudeOptions): Promise<ClaudeMetrics> {
-  const { prompt, condition, model, maxTurns, timeoutMs } = options
   const cwd = mkdtempSync(join(tmpdir(), 'asana-bench-'))
+
+  try {
+    return await runClaudeIn(cwd, options)
+  }
+  finally {
+    rmSync(cwd, { recursive: true, force: true })
+  }
+}
+
+async function runClaudeIn(cwd: string, options: RunClaudeOptions): Promise<ClaudeMetrics> {
+  const { prompt, condition, model, maxTurns, timeoutMs } = options
 
   const args = [
     '-p',

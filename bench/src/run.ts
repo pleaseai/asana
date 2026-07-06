@@ -143,11 +143,11 @@ async function cleanup(client: AsanaClient, ctx: BenchContext, seededGids: strin
       gids.add(task.gid)
     }
   }
-  for (const gid of gids) {
-    await client.deleteTask(gid).catch((err: Error) =>
+  await Promise.all([...gids].map(gid =>
+    client.deleteTask(gid).catch((err: Error) =>
       console.warn(`cleanup: failed to delete ${gid}: ${err.message}`),
-    )
-  }
+    ),
+  ))
 }
 
 main().catch((err) => {
