@@ -29,9 +29,8 @@ export async function runClaude(options: RunClaudeOptions): Promise<ClaudeMetric
   }
 }
 
-async function runClaudeIn(cwd: string, options: RunClaudeOptions): Promise<ClaudeMetrics> {
-  const { prompt, condition, model, maxTurns, timeoutMs } = options
-
+function buildClaudeArgs(options: RunClaudeOptions): string[] {
+  const { prompt, condition, model, maxTurns } = options
   const args = [
     '-p',
     prompt,
@@ -56,6 +55,12 @@ async function runClaudeIn(cwd: string, options: RunClaudeOptions): Promise<Clau
   if (condition.disallowedTools.length > 0) {
     args.push('--disallowedTools', condition.disallowedTools.join(','))
   }
+  return args
+}
+
+async function runClaudeIn(cwd: string, options: RunClaudeOptions): Promise<ClaudeMetrics> {
+  const { condition, timeoutMs } = options
+  const args = buildClaudeArgs(options)
 
   const proc = Bun.spawn(['claude', ...args], {
     cwd,
