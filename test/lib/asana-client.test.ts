@@ -280,32 +280,35 @@ describe('asana-client module', () => {
       }
 
       const originalFetch = global.fetch
-      global.fetch = mock(() => {
-        return Promise.resolve({
-          ok: true,
-          json: () => Promise.resolve(mockResponse),
-        })
-      }) as any
+      try {
+        global.fetch = mock(() => {
+          return Promise.resolve({
+            ok: true,
+            json: () => Promise.resolve(mockResponse),
+          })
+        }) as any
 
-      const config: AsanaConfig = {
-        accessToken: 'old-access-token',
-        authType: 'oauth',
-        refreshToken: 'old-refresh-token',
-        expiresAt: Date.now() - 1000, // Expired
+        const config: AsanaConfig = {
+          accessToken: 'old-access-token',
+          authType: 'oauth',
+          refreshToken: 'old-refresh-token',
+          expiresAt: Date.now() - 1000, // Expired
+        }
+
+        mkdirSync(TEST_CONFIG_DIR, { recursive: true })
+        writeFileSync(TEST_CONFIG_FILE, JSON.stringify(config))
+
+        const result = await refreshTokenIfNeeded()
+
+        expect(result).toBe(true)
+
+        const updatedConfig = JSON.parse(readFileSync(TEST_CONFIG_FILE, 'utf-8'))
+        expect(updatedConfig.accessToken).toBe('new-access-token')
+        expect(updatedConfig.refreshToken).toBe('old-refresh-token')
       }
-
-      mkdirSync(TEST_CONFIG_DIR, { recursive: true })
-      writeFileSync(TEST_CONFIG_FILE, JSON.stringify(config))
-
-      const result = await refreshTokenIfNeeded()
-
-      expect(result).toBe(true)
-
-      const updatedConfig = JSON.parse(readFileSync(TEST_CONFIG_FILE, 'utf-8'))
-      expect(updatedConfig.accessToken).toBe('new-access-token')
-      expect(updatedConfig.refreshToken).toBe('old-refresh-token')
-
-      global.fetch = originalFetch
+      finally {
+        global.fetch = originalFetch
+      }
     })
 
     test('refreshes token when it will expire soon', async () => {
