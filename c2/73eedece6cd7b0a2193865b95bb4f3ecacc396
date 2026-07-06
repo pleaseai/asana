@@ -1,0 +1,19 @@
+.gitignore
+  s_bc5602fe03e5a3::t_6857181155abb7 53-55
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.10",
+  "base_commit_sha": "c273eedece6cd7b0a2193865b95bb4f3ecacc396",
+  "prompts": {},
+  "sessions": {
+    "s_bc5602fe03e5a3": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "1d7dc0e5-7e26-47b5-a3ec-1da31f307d49",
+        "model": "claude-fable-5"
+      },
+      "human_author": "Minsu Lee <minsu.lee@pleaseai.dev>"
+    }
+  }
+}
