@@ -131,7 +131,9 @@ function formatPlainArray(data: any[], colors: boolean, indent: string): string 
         // Replace the first line's indent with the `- ` marker.
         return `${indent}- ${body.slice(itemIndent.length)}`
       }
-      return `${indent}- ${formatPlainScalar(item, colors)}`
+      // Indent continuation lines of multiline strings under the marker.
+      const scalar = formatPlainScalar(item, colors).split('\n').join(`\n${indent}  `)
+      return `${indent}- ${scalar}`
     })
     .join('\n')
 }

@@ -268,6 +268,18 @@ describe('formatOutput', () => {
       ])
     })
 
+    test('should indent multiline scalar array items under their marker', () => {
+      const data = { tags: ['line1\nline2', 'single'] }
+      const result = formatOutput(data, { format: 'plain', colors: false })
+
+      expect(result.split('\n')).toEqual([
+        'tags:',
+        '  - line1',
+        '    line2',
+        '  - single',
+      ])
+    })
+
     test('should not throw error with colors enabled in plain format', () => {
       const data = { name: 'John', completed: true }
 
