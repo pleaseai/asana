@@ -122,6 +122,10 @@ function formatPlainArray(data: any[], colors: boolean, indent: string): string 
 
   return data
     .map((item) => {
+      if (Array.isArray(item)) {
+        const body = formatPlainArray(item, colors, itemIndent)
+        return `${indent}- ${body.slice(itemIndent.length)}`
+      }
       if (typeof item === 'object' && item !== null) {
         const body = formatPlainObject(item, colors, itemIndent)
         // Replace the first line's indent with the `- ` marker.
@@ -146,12 +150,18 @@ function formatPlainObject(data: Record<string, any>, colors: boolean, indent: s
     }
     const keyLabel = colors ? chalk.bold(key) : key
     if (Array.isArray(value)) {
+      const body = formatPlainArray(value, colors, `${indent}  `)
       lines.push(`${indent}${keyLabel}:`)
-      lines.push(formatPlainArray(value, colors, `${indent}  `))
+      if (body) {
+        lines.push(body)
+      }
     }
     else if (typeof value === 'object') {
+      const body = formatPlainObject(value, colors, `${indent}  `)
       lines.push(`${indent}${keyLabel}:`)
-      lines.push(formatPlainObject(value, colors, `${indent}  `))
+      if (body) {
+        lines.push(body)
+      }
     }
     else {
       lines.push(`${indent}${keyLabel}: ${formatPlainScalar(value, colors)}`)

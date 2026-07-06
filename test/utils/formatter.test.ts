@@ -205,6 +205,35 @@ describe('formatOutput', () => {
       ])
     })
 
+    test('should not emit a blank line for empty arrays or objects', () => {
+      const data = { tasks: [], meta: {}, name: 'John' }
+      const result = formatOutput(data, { format: 'plain', colors: false })
+
+      expect(result.split('\n')).toEqual([
+        'tasks:',
+        'meta:',
+        'name: John',
+      ])
+    })
+
+    test('should correctly format and indent nested arrays', () => {
+      const data = {
+        matrix: [
+          [1, 2],
+          [3, 4],
+        ],
+      }
+      const result = formatOutput(data, { format: 'plain', colors: false })
+
+      expect(result.split('\n')).toEqual([
+        'matrix:',
+        '  - - 1',
+        '    - 2',
+        '  - - 3',
+        '    - 4',
+      ])
+    })
+
     test('should indent nested object lines under their parent key', () => {
       const data = {
         user: {
