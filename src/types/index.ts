@@ -22,7 +22,13 @@ export interface TaskListOptions {
   assignee?: string
   workspace?: string
   project?: string
+  /** Deprecated: excludes completed tasks (historical behavior). Use `incompleteOnly`. */
   completed?: boolean
+  fields?: string
+  completedOnly?: boolean
+  incompleteOnly?: boolean
+  count?: boolean
+  groupBy?: string
 }
 
 export interface TaskUpdateOptions {

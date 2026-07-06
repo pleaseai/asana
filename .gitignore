@@ -50,3 +50,6 @@ artifacts/
 # Asana CLI skill — eval scratch & evals may contain private workspace data
 skills/*-workspace/
 skills/asana-cli/evals/
+
+# Impeccable plugin session cache
+.impeccable/

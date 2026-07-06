@@ -7,6 +7,17 @@ import { toTaskView } from '../lib/asana-views'
 import { emitError, emitResult } from '../lib/axi-output'
 import { loadConfig } from '../lib/config'
 import { handleAsanaError, isNotFoundError } from '../lib/error-handler'
+import {
+  applyAssigneeFilter,
+  applyCompletionFilter,
+  buildOptFields,
+  effectiveColumns,
+  GROUP_BY_FIELDS,
+  needsClientAssigneeFilter,
+  parseTaskListQuery,
+  summarizeTasks,
+  toTaskRows,
+} from '../lib/task-list-query'
 import { validateDateFormat, validateGid, validateUpdateFields, ValidationError } from '../lib/validators'
 import { formatOutput, getOutputFormat } from '../utils/formatter'
 import { createTaskCustomFieldCommand } from './custom-field'
@@ -32,6 +43,33 @@ function failValidation(error: ValidationError, command: Command): never {
     emitError({ code: error.errorId, message: error.message, context: error.context }, format)
   }
   process.exit(1)
+}
+
+/**
+ * Fetch one listing page for `task list`. Assignee filtering happens
+ * server-side only in workspace mode with a concrete assignee; project
+ * listings and `--assignee none` filter client-side (clientAssignee=true).
+ */
+async function fetchTaskPage(
+  client: ReturnType<typeof getAsanaClient>,
+  options: TaskListOptions,
+  workspace: string | undefined,
+  params: Record<string, any>,
+  clientAssignee: boolean,
+): Promise<any[]> {
+  if (options.project) {
+    const result = await client.tasks.findByProject(options.project, params)
+    return result.data || []
+  }
+  if (options.assignee && !clientAssignee) {
+    const result = await client.tasks.findAll({ ...params, assignee: options.assignee, workspace })
+    return result.data || []
+  }
+  if (workspace) {
+    const result = await client.tasks.findAll({ ...params, workspace })
+    return result.data || []
+  }
+  throw new Error('Specify workspace, project, or assignee to list tasks')
 }
 
 export function createTaskCommand(): Command {
@@ -115,49 +153,43 @@ export function createTaskCommand(): Command {
   task
     .command('list')
     .description('List tasks')
-    .option('-a, --assignee <assignee>', 'Filter by assignee (use "me" for current user)')
+    .option('-a, --assignee <assignee>', 'Filter by assignee ("me", "none" for unassigned, or user GID)')
     .option('-w, --workspace <workspace>', 'Workspace GID')
     .option('-p, --project <project>', 'Project GID')
-    .option('-c, --completed', 'Include completed tasks')
+    .option('-c, --completed', 'Deprecated: excludes completed tasks (use --incomplete-only)')
+    .option('--fields <fields>', 'Extra fields per task, comma-separated (e.g. completed,assignee,due_on)')
+    .option('--completed-only', 'Only list completed tasks')
+    .option('--incomplete-only', 'Only list incomplete tasks')
+    .option('--count', 'Output only the task count')
+    .option('--group-by <field>', `Output counts grouped by field (${GROUP_BY_FIELDS.join('|')})`)
     .action(async (options: TaskListOptions, command: Command) => {
       // Declared outside try so the error handler can report it
       let workspace: string | undefined
       try {
+        const query = parseTaskListQuery(options)
         const client = getAsanaClient()
         const config = loadConfig()
         workspace = options.workspace || config?.workspace
 
-        let tasks: any
-
-        if (options.project) {
-          tasks = await client.tasks.findByProject(options.project, {
-            completed_since: options.completed ? 'now' : undefined,
-          })
+        const clientAssignee = needsClientAssigneeFilter(query, !!options.project)
+        const params: Record<string, any> = {}
+        const optFields = buildOptFields(query, clientAssignee)
+        if (optFields) {
+          params.opt_fields = optFields
         }
-        else if (options.assignee) {
-          const assignee = options.assignee === 'me' ? 'me' : options.assignee
-          tasks = await client.tasks.findAll({
-            assignee,
-            workspace,
-            completed_since: options.completed ? 'now' : undefined,
-          })
-        }
-        else if (workspace) {
-          tasks = await client.tasks.findAll({
-            workspace,
-            completed_since: options.completed ? 'now' : undefined,
-          })
-        }
-        else {
-          throw new Error('Specify workspace, project, or assignee to list tasks')
+        // completed_since=now is the API's incomplete-only filter; the
+        // deprecated -c/--completed flag historically mapped to it too.
+        if (query.incompleteOnly || options.completed) {
+          params.completed_since = 'now'
         }
 
-        const taskList = tasks.data || []
+        let taskList = await fetchTaskPage(client, options, workspace, params, clientAssignee)
 
-        if (taskList.length === 0) {
-          console.log(chalk.yellow('No tasks found'))
-          return
+        if (clientAssignee && query.assignee) {
+          const assignee = query.assignee === 'me' ? (await client.users.me()).gid : query.assignee
+          taskList = applyAssigneeFilter(taskList, assignee)
         }
+        taskList = applyCompletionFilter(taskList, query)
 
         // Resolve --format from the global options. Use getOutputFormat
         // (optsWithGlobals) rather than walking the parent chain by hand — the
@@ -165,11 +197,26 @@ export function createTaskCommand(): Command {
         // here previously stopped one level short and silently ignored --format.
         const format = getOutputFormat(command)
 
-        // Format output based on selected format
-        const output = formatOutput({ tasks: taskList }, { format, colors: process.stdout.isTTY })
+        if (query.count || query.groupBy) {
+          const summary = summarizeTasks(taskList, query.groupBy)
+          console.log(formatOutput({ summary }, { format, colors: process.stdout.isTTY }))
+          return
+        }
+
+        if (taskList.length === 0) {
+          console.log(chalk.yellow('No tasks found'))
+          return
+        }
+
+        const columns = effectiveColumns(query, clientAssignee)
+        const tasks = columns.length > 0 ? toTaskRows(taskList, columns) : taskList
+        const output = formatOutput({ tasks }, { format, colors: process.stdout.isTTY })
         console.log(output)
       }
       catch (error) {
+        if (error instanceof ValidationError) {
+          failValidation(error, command)
+        }
         handleAsanaError(error, 'Task listing', {
           Workspace: workspace,
           Project: options.project,
