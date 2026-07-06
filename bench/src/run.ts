@@ -1,4 +1,5 @@
 import type { BenchContext, RunRecord } from './types'
+import { randomUUID } from 'node:crypto'
 import { appendFileSync, mkdirSync } from 'node:fs'
 import { join } from 'node:path'
 import process from 'node:process'
@@ -31,9 +32,19 @@ async function main(): Promise<void> {
   const conditions = resolveConditions(values.conditions?.split(','))
   const tasks = resolveTasks(values.tasks?.split(','))
   const runs = Number(values.runs)
-  const model = values.model!
   const maxTurns = Number(values['max-turns'])
-  const timeoutMs = Number(values['timeout-min']) * 60_000
+  const timeoutMinutes = Number(values['timeout-min'])
+  if (!Number.isInteger(runs) || runs < 1) {
+    throw new Error(`Invalid --runs value: ${values.runs}`)
+  }
+  if (!Number.isFinite(maxTurns) || maxTurns < 1) {
+    throw new Error(`Invalid --max-turns value: ${values['max-turns']}`)
+  }
+  if (!Number.isFinite(timeoutMinutes) || timeoutMinutes <= 0) {
+    throw new Error(`Invalid --timeout-min value: ${values['timeout-min']}`)
+  }
+  const model = values.model!
+  const timeoutMs = timeoutMinutes * 60_000
   const session = values.session ?? new Date().toISOString().replace(/[:T]/g, '-').slice(0, 16)
 
   const client = await AsanaClient.create()
@@ -67,7 +78,7 @@ async function main(): Promise<void> {
   for (let iteration = 1; iteration <= runs; iteration++) {
     for (const task of tasks) {
       for (const condition of conditions) {
-        const prefix = `BM-${Math.random().toString(36).slice(2, 7)}`
+        const prefix = `BM-${randomUUID().slice(0, 5)}`
         const ctx: BenchContext = {
           prefix,
           workspaceGid,

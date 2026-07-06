@@ -1,5 +1,5 @@
 import type { RunRecord } from './types'
-import { readdirSync } from 'node:fs'
+import { existsSync, readdirSync } from 'node:fs'
 import { join } from 'node:path'
 import process from 'node:process'
 
@@ -95,7 +95,9 @@ if (import.meta.main) {
   const args = process.argv.slice(2)
   const files = args.length > 0
     ? args
-    : readdirSync(RESULTS_DIR).filter(f => f.endsWith('.jsonl')).map(f => join(RESULTS_DIR, f))
+    : existsSync(RESULTS_DIR)
+      ? readdirSync(RESULTS_DIR).filter(f => f.endsWith('.jsonl')).map(f => join(RESULTS_DIR, f))
+      : []
   printReport(files).catch((err) => {
     console.error(err)
     process.exitCode = 1

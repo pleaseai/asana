@@ -44,6 +44,16 @@ export class AsanaClient {
     body?: unknown,
     query?: Record<string, string>,
   ): Promise<T> {
+    const payload = await this.requestRaw<T>(method, path, body, query)
+    return payload.data
+  }
+
+  private async requestRaw<T = any>(
+    method: string,
+    path: string,
+    body?: unknown,
+    query?: Record<string, string>,
+  ): Promise<{ data: T, next_page?: { offset: string } | null }> {
     const url = new URL(API_BASE + path)
     for (const [key, value] of Object.entries(query ?? {})) {
       url.searchParams.set(key, value)
@@ -59,8 +69,7 @@ export class AsanaClient {
     if (!res.ok) {
       throw new Error(`Asana ${method} ${path} → ${res.status}: ${await res.text()}`)
     }
-    const payload = await res.json() as { data: T }
-    return payload.data
+    return await res.json() as { data: T, next_page?: { offset: string } | null }
   }
 
   me(): Promise<{ gid: string, name: string }> {
@@ -98,11 +107,19 @@ export class AsanaClient {
     })
   }
 
-  tasksInProject(projectGid: string): Promise<Array<Record<string, any>>> {
-    return this.request('GET', `/projects/${projectGid}/tasks`, undefined, {
-      opt_fields: 'name,completed,due_on,notes,assignee.gid',
-      limit: '100',
-    })
+  async tasksInProject(projectGid: string): Promise<Array<Record<string, any>>> {
+    const tasks: Array<Record<string, any>> = []
+    let offset: string | undefined
+    do {
+      const page = await this.requestRaw<Array<Record<string, any>>>('GET', `/projects/${projectGid}/tasks`, undefined, {
+        opt_fields: 'name,completed,due_on,notes,assignee.gid',
+        limit: '100',
+        ...(offset ? { offset } : {}),
+      })
+      tasks.push(...page.data)
+      offset = page.next_page?.offset
+    } while (offset)
+    return tasks
   }
 
   stories(taskGid: string): Promise<Array<{ type: string, text: string }>> {
