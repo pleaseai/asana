@@ -1,0 +1,28 @@
+bench/src/claude.ts
+  s_0e0ff23c99e691::t_f876fff071c582 2
+  s_0e0ff23c99e691::t_b83d78a21d34cc 24-34
+bench/conditions/executor.json
+  s_0e0ff23c99e691::t_acc1ee95ece722 5
+bench/src/asana.ts
+  s_0e0ff23c99e691::t_b9cfba7e45fbed 7-15
+bench/src/run.ts
+  s_0e0ff23c99e691::t_dfa0e2a5bce7be 146-147,149-150
+bench/src/report.ts
+  s_0e0ff23c99e691::t_b117dd9f78dfdf 22-25,28-30
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.10",
+  "base_commit_sha": "b623358fd3a78dbd1ef86de7291dfb9be8194410",
+  "prompts": {},
+  "sessions": {
+    "s_0e0ff23c99e691": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "25fc0972-b10c-4c36-a05d-a157f00bc3b3",
+        "model": "claude-fable-5"
+      },
+      "human_author": "Minsu Lee <minsu.lee@pleaseai.dev>"
+    }
+  }
+}
