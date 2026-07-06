@@ -1,0 +1,37 @@
+src/commands/task.ts
+  s_bc5602fe03e5a3::t_2bd55aa2d980cf 48-74
+  s_bc5602fe03e5a3::t_611be64e6dee68 10-20
+  s_bc5602fe03e5a3::t_0ce99ecc6a9235 156,159-164,169,174-178,180-183,186,188-190,192,200-213,217-219
+src/lib/task-list-query.ts
+  s_bc5602fe03e5a3::t_1d49e8ba28c742 1-30,32-142,144-216
+  s_bc5602fe03e5a3::t_972348c61db272 143
+  s_bc5602fe03e5a3::t_12459237824906 31
+test/commands/task-list-scan.test.ts
+  s_bc5602fe03e5a3::t_4d90f07ffe257b 1-142
+test/lib/task-list-query.test.ts
+  s_bc5602fe03e5a3::t_6be9046e41126d 1-168
+docs/content/ko/2.features/1.task-management.md
+  s_bc5602fe03e5a3::t_3c07b91ee0c596 152,154,157-199
+src/constants/errorIds.ts
+  s_bc5602fe03e5a3::t_d1aa4721ad7d4a 27-29
+src/types/index.ts
+  s_bc5602fe03e5a3::t_36e82b69d1eaa5 25,27-31
+docs/content/en/2.features/1.task-management.md
+  s_bc5602fe03e5a3::t_0dcfb9dc87718f 152,154,157-199
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.10",
+  "base_commit_sha": "176e7171fc537714066a7927673612f99c3dcb96",
+  "prompts": {},
+  "sessions": {
+    "s_bc5602fe03e5a3": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "1d7dc0e5-7e26-47b5-a3ec-1da31f307d49",
+        "model": "claude-fable-5"
+      },
+      "human_author": "Minsu Lee <minsu.lee@pleaseai.dev>"
+    }
+  }
+}
