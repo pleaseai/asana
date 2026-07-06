@@ -1,0 +1,21 @@
+bench/src/claude.ts
+  s_0e0ff23c99e691::t_6d9f83c17852d4 32-33,58-63
+bench/src/run.ts
+  s_0e0ff23c99e691::t_bc5cdfd49ab106 1,15-29,59-72,74-77,79,83-87,89-93,95-97,102,105-106,109,111-112,114-116,118-132,135,142,144-185
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.10",
+  "base_commit_sha": "8b556e87b35bbe240c1940f3445e65d2b8c9f036",
+  "prompts": {},
+  "sessions": {
+    "s_0e0ff23c99e691": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "25fc0972-b10c-4c36-a05d-a157f00bc3b3",
+        "model": "claude-fable-5"
+      },
+      "human_author": "Minsu Lee <minsu.lee@pleaseai.dev>"
+    }
+  }
+}
