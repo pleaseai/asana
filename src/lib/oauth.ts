@@ -62,7 +62,11 @@ export function buildAuthorizeUrl(params: {
 
 export interface OAuthTokenResponse {
   access_token: string
-  refresh_token: string
+  /**
+   * Present on the authorization_code grant. Asana does not rotate refresh
+   * tokens, so the refresh_token grant response omits this field.
+   */
+  refresh_token?: string
   expires_in: number
   token_type: string
 }

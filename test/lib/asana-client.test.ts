@@ -268,6 +268,46 @@ describe('asana-client module', () => {
       global.fetch = originalFetch
     })
 
+    test('keeps stored refresh token when refresh response omits refresh_token', async () => {
+      // Asana's refresh_token grant response does not rotate the refresh token,
+      // so the response has no refresh_token field. Persisting `undefined`
+      // would drop it from config.json and permanently break auto-refresh
+      // after the first renewal (login silently "expires" ~1h later).
+      const mockResponse = {
+        access_token: 'new-access-token',
+        expires_in: 3600,
+        token_type: 'bearer',
+      }
+
+      const originalFetch = global.fetch
+      global.fetch = mock(() => {
+        return Promise.resolve({
+          ok: true,
+          json: () => Promise.resolve(mockResponse),
+        })
+      }) as any
+
+      const config: AsanaConfig = {
+        accessToken: 'old-access-token',
+        authType: 'oauth',
+        refreshToken: 'old-refresh-token',
+        expiresAt: Date.now() - 1000, // Expired
+      }
+
+      mkdirSync(TEST_CONFIG_DIR, { recursive: true })
+      writeFileSync(TEST_CONFIG_FILE, JSON.stringify(config))
+
+      const result = await refreshTokenIfNeeded()
+
+      expect(result).toBe(true)
+
+      const updatedConfig = JSON.parse(readFileSync(TEST_CONFIG_FILE, 'utf-8'))
+      expect(updatedConfig.accessToken).toBe('new-access-token')
+      expect(updatedConfig.refreshToken).toBe('old-refresh-token')
+
+      global.fetch = originalFetch
+    })
+
     test('refreshes token when it will expire soon', async () => {
       const mockResponse = {
         access_token: 'new-access-token',
