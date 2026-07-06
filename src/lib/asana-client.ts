@@ -428,7 +428,10 @@ export async function refreshTokenIfNeeded(): Promise<boolean> {
     saveConfig({
       ...config,
       accessToken: tokenResponse.access_token,
-      refreshToken: tokenResponse.refresh_token,
+      // Asana does not rotate refresh tokens: the refresh_token grant response
+      // omits the field. Keep the stored one or auto-refresh breaks after the
+      // first renewal.
+      refreshToken: tokenResponse.refresh_token ?? config.refreshToken,
       expiresAt: Date.now() + (tokenResponse.expires_in * 1000),
     })
 
