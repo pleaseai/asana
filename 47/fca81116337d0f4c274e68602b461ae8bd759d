@@ -1,0 +1,25 @@
+.claude/skills/run-asana/SKILL.md
+  s_5fc121fca7a227::t_4b699ff944e800 1-141
+.claude/skills/run-asana/launch.ts
+  s_5fc121fca7a227::t_92266daa394f80 1-31
+.claude/skills/run-asana/mock-asana.mjs
+  s_5fc121fca7a227::t_6ec9bd462b7e4f 1-102
+.claude/skills/run-asana/smoke.mjs
+  s_5fc121fca7a227::t_2d50122f649a86 1-108
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.10",
+  "base_commit_sha": "47fca81116337d0f4c274e68602b461ae8bd759d",
+  "prompts": {},
+  "sessions": {
+    "s_5fc121fca7a227": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "b6e6f933-0aae-49e7-b8f4-8e33d95e0fa5",
+        "model": "claude-opus-4-8"
+      },
+      "human_author": "Minsu Lee <minsu.lee@pleaseai.dev>"
+    }
+  }
+}
