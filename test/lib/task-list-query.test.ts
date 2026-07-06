@@ -138,6 +138,12 @@ describe('effectiveColumns / toTaskRows', () => {
     expect(rows[0]).toEqual({ gid: '1', name: 'A', completed: false, assignee: 'Alice', due_on: '2026-07-01' })
     expect(rows[2]).toEqual({ gid: '3', name: 'C', completed: false, assignee: null, due_on: null })
   })
+
+  test('resolves dotted field paths against nested objects', () => {
+    const rows = toTaskRows(TASKS.slice(0, 3), ['assignee.name', 'assignee.gid'])
+    expect(rows[0]).toEqual({ 'gid': '1', 'name': 'A', 'assignee.name': 'Alice', 'assignee.gid': '10' })
+    expect(rows[2]).toEqual({ 'gid': '3', 'name': 'C', 'assignee.name': null, 'assignee.gid': null })
+  })
 })
 
 describe('summarizeTasks', () => {

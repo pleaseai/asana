@@ -6,7 +6,9 @@
  * `task get` per task (issue #88). These helpers let a single listing call
  * carry the fields needed to filter and aggregate client-side.
  *
- * All functions here are pure; the command layer owns the API calls.
+ * No API calls happen here — the command layer owns those. Validation
+ * failures print a human-readable message to stderr before throwing,
+ * following the validators.ts convention.
  */
 
 import type { TaskListOptions } from '../types'
@@ -169,10 +171,15 @@ export function effectiveColumns(query: TaskListQuery, clientAssignee: boolean):
   return columns
 }
 
+/** Resolve a dotted field path (e.g. "assignee.name") against a task object. */
+function getFieldValue(task: any, path: string): any {
+  return path.split('.').reduce((value, segment) => value?.[segment], task)
+}
+
 /**
  * Flatten tasks into uniform rows (gid, name + columns). Assignee objects are
- * flattened to a display name; missing values become null so tabular formats
- * keep their columns aligned.
+ * flattened to a display name, dotted paths resolve into nested objects, and
+ * missing values become null so tabular formats keep their columns aligned.
  */
 export function toTaskRows(tasks: any[], columns: string[]): Array<Record<string, any>> {
   return tasks.map((task) => {
@@ -183,7 +190,7 @@ export function toTaskRows(tasks: any[], columns: string[]): Array<Record<string
       }
       row[column] = column === 'assignee'
         ? (task.assignee?.name ?? task.assignee?.gid ?? null)
-        : (task[column] ?? null)
+        : (getFieldValue(task, column) ?? null)
     }
     return row
   })
