@@ -35,10 +35,10 @@ const readLookup: BenchTask = {
     return `In the Asana workspace "${ctx.workspaceName}", project "${ctx.projectName}", find the task named "${ctx.prefix} Fix login flow" and reply with exactly its due date in YYYY-MM-DD format and nothing else.`
   },
   async verify(_ctx, resultText) {
-    if (resultText.includes('2026-07-20')) {
-      return pass('due date 2026-07-20 present in answer')
+    if (resultText.trim() === '2026-07-20') {
+      return pass('answer is exactly the due date 2026-07-20')
     }
-    return fail(`expected 2026-07-20 in answer, got: ${resultText.slice(0, 200)}`)
+    return fail(`expected exactly "2026-07-20", got: ${resultText.slice(0, 200)}`)
   },
 }
 

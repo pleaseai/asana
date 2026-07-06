@@ -53,23 +53,32 @@ export class AsanaClient {
     path: string,
     body?: unknown,
     query?: Record<string, string>,
+    retries = 3,
   ): Promise<{ data: T, next_page?: { offset: string } | null }> {
     const url = new URL(API_BASE + path)
     for (const [key, value] of Object.entries(query ?? {})) {
       url.searchParams.set(key, value)
     }
-    const res = await fetch(url, {
-      method,
-      headers: {
-        'authorization': `Bearer ${this.token}`,
-        'content-type': 'application/json',
-      },
-      body: body === undefined ? undefined : JSON.stringify({ data: body }),
-    })
-    if (!res.ok) {
-      throw new Error(`Asana ${method} ${path} → ${res.status}: ${await res.text()}`)
+    for (let attempt = 0; ; attempt++) {
+      const res = await fetch(url, {
+        method,
+        headers: {
+          'authorization': `Bearer ${this.token}`,
+          'content-type': 'application/json',
+        },
+        body: body === undefined ? undefined : JSON.stringify({ data: body }),
+      })
+      if (res.status === 429 && attempt < retries) {
+        const retryAfterSeconds = Number(res.headers.get('retry-after')) || 2
+        console.warn(`Asana rate limit hit — retrying in ${retryAfterSeconds}s (${attempt + 1}/${retries})`)
+        await new Promise(resolve => setTimeout(resolve, retryAfterSeconds * 1000))
+        continue
+      }
+      if (!res.ok) {
+        throw new Error(`Asana ${method} ${path} → ${res.status}: ${await res.text()}`)
+      }
+      return await res.json() as { data: T, next_page?: { offset: string } | null }
     }
-    return await res.json() as { data: T, next_page?: { offset: string } | null }
   }
 
   me(): Promise<{ gid: string, name: string }> {

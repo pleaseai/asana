@@ -92,40 +92,43 @@ async function main(): Promise<void> {
         console.log(`${label} — seeding (${prefix})`)
         const seededGids = await task.seed(ctx)
 
-        console.log(`${label} — running claude`)
-        const metrics = await runClaude({
-          prompt: task.prompt(ctx),
-          condition,
-          model,
-          maxTurns,
-          timeoutMs,
-        })
+        try {
+          console.log(`${label} — running claude`)
+          const metrics = await runClaude({
+            prompt: task.prompt(ctx),
+            condition,
+            model,
+            maxTurns,
+            timeoutMs,
+          })
 
-        const verdict = metrics.isError
-          ? { success: false, detail: `claude error: ${metrics.subtype}` }
-          : await task.verify(ctx, metrics.resultText)
+          const verdict = metrics.isError
+            ? { success: false, detail: `claude error: ${metrics.subtype}` }
+            : await task.verify(ctx, metrics.resultText)
 
-        const record: RunRecord = {
-          timestamp: new Date().toISOString(),
-          session,
-          condition: condition.name,
-          task: task.id,
-          iteration,
-          model,
-          success: verdict.success,
-          verifyDetail: verdict.detail,
-          ...metrics,
+          const record: RunRecord = {
+            timestamp: new Date().toISOString(),
+            session,
+            condition: condition.name,
+            task: task.id,
+            iteration,
+            model,
+            success: verdict.success,
+            verifyDetail: verdict.detail,
+            ...metrics,
+          }
+          appendFileSync(resultsFile, `${JSON.stringify(record)}\n`)
+
+          const status = verdict.success ? 'PASS' : 'FAIL'
+          console.log(`${label} — ${status} | $${metrics.costUsd.toFixed(4)} | ${(metrics.durationMs / 1000).toFixed(1)}s | ${metrics.numTurns} turns | ${metrics.totalToolCalls} tool calls`)
+          if (!verdict.success) {
+            console.log(`${label} — detail: ${verdict.detail}`)
+          }
         }
-        appendFileSync(resultsFile, `${JSON.stringify(record)}\n`)
-
-        const status = verdict.success ? 'PASS' : 'FAIL'
-        console.log(`${label} — ${status} | $${metrics.costUsd.toFixed(4)} | ${(metrics.durationMs / 1000).toFixed(1)}s | ${metrics.numTurns} turns | ${metrics.totalToolCalls} tool calls`)
-        if (!verdict.success) {
-          console.log(`${label} — detail: ${verdict.detail}`)
-        }
-
-        if (!values['keep-tasks']) {
-          await cleanup(client, ctx, seededGids)
+        finally {
+          if (!values['keep-tasks']) {
+            await cleanup(client, ctx, seededGids)
+          }
         }
       }
     }
