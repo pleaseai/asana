@@ -1,0 +1,22 @@
+test/lib/task-list-query.test.ts
+  s_bc5602fe03e5a3::t_f65ffc53ce6f35 141-146
+src/lib/task-list-query.ts
+  s_bc5602fe03e5a3::t_5e0b15f54cc491 174-178,181-182,193
+  s_bc5602fe03e5a3::t_90d55ac164eacb 9-11
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.10",
+  "base_commit_sha": "9b7ddf4fed7851d7b47fcc6e2c7da583f50079e9",
+  "prompts": {},
+  "sessions": {
+    "s_bc5602fe03e5a3": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "1d7dc0e5-7e26-47b5-a3ec-1da31f307d49",
+        "model": "claude-fable-5"
+      },
+      "human_author": "Minsu Lee <minsu.lee@pleaseai.dev>"
+    }
+  }
+}
