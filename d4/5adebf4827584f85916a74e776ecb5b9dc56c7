@@ -1,0 +1,41 @@
+bench/README.md
+  s_f7687094c5a018::t_674b4caa08dc0b 1-126
+bench/.gitignore
+  s_f7687094c5a018::t_94aa90b150d7b2 1
+bench/conditions/cli.json
+  s_f7687094c5a018::t_80040233266ff0 1-3
+bench/conditions/executor.json
+  s_f7687094c5a018::t_d0163b503428ae 1-8
+bench/conditions/mcp.json
+  s_f7687094c5a018::t_60fde5c54ed476 1-8
+bench/src/asana.ts
+  s_f7687094c5a018::t_2f063e86e9db58 1-110
+bench/src/claude.ts
+  s_f7687094c5a018::t_71988a73c2ea53 1-136
+bench/src/conditions.ts
+  s_f7687094c5a018::t_1865ecbc6d4852 1-70
+bench/src/report.ts
+  s_f7687094c5a018::t_a606f8c9d961c4 1-97
+bench/src/run.ts
+  s_f7687094c5a018::t_b92db419fe30ca 1-156
+bench/src/tasks.ts
+  s_f7687094c5a018::t_efcbbc98a6e006 1-178
+bench/src/types.ts
+  s_f7687094c5a018::t_bde7736fa31d87 1-67
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.10",
+  "base_commit_sha": "d45adebf4827584f85916a74e776ecb5b9dc56c7",
+  "prompts": {},
+  "sessions": {
+    "s_f7687094c5a018": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "ffc8d3bf-087a-4825-b0b6-2e5b22b34414",
+        "model": "claude-fable-5"
+      },
+      "human_author": "Minsu Lee <minsu.lee@pleaseai.dev>"
+    }
+  }
+}
