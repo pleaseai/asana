@@ -1,0 +1,23 @@
+bench/src/tasks.ts
+  s_0e0ff23c99e691::t_2c9138ff879591 38-39,41
+bench/src/asana.ts
+  s_0e0ff23c99e691::t_ce283d1209be88 56,62-80
+bench/src/run.ts
+  s_0e0ff23c99e691::t_9c10554546151a 95-126,128-131
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.10",
+  "base_commit_sha": "ef9c4a8b982e621b8eb8bf2b25bb54cd0c42f70c",
+  "prompts": {},
+  "sessions": {
+    "s_0e0ff23c99e691": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "25fc0972-b10c-4c36-a05d-a157f00bc3b3",
+        "model": "claude-fable-5"
+      },
+      "human_author": "Minsu Lee <minsu.lee@pleaseai.dev>"
+    }
+  }
+}
