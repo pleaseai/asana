@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.11.0](https://github.com/pleaseai/asana/compare/v0.10.0...v0.11.0) (2026-07-06)
+
+
+### Features
+
+* **bench:** agent-interface benchmark harness (CLI vs MCP vs code-mode) ([#89](https://github.com/pleaseai/asana/issues/89)) ([8fd23dd](https://github.com/pleaseai/asana/commit/8fd23ddf23266ffb7cc037fc0941aebb0c82bbba))
+* **task:** add field expansion and aggregation to task list ([#91](https://github.com/pleaseai/asana/issues/91)) ([a9a0649](https://github.com/pleaseai/asana/commit/a9a0649cd39a38e4f55248143bc6c90ea0d8bb11))
+
 ## [0.10.0](https://github.com/pleaseai/asana/compare/v0.9.0...v0.10.0) (2026-07-01)
 
 
