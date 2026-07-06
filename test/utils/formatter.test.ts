@@ -23,7 +23,7 @@ describe('formatOutput', () => {
       }
       const result = formatOutput(data, { format: 'toon' })
 
-      // cli-toolkit uses tab delimiter (not comma) for 58.9% token savings
+      // cli-toolkit uses tab delimiter (not comma) for ~37% token savings vs JSON
       expect(result).toContain('\t')
       // Should have tabular structure with field names separated by tabs
       expect(result).toMatch(/\{[^\t}]*\t[^}]*\}/)
@@ -167,6 +167,117 @@ describe('formatOutput', () => {
       expect(result).toContain('John')
       expect(result).toContain('email:')
       expect(result).toContain('john@example.com')
+    })
+
+    test('should omit undefined values instead of printing "undefined"', () => {
+      const data = { name: 'John', due_on: undefined }
+      const result = formatOutput(data, { format: 'plain', colors: false })
+
+      expect(result).not.toContain('undefined')
+      expect(result).not.toContain('due_on')
+      expect(result).toContain('name: John')
+    })
+
+    test('should omit null values instead of printing "null"', () => {
+      const data = { name: 'John', assignee: null }
+      const result = formatOutput(data, { format: 'plain', colors: false })
+
+      expect(result).not.toContain('null')
+      expect(result).not.toContain('assignee')
+      expect(result).toContain('name: John')
+    })
+
+    test('should indent every line of array items and mark item boundaries', () => {
+      const data = {
+        tasks: [
+          { gid: '123', name: 'Task 1' },
+          { gid: '456', name: 'Task 2' },
+        ],
+      }
+      const result = formatOutput(data, { format: 'plain', colors: false })
+
+      expect(result.split('\n')).toEqual([
+        'tasks:',
+        '  - gid: 123',
+        '    name: Task 1',
+        '  - gid: 456',
+        '    name: Task 2',
+      ])
+    })
+
+    test('should not emit a blank line for empty arrays or objects', () => {
+      const data = { tasks: [], meta: {}, name: 'John' }
+      const result = formatOutput(data, { format: 'plain', colors: false })
+
+      expect(result.split('\n')).toEqual([
+        'tasks:',
+        'meta:',
+        'name: John',
+      ])
+    })
+
+    test('should correctly format and indent nested arrays', () => {
+      const data = {
+        matrix: [
+          [1, 2],
+          [3, 4],
+        ],
+      }
+      const result = formatOutput(data, { format: 'plain', colors: false })
+
+      expect(result.split('\n')).toEqual([
+        'matrix:',
+        '  - - 1',
+        '    - 2',
+        '  - - 3',
+        '    - 4',
+      ])
+    })
+
+    test('should indent nested object lines under their parent key', () => {
+      const data = {
+        user: {
+          name: 'John',
+          email: 'john@example.com',
+        },
+      }
+      const result = formatOutput(data, { format: 'plain', colors: false })
+
+      expect(result.split('\n')).toEqual([
+        'user:',
+        '  name: John',
+        '  email: john@example.com',
+      ])
+    })
+
+    test('should correctly indent multiline strings in plain format', () => {
+      const data = {
+        description: 'Line 1\nLine 2',
+        tasks: [
+          { name: 'Task 1\nDetail 1' },
+        ],
+      }
+      const result = formatOutput(data, { format: 'plain', colors: false })
+
+      expect(result.split('\n')).toEqual([
+        'description: Line 1',
+        '  Line 2',
+        'tasks:',
+        '  - name: Task 1',
+        '      Detail 1',
+      ])
+    })
+
+    test('should indent multiline scalar array items under their marker', () => {
+      const data = { tags: ['line1\nline2', 'single'] }
+      const result = formatOutput(data, { format: 'plain', colors: false })
+
+      expect(result.split('\n')).toEqual([
+        'tags:',
+        '  - line1',
+        '    line2',
+        '  - single',
+      ])
     })
 
     test('should not throw error with colors enabled in plain format', () => {

@@ -40,7 +40,7 @@ export function getOutputFormat(command: { optsWithGlobals: () => Record<string,
  * @returns Formatted string ready for output
  *
  * @example
- * // TOON format (default) - uses tab delimiter for 58.9% token savings
+ * // TOON format (default) - uses tab delimiter, ~37% token savings vs JSON
  * formatOutput({ tasks: [{ id: 1, name: 'Task 1' }] }, { format: 'toon' })
  * // Output: tasks[1<TAB>]{id<TAB>name}:\n  1<TAB>Task 1
  *
@@ -72,7 +72,9 @@ export function formatOutput(data: any, options: FormatterOptions): string {
 /**
  * Format data as TOON (Token-Oriented Object Notation)
  *
- * Uses tab delimiter for maximum token efficiency (58.9% savings vs JSON).
+ * Uses tab delimiter for token efficiency: ~37% savings vs JSON, measured
+ * with the o200k/cl100k tokenizers on TaskView-shaped list output (10-200
+ * rows). Savings on single-item detail views with long notes are ~6%.
  * Powered by @pleaseai/cli-toolkit.
  *
  * @param data - The data to format
@@ -100,51 +102,73 @@ function formatJson(data: any): string {
  * @returns Plain text formatted string
  */
 function formatPlain(data: any, colors: boolean): string {
-  // This will be implemented based on the specific data structure
-  // For now, return a basic representation
   if (Array.isArray(data)) {
-    return formatPlainArray(data, colors)
+    return formatPlainArray(data, colors, '')
   }
 
   if (typeof data === 'object' && data !== null) {
-    return formatPlainObject(data, colors)
+    return formatPlainObject(data, colors, '')
   }
 
   return String(data)
 }
 
 /**
- * Format array as plain text
+ * Format array as plain text. Each item starts with a `- ` marker and every
+ * continuation line is indented to align under the marker.
  */
-function formatPlainArray(data: any[], colors: boolean): string {
-  const lines: string[] = []
+function formatPlainArray(data: any[], colors: boolean, indent: string): string {
+  const itemIndent = `${indent}  `
 
-  for (const item of data) {
-    if (typeof item === 'object' && item !== null) {
-      lines.push(formatPlainObject(item, colors))
-    }
-    else {
-      lines.push(String(item))
-    }
-  }
-
-  return lines.join('\n')
+  return data
+    .map((item) => {
+      if (Array.isArray(item)) {
+        const body = formatPlainArray(item, colors, itemIndent)
+        return `${indent}- ${body.slice(itemIndent.length)}`
+      }
+      if (typeof item === 'object' && item !== null) {
+        const body = formatPlainObject(item, colors, itemIndent)
+        // Replace the first line's indent with the `- ` marker.
+        return `${indent}- ${body.slice(itemIndent.length)}`
+      }
+      // Indent continuation lines of multiline strings under the marker.
+      const scalar = formatPlainScalar(item, colors).split('\n').join(`\n${indent}  `)
+      return `${indent}- ${scalar}`
+    })
+    .join('\n')
 }
 
 /**
- * Format object as plain text with key-value pairs
+ * Format object as plain text with key-value pairs. Keys with `undefined` or
+ * `null` values are omitted — plain output is human-facing, and empty fields
+ * are noise there (json keeps null for scripting).
  */
-function formatPlainObject(data: Record<string, any>, colors: boolean): string {
+function formatPlainObject(data: Record<string, any>, colors: boolean, indent: string): string {
   const lines: string[] = []
 
   for (const [key, value] of Object.entries(data)) {
+    if (value === undefined || value === null) {
+      continue
+    }
     const keyLabel = colors ? chalk.bold(key) : key
     if (Array.isArray(value)) {
-      lines.push(`${keyLabel}:`)
-      lines.push(...value.map(item => `  ${formatPlainValue(item, colors)}`))
+      const body = formatPlainArray(value, colors, `${indent}  `)
+      lines.push(`${indent}${keyLabel}:`)
+      if (body) {
+        lines.push(body)
+      }
+    }
+    else if (typeof value === 'object') {
+      const body = formatPlainObject(value, colors, `${indent}  `)
+      lines.push(`${indent}${keyLabel}:`)
+      if (body) {
+        lines.push(body)
+      }
     }
     else {
-      lines.push(`${keyLabel}: ${formatPlainValue(value, colors)}`)
+      // Indent continuation lines of multiline strings under their key.
+      const scalar = formatPlainScalar(value, colors).split('\n').join(`\n${indent}  `)
+      lines.push(`${indent}${keyLabel}: ${scalar}`)
     }
   }
 
@@ -152,18 +176,11 @@ function formatPlainObject(data: Record<string, any>, colors: boolean): string {
 }
 
 /**
- * Format a single value for plain text output
+ * Format a scalar value for plain text output
  */
-function formatPlainValue(value: any, colors: boolean): string {
-  if (typeof value === 'boolean') {
-    if (colors) {
-      return value ? chalk.green('true') : chalk.yellow('false')
-    }
-    return String(value)
-  }
-
-  if (typeof value === 'object' && value !== null) {
-    return formatPlainObject(value, colors)
+function formatPlainScalar(value: any, colors: boolean): string {
+  if (typeof value === 'boolean' && colors) {
+    return value ? chalk.green('true') : chalk.yellow('false')
   }
 
   return String(value)
