@@ -1,0 +1,21 @@
+src/utils/formatter.ts
+  s_f14774d60d5ebb::t_ec117a94225147 167-169
+test/utils/formatter.test.ts
+  s_f14774d60d5ebb::t_fa4be72189376a 253-270
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.10",
+  "base_commit_sha": "724aa53c8ef16702ad8f0c124919384784799be9",
+  "prompts": {},
+  "sessions": {
+    "s_f14774d60d5ebb": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "f436d868-55ee-4b45-b228-2d9b7c8395b4",
+        "model": "claude-fable-5"
+      },
+      "human_author": "Minsu Lee <minsu.lee@pleaseai.dev>"
+    }
+  }
+}
