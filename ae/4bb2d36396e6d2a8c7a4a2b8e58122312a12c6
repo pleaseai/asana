@@ -1,0 +1,23 @@
+test/lib/asana-client.test.ts
+  s_0714cee22c5853::t_055ad3ef0d7222 271-310
+src/lib/asana-client.ts
+  s_0714cee22c5853::t_de32811a358581 431-434
+src/lib/oauth.ts
+  s_0714cee22c5853::t_12d60ebc7c7481 65-69
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.10",
+  "base_commit_sha": "ae4bb2d36396e6d2a8c7a4a2b8e58122312a12c6",
+  "prompts": {},
+  "sessions": {
+    "s_0714cee22c5853": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "1a11a301-fe55-44c0-a7c4-3a00cfeef2b5",
+        "model": "claude-fable-5"
+      },
+      "human_author": "Minsu Lee <minsu.lee@pleaseai.dev>"
+    }
+  }
+}
