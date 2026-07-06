@@ -100,51 +100,59 @@ function formatJson(data: any): string {
  * @returns Plain text formatted string
  */
 function formatPlain(data: any, colors: boolean): string {
-  // This will be implemented based on the specific data structure
-  // For now, return a basic representation
   if (Array.isArray(data)) {
-    return formatPlainArray(data, colors)
+    return formatPlainArray(data, colors, '')
   }
 
   if (typeof data === 'object' && data !== null) {
-    return formatPlainObject(data, colors)
+    return formatPlainObject(data, colors, '')
   }
 
   return String(data)
 }
 
 /**
- * Format array as plain text
+ * Format array as plain text. Each item starts with a `- ` marker and every
+ * continuation line is indented to align under the marker.
  */
-function formatPlainArray(data: any[], colors: boolean): string {
-  const lines: string[] = []
+function formatPlainArray(data: any[], colors: boolean, indent: string): string {
+  const itemIndent = `${indent}  `
 
-  for (const item of data) {
-    if (typeof item === 'object' && item !== null) {
-      lines.push(formatPlainObject(item, colors))
-    }
-    else {
-      lines.push(String(item))
-    }
-  }
-
-  return lines.join('\n')
+  return data
+    .map((item) => {
+      if (typeof item === 'object' && item !== null) {
+        const body = formatPlainObject(item, colors, itemIndent)
+        // Replace the first line's indent with the `- ` marker.
+        return `${indent}- ${body.slice(itemIndent.length)}`
+      }
+      return `${indent}- ${formatPlainScalar(item, colors)}`
+    })
+    .join('\n')
 }
 
 /**
- * Format object as plain text with key-value pairs
+ * Format object as plain text with key-value pairs. Keys with `undefined` or
+ * `null` values are omitted — plain output is human-facing, and empty fields
+ * are noise there (json keeps null for scripting).
  */
-function formatPlainObject(data: Record<string, any>, colors: boolean): string {
+function formatPlainObject(data: Record<string, any>, colors: boolean, indent: string): string {
   const lines: string[] = []
 
   for (const [key, value] of Object.entries(data)) {
+    if (value === undefined || value === null) {
+      continue
+    }
     const keyLabel = colors ? chalk.bold(key) : key
     if (Array.isArray(value)) {
-      lines.push(`${keyLabel}:`)
-      lines.push(...value.map(item => `  ${formatPlainValue(item, colors)}`))
+      lines.push(`${indent}${keyLabel}:`)
+      lines.push(formatPlainArray(value, colors, `${indent}  `))
+    }
+    else if (typeof value === 'object') {
+      lines.push(`${indent}${keyLabel}:`)
+      lines.push(formatPlainObject(value, colors, `${indent}  `))
     }
     else {
-      lines.push(`${keyLabel}: ${formatPlainValue(value, colors)}`)
+      lines.push(`${indent}${keyLabel}: ${formatPlainScalar(value, colors)}`)
     }
   }
 
@@ -152,18 +160,11 @@ function formatPlainObject(data: Record<string, any>, colors: boolean): string {
 }
 
 /**
- * Format a single value for plain text output
+ * Format a scalar value for plain text output
  */
-function formatPlainValue(value: any, colors: boolean): string {
-  if (typeof value === 'boolean') {
-    if (colors) {
-      return value ? chalk.green('true') : chalk.yellow('false')
-    }
-    return String(value)
-  }
-
-  if (typeof value === 'object' && value !== null) {
-    return formatPlainObject(value, colors)
+function formatPlainScalar(value: any, colors: boolean): string {
+  if (typeof value === 'boolean' && colors) {
+    return value ? chalk.green('true') : chalk.yellow('false')
   }
 
   return String(value)

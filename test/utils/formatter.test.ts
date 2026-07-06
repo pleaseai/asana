@@ -169,6 +169,58 @@ describe('formatOutput', () => {
       expect(result).toContain('john@example.com')
     })
 
+    test('should omit undefined values instead of printing "undefined"', () => {
+      const data = { name: 'John', due_on: undefined }
+      const result = formatOutput(data, { format: 'plain', colors: false })
+
+      expect(result).not.toContain('undefined')
+      expect(result).not.toContain('due_on')
+      expect(result).toContain('name: John')
+    })
+
+    test('should omit null values instead of printing "null"', () => {
+      const data = { name: 'John', assignee: null }
+      const result = formatOutput(data, { format: 'plain', colors: false })
+
+      expect(result).not.toContain('null')
+      expect(result).not.toContain('assignee')
+      expect(result).toContain('name: John')
+    })
+
+    test('should indent every line of array items and mark item boundaries', () => {
+      const data = {
+        tasks: [
+          { gid: '123', name: 'Task 1' },
+          { gid: '456', name: 'Task 2' },
+        ],
+      }
+      const result = formatOutput(data, { format: 'plain', colors: false })
+
+      expect(result.split('\n')).toEqual([
+        'tasks:',
+        '  - gid: 123',
+        '    name: Task 1',
+        '  - gid: 456',
+        '    name: Task 2',
+      ])
+    })
+
+    test('should indent nested object lines under their parent key', () => {
+      const data = {
+        user: {
+          name: 'John',
+          email: 'john@example.com',
+        },
+      }
+      const result = formatOutput(data, { format: 'plain', colors: false })
+
+      expect(result.split('\n')).toEqual([
+        'user:',
+        '  name: John',
+        '  email: john@example.com',
+      ])
+    })
+
     test('should not throw error with colors enabled in plain format', () => {
       const data = { name: 'John', completed: true }
 
