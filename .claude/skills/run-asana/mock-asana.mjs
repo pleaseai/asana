@@ -17,6 +17,8 @@
  * Or import { startMock } from a driver (see smoke.mjs).
  */
 
+const json = (data, status = 200) => Response.json(data, { status })
+
 export function startMock() {
   const tasks = new Map()
   const projects = new Map([
@@ -24,7 +26,73 @@ export function startMock() {
   ])
   let seq = 1000
 
-  const json = (data, status = 200) => Response.json(data, { status })
+  // Each handler owns one resource group and returns a Response for a path it
+  // recognizes, or null to let the next handler try. Keeps every function and
+  // the fetch dispatcher well under the 50-LOC limit.
+  function handleTasks(path, method, url, body) {
+    if (path === '/tasks' && method === 'POST') {
+      const gid = String(++seq)
+      const task = { gid, completed: false, resource_type: 'task', ...body?.data }
+      tasks.set(gid, task)
+      return json({ data: task })
+    }
+    if (path === '/tasks' && method === 'GET') {
+      // Real Asana scopes a task list by workspace+assignee or by project.
+      // Reject a scopeless list so a CLI bug that drops the filter surfaces
+      // here instead of silently passing against the full store.
+      if (!url.searchParams.has('workspace') && !url.searchParams.has('project')) {
+        return json({ errors: [{ message: 'Missing required parameter: workspace or project' }] }, 400)
+      }
+      return json({ data: [...tasks.values()] })
+    }
+    // Asana GIDs are opaque strings, not necessarily numeric — match \w+.
+    const match = path.match(/^\/tasks\/(\w+)$/)
+    if (!match) return null
+    const gid = match[1]
+    if (method === 'GET') {
+      return json({ data: tasks.get(gid) ?? { gid, name: `Task ${gid}`, completed: false, resource_type: 'task' } })
+    }
+    if (method === 'PUT') {
+      const updated = { ...(tasks.get(gid) ?? { gid }), ...body?.data }
+      tasks.set(gid, updated)
+      return json({ data: updated })
+    }
+    if (method === 'DELETE') {
+      tasks.delete(gid)
+      return json({ data: {} })
+    }
+    return null
+  }
+
+  function handleUsers(path) {
+    if (path === '/users/me') {
+      return json({ data: { gid: '999', name: 'Mock User', email: 'mock@example.com', resource_type: 'user' } })
+    }
+    const match = path.match(/^\/users\/(\w+)$/)
+    if (match) {
+      return json({ data: { gid: match[1], name: 'Mock User', resource_type: 'user' } })
+    }
+    return null
+  }
+
+  function handleWorkspaces(path) {
+    if (path === '/workspaces') {
+      return json({ data: [{ gid: '111', name: 'My Workspace', resource_type: 'workspace' }] })
+    }
+    if (/^\/workspaces\/\w+$/.test(path)) {
+      return json({ data: { gid: '111', name: 'My Workspace', resource_type: 'workspace' } })
+    }
+    return null
+  }
+
+  function handleProjects(path, method) {
+    // Only the real project-list paths: top-level, or workspace/team-scoped.
+    // A broad endsWith('/projects') would also swallow /tasks/{gid}/projects.
+    if (method === 'GET' && (path === '/projects' || /^\/(workspaces|teams)\/\w+\/projects$/.test(path))) {
+      return json({ data: [...projects.values()] })
+    }
+    return null
+  }
 
   const server = Bun.serve({
     port: 0,
@@ -39,66 +107,13 @@ export function startMock() {
         try { body = await req.json() } catch { /* malformed body — leave null */ }
       }
 
-      // --- Tasks ---------------------------------------------------------
-      if (path === '/tasks' && method === 'POST') {
-        const gid = String(++seq)
-        const task = { gid, completed: false, resource_type: 'task', ...body?.data }
-        tasks.set(gid, task)
-        return json({ data: task })
-      }
-      if (path === '/tasks' && method === 'GET') {
-        // Real Asana scopes a task list by workspace+assignee or by project.
-        // Reject a scopeless list so a CLI bug that drops the filter surfaces
-        // here instead of silently passing against the full store.
-        if (!url.searchParams.has('workspace') && !url.searchParams.has('project')) {
-          return json({ errors: [{ message: 'Missing required parameter: workspace or project' }] }, 400)
-        }
-        return json({ data: [...tasks.values()] })
-      }
-      // Asana GIDs are opaque strings, not necessarily numeric — match \w+.
-      const taskMatch = path.match(/^\/tasks\/(\w+)$/)
-      if (taskMatch) {
-        const gid = taskMatch[1]
-        if (method === 'GET') {
-          return json({ data: tasks.get(gid) ?? { gid, name: `Task ${gid}`, completed: false, resource_type: 'task' } })
-        }
-        if (method === 'PUT') {
-          const updated = { ...(tasks.get(gid) ?? { gid }), ...body?.data }
-          tasks.set(gid, updated)
-          return json({ data: updated })
-        }
-        if (method === 'DELETE') {
-          tasks.delete(gid)
-          return json({ data: {} })
-        }
-      }
-
-      // --- Users ---------------------------------------------------------
-      if (path === '/users/me') {
-        return json({ data: { gid: '999', name: 'Mock User', email: 'mock@example.com', resource_type: 'user' } })
-      }
-      const userMatch = path.match(/^\/users\/(\w+)$/)
-      if (userMatch) {
-        return json({ data: { gid: userMatch[1], name: 'Mock User', resource_type: 'user' } })
-      }
-
-      // --- Workspaces ----------------------------------------------------
-      if (path === '/workspaces') {
-        return json({ data: [{ gid: '111', name: 'My Workspace', resource_type: 'workspace' }] })
-      }
-      if (path.match(/^\/workspaces\/\w+$/)) {
-        return json({ data: { gid: '111', name: 'My Workspace', resource_type: 'workspace' } })
-      }
-
-      // --- Projects ------------------------------------------------------
-      // Only the real project-list paths: top-level, or workspace/team-scoped.
-      // A broad endsWith('/projects') would also swallow /tasks/{gid}/projects.
-      if (method === 'GET' && (path === '/projects' || /^\/(workspaces|teams)\/\w+\/projects$/.test(path))) {
-        return json({ data: [...projects.values()] })
-      }
-
-      // --- Fallback: never crash the CLI on an unmocked read -------------
-      return json({ data: [] })
+      // Fall through the handlers in order; the last arm never crashes the CLI
+      // on an unmocked read.
+      return handleTasks(path, method, url, body)
+        ?? handleUsers(path)
+        ?? handleWorkspaces(path)
+        ?? handleProjects(path, method)
+        ?? json({ data: [] })
     },
   })
 
