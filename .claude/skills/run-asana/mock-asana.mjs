@@ -29,6 +29,8 @@ export function startMock() {
   // Each handler owns one resource group and returns a Response for a path it
   // recognizes, or null to let the next handler try. Keeps every function and
   // the fetch dispatcher well under the 50-LOC limit.
+  const defaultTask = gid => ({ gid, name: `Task ${gid}`, completed: false, resource_type: 'task' })
+
   function handleTasks(path, method, url, body) {
     if (path === '/tasks' && method === 'POST') {
       const gid = String(++seq)
@@ -51,11 +53,10 @@ export function startMock() {
     if (!match) return null
     const gid = match[1]
     if (method === 'GET') {
-      return json({ data: tasks.get(gid) ?? { gid, name: `Task ${gid}`, completed: false, resource_type: 'task' } })
+      return json({ data: tasks.get(gid) ?? defaultTask(gid) })
     }
     if (method === 'PUT') {
-      const base = tasks.get(gid) ?? { gid, name: `Task ${gid}`, completed: false, resource_type: 'task' }
-      const updated = { ...base, ...body?.data }
+      const updated = { ...(tasks.get(gid) ?? defaultTask(gid)), ...body?.data }
       tasks.set(gid, updated)
       return json({ data: updated })
     }
