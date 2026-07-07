@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.11.1](https://github.com/pleaseai/asana/compare/v0.11.0...v0.11.1) (2026-07-07)
+
+
+### Bug Fixes
+
+* **auth:** keep refresh token when refresh response omits refresh_token ([#93](https://github.com/pleaseai/asana/issues/93)) ([b90ede3](https://github.com/pleaseai/asana/commit/b90ede3c4a5bf5479189eaf6618f51b83a5f9bed))
+* **formatter:** omit null/undefined and indent array items in plain output ([#92](https://github.com/pleaseai/asana/issues/92)) ([cd80c36](https://github.com/pleaseai/asana/commit/cd80c361c243cf3e8672e9407fe6eac4ced48ff9))
+
 ## [0.11.0](https://github.com/pleaseai/asana/compare/v0.10.0...v0.11.0) (2026-07-06)
 
 
