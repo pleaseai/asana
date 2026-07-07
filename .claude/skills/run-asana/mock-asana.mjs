@@ -54,7 +54,8 @@ export function startMock() {
       return json({ data: tasks.get(gid) ?? { gid, name: `Task ${gid}`, completed: false, resource_type: 'task' } })
     }
     if (method === 'PUT') {
-      const updated = { ...(tasks.get(gid) ?? { gid }), ...body?.data }
+      const base = tasks.get(gid) ?? { gid, name: `Task ${gid}`, completed: false, resource_type: 'task' }
+      const updated = { ...base, ...body?.data }
       tasks.set(gid, updated)
       return json({ data: updated })
     }
@@ -80,8 +81,9 @@ export function startMock() {
     if (path === '/workspaces') {
       return json({ data: [{ gid: '111', name: 'My Workspace', resource_type: 'workspace' }] })
     }
-    if (/^\/workspaces\/[\w-]+$/.test(path)) {
-      return json({ data: { gid: '111', name: 'My Workspace', resource_type: 'workspace' } })
+    const match = path.match(/^\/workspaces\/([\w-]+)$/)
+    if (match) {
+      return json({ data: { gid: match[1], name: 'My Workspace', resource_type: 'workspace' } })
     }
     return null
   }
