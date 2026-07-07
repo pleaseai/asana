@@ -45,8 +45,9 @@ export function startMock() {
       }
       return json({ data: [...tasks.values()] })
     }
-    // Asana GIDs are opaque strings, not necessarily numeric — match \w+.
-    const match = path.match(/^\/tasks\/(\w+)$/)
+    // Asana GIDs are opaque strings — numeric in prod, but hyphenated in mock
+    // setups (e.g. `task-1`), so match [\w-]+.
+    const match = path.match(/^\/tasks\/([\w-]+)$/)
     if (!match) return null
     const gid = match[1]
     if (method === 'GET') {
@@ -68,7 +69,7 @@ export function startMock() {
     if (path === '/users/me') {
       return json({ data: { gid: '999', name: 'Mock User', email: 'mock@example.com', resource_type: 'user' } })
     }
-    const match = path.match(/^\/users\/(\w+)$/)
+    const match = path.match(/^\/users\/([\w-]+)$/)
     if (match) {
       return json({ data: { gid: match[1], name: 'Mock User', resource_type: 'user' } })
     }
@@ -79,7 +80,7 @@ export function startMock() {
     if (path === '/workspaces') {
       return json({ data: [{ gid: '111', name: 'My Workspace', resource_type: 'workspace' }] })
     }
-    if (/^\/workspaces\/\w+$/.test(path)) {
+    if (/^\/workspaces\/[\w-]+$/.test(path)) {
       return json({ data: { gid: '111', name: 'My Workspace', resource_type: 'workspace' } })
     }
     return null
@@ -88,11 +89,11 @@ export function startMock() {
   function handleProjects(path, method) {
     // Only the real project-list paths: top-level, or workspace/team-scoped.
     // A broad endsWith('/projects') would also swallow /tasks/{gid}/projects.
-    if (method === 'GET' && (path === '/projects' || /^\/(workspaces|teams)\/\w+\/projects$/.test(path))) {
+    if (method === 'GET' && (path === '/projects' || /^\/(workspaces|teams)\/[\w-]+\/projects$/.test(path))) {
       return json({ data: [...projects.values()] })
     }
     // Single-project fetch (`project get <gid>`), mirroring the task/user path.
-    const match = path.match(/^\/projects\/(\w+)$/)
+    const match = path.match(/^\/projects\/([\w-]+)$/)
     if (match && method === 'GET') {
       const gid = match[1]
       return json({ data: projects.get(gid) ?? { gid, name: `Project ${gid}`, resource_type: 'project' } })
