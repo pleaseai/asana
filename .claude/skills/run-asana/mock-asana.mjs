@@ -24,7 +24,7 @@ export function startMock() {
   ])
   let seq = 1000
 
-  const json = data => Response.json(data)
+  const json = (data, status = 200) => Response.json(data, { status })
 
   const server = Bun.serve({
     port: 0,
@@ -32,8 +32,12 @@ export function startMock() {
       const url = new URL(req.url)
       const path = url.pathname.replace(/^.*\/api\/1\.0/, '') // strip base prefix
       const method = req.method
+      // Only body-bearing methods carry JSON; parsing a bodyless GET/DELETE
+      // would throw needlessly.
       let body = null
-      try { body = await req.json() } catch { /* GET/DELETE have no body */ }
+      if (method === 'POST' || method === 'PUT' || method === 'PATCH') {
+        try { body = await req.json() } catch { /* malformed body — leave null */ }
+      }
 
       // --- Tasks ---------------------------------------------------------
       if (path === '/tasks' && method === 'POST') {
@@ -43,9 +47,16 @@ export function startMock() {
         return json({ data: task })
       }
       if (path === '/tasks' && method === 'GET') {
+        // Real Asana scopes a task list by workspace+assignee or by project.
+        // Reject a scopeless list so a CLI bug that drops the filter surfaces
+        // here instead of silently passing against the full store.
+        if (!url.searchParams.has('workspace') && !url.searchParams.has('project')) {
+          return json({ errors: [{ message: 'Missing required parameter: workspace or project' }] }, 400)
+        }
         return json({ data: [...tasks.values()] })
       }
-      const taskMatch = path.match(/^\/tasks\/(\d+)$/)
+      // Asana GIDs are opaque strings, not necessarily numeric — match \w+.
+      const taskMatch = path.match(/^\/tasks\/(\w+)$/)
       if (taskMatch) {
         const gid = taskMatch[1]
         if (method === 'GET') {
@@ -75,12 +86,14 @@ export function startMock() {
       if (path === '/workspaces') {
         return json({ data: [{ gid: '111', name: 'My Workspace', resource_type: 'workspace' }] })
       }
-      if (path.match(/^\/workspaces\/\d+$/)) {
+      if (path.match(/^\/workspaces\/\w+$/)) {
         return json({ data: { gid: '111', name: 'My Workspace', resource_type: 'workspace' } })
       }
 
       // --- Projects ------------------------------------------------------
-      if (path.endsWith('/projects') && method === 'GET') {
+      // Only the real project-list paths: top-level, or workspace/team-scoped.
+      // A broad endsWith('/projects') would also swallow /tasks/{gid}/projects.
+      if (method === 'GET' && (path === '/projects' || /^\/(workspaces|teams)\/\w+\/projects$/.test(path))) {
         return json({ data: [...projects.values()] })
       }
 
@@ -97,6 +110,5 @@ if (import.meta.main) {
   const mock = startMock()
   process.stdout.write(`${mock.url}\n`)
   process.stderr.write(`[mock-asana] listening on ${mock.url} — Ctrl-C to stop\n`)
-  // Keep the process alive.
-  await new Promise(() => {})
+  // Bun.serve keeps the event loop alive, so the process stays up until Ctrl-C.
 }

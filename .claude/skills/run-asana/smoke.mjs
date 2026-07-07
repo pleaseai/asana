@@ -24,13 +24,16 @@ const env = { ...process.env, ASANA_API_BASE_URL: mock.url, ASANA_ACCESS_TOKEN: 
 let passed = 0
 let failed = 0
 
-async function cli(args) {
+async function cli(args, timeoutMs = 15_000) {
   const proc = Bun.spawn(['bun', launcher, ...args], { env, stdout: 'pipe', stderr: 'pipe' })
+  // Guard against a hung invocation so an unattended run can't block forever.
+  const timer = setTimeout(() => proc.kill(), timeoutMs)
   const [stdout, stderr] = await Promise.all([
     new Response(proc.stdout).text(),
     new Response(proc.stderr).text(),
   ])
   const code = await proc.exited
+  clearTimeout(timer)
   return { code, stdout, stderr, out: stdout + stderr }
 }
 
@@ -54,9 +57,10 @@ try {
     check('asana --version exits 0 and prints a version', r.code === 0 && /\d+\.\d+\.\d+/.test(r.out), r.out.trim())
   }
 
-  // 2. Workspace list (SDK-backed, redirected via launch.ts).
+  // 2. Workspace list (SDK-backed, redirected via launch.ts). --no-cache so the
+  //    assertion exercises the mock, not a stale ~/.asana-cli/cache.json entry.
   {
-    const r = await cli(['-f', 'json', 'workspace', 'list'])
+    const r = await cli(['-f', 'json', 'workspace', 'list', '--no-cache'])
     check('workspace list returns the mocked workspace', r.code === 0 && r.out.includes('My Workspace'), r.out.trim())
   }
 
@@ -74,10 +78,13 @@ try {
     check('task list includes the created task', r.code === 0 && r.out.includes('Buy milk'), r.out.trim())
   }
 
-  // 5. Get the task by gid.
-  if (gid) {
-    const r = await cli(['-f', 'json', 'task', 'get', gid])
-    check('task get returns the task by gid', r.code === 0 && r.out.includes(gid), r.out.trim())
+  // 5. Get the task by gid. When create failed (no gid) count this as a failure
+  //    rather than skipping, so a broken create doesn't shrink the tally and
+  //    read as an isolated failure.
+  {
+    const r = gid ? await cli(['-f', 'json', 'task', 'get', gid]) : null
+    check('task get returns the task by gid', Boolean(gid) && r.code === 0 && r.out.includes(gid),
+      gid ? r.out.trim() : 'skipped: task create did not return a gid')
   }
 
   // 6. api command (raw-fetch path, honors ASANA_API_BASE_URL directly).
@@ -86,17 +93,20 @@ try {
     check('api /users/me returns the mocked user', r.code === 0 && r.out.includes('Mock User'), r.out.trim())
   }
 
-  // 7. Complete then delete the task (SDK PUT + DELETE).
-  if (gid) {
-    const c = await cli(['task', 'complete', gid])
-    check('task complete exits 0', c.code === 0, c.out.trim())
-    const d = await cli(['task', 'delete', gid])
-    check('task delete exits 0', d.code === 0, d.out.trim())
+  // 7. Complete then delete the task (SDK PUT + DELETE). Count as failures when
+  //    there's no gid, so downstream breakage from a failed create stays visible.
+  {
+    const c = gid ? await cli(['task', 'complete', gid]) : null
+    check('task complete exits 0', Boolean(gid) && c.code === 0,
+      gid ? c.out.trim() : 'skipped: task create did not return a gid')
+    const d = gid ? await cli(['task', 'delete', gid]) : null
+    check('task delete exits 0', Boolean(gid) && d.code === 0,
+      gid ? d.out.trim() : 'skipped: task create did not return a gid')
   }
 
   // 8. Default TOON output format (no -f flag) still renders.
   {
-    const r = await cli(['workspace', 'list'])
+    const r = await cli(['workspace', 'list', '--no-cache'])
     check('default (TOON) workspace list renders the workspace', r.code === 0 && r.out.includes('My Workspace'), r.out.trim())
   }
 }

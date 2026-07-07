@@ -103,8 +103,9 @@ bun test test/          # unit tests → 557 pass, 0 fail (~0.7s)
 ```
 
 E2E tests hit the **real** Asana API and self-skip without credentials; run them
-only with a real token: `bun run test:e2e:secure` (needs `.env` with
-`ASANA_ACCESS_TOKEN` + `ASANA_WORKSPACE`).
+only with a real token: `bun run test:e2e:secure`. Provide `ASANA_ACCESS_TOKEN` +
+`ASANA_WORKSPACE` as exported shell env vars, or via the repo's gitignored,
+dotenvx-encrypted `.env` (`bun run env:encrypt`) — never commit a plaintext token.
 
 ## Gotchas
 
