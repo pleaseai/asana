@@ -1,0 +1,20 @@
+.claude/skills/run-asana/mock-asana.mjs
+  s_5fc121fca7a227::t_5b42b70066eecd 32-33
+  s_5fc121fca7a227::t_50b347c91aaedc 56,59
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.10",
+  "base_commit_sha": "e9bcfd0b222560299761aeae42c988d68f4cf73d",
+  "prompts": {},
+  "sessions": {
+    "s_5fc121fca7a227": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "b6e6f933-0aae-49e7-b8f4-8e33d95e0fa5",
+        "model": "claude-opus-4-8"
+      },
+      "human_author": "Minsu Lee <minsu.lee@pleaseai.dev>"
+    }
+  }
+}
