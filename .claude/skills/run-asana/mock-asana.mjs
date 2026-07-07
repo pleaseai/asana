@@ -91,6 +91,12 @@ export function startMock() {
     if (method === 'GET' && (path === '/projects' || /^\/(workspaces|teams)\/\w+\/projects$/.test(path))) {
       return json({ data: [...projects.values()] })
     }
+    // Single-project fetch (`project get <gid>`), mirroring the task/user path.
+    const match = path.match(/^\/projects\/(\w+)$/)
+    if (match && method === 'GET') {
+      const gid = match[1]
+      return json({ data: projects.get(gid) ?? { gid, name: `Project ${gid}`, resource_type: 'project' } })
+    }
     return null
   }
 
