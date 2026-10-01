@@ -1,5 +1,24 @@
 # Changelog
 
+## [0.12.0](https://github.com/pleaseai/asana/compare/v0.11.1...v0.12.0) (2026-10-01)
+
+
+### Features
+
+* **comment:** get, update, and delete task comments ([#126](https://github.com/pleaseai/asana/issues/126)) ([b989497](https://github.com/pleaseai/asana/commit/b98949742d36e5367f52adb502d452e7eb3b75cf))
+* **task:** add section, tag, and My Tasks filters plus custom-ID lookup ([#121](https://github.com/pleaseai/asana/issues/121)) ([b905e95](https://github.com/pleaseai/asana/commit/b905e95d8337dac8d588b9fe8c984c11b66f81bc))
+
+
+### Bug Fixes
+
+* **config:** make config dir overridable and stop tests deleting ~/.asana-cli ([#107](https://github.com/pleaseai/asana/issues/107)) ([918ceff](https://github.com/pleaseai/asana/commit/918ceff8c43fb9accfd4d06e074db92763c5dab2))
+* **task:** reject task list --assignee without a workspace as a usage error ([#125](https://github.com/pleaseai/asana/issues/125)) ([18b9396](https://github.com/pleaseai/asana/commit/18b9396c97b9fb1fb88e8c86077535ce19dc7a68))
+
+
+### Documentation
+
+* **adr:** record cloudflare forge evaluation ([#118](https://github.com/pleaseai/asana/issues/118)) ([6f2c5b4](https://github.com/pleaseai/asana/commit/6f2c5b4e3e4995c0b1af8728d633e4a7360f1d83))
+
 ## [0.11.1](https://github.com/pleaseai/asana/compare/v0.11.0...v0.11.1) (2026-07-07)
 
 
