@@ -15,7 +15,7 @@ const TASKS = [
  * error (exit 2, no API call) instead of a failed API request.
  */
 describe('task list --assignee workspace requirement', () => {
-  let calls: string[]
+  let calls: Array<{ method: string, args: any[] }>
   const harness = useTaskCliHarness()
 
   beforeEach(() => {
@@ -23,8 +23,8 @@ describe('task list --assignee workspace requirement', () => {
   })
 
   function record(method: string, result: any) {
-    return async () => {
-      calls.push(method)
+    return async (...args: any[]) => {
+      calls.push({ method, args })
       return result
     }
   }
@@ -59,14 +59,15 @@ describe('task list --assignee workspace requirement', () => {
   test('--assignee with the configured default workspace lists through findAll', async () => {
     const out = await runList(['--assignee', 'me'], DEFAULT_WORKSPACE)
 
-    expect(calls).toEqual(['findAll'])
+    expect(calls.map(call => call.method)).toEqual(['findAll'])
+    expect(calls[0]!.args[0]).toMatchObject({ assignee: 'me', workspace: DEFAULT_WORKSPACE })
     expect(JSON.parse(out).tasks).toHaveLength(TASKS.length)
   })
 
   test('--assignee on a section source needs no workspace (filtered client-side)', async () => {
     const out = await runList(['--section', '555', '--assignee', 'none'])
 
-    expect(calls).toEqual(['findBySection'])
+    expect(calls.map(call => call.method)).toEqual(['findBySection'])
     expect(JSON.parse(out).tasks.map((t: any) => t.gid)).toEqual(['2'])
   })
 })
