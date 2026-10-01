@@ -1,14 +1,6 @@
-import * as nodeFs from 'node:fs'
-import { afterAll, afterEach, beforeEach, describe, expect, mock, spyOn, test } from 'bun:test'
-import { Command } from 'commander'
+import { beforeEach, describe, expect, test } from 'bun:test'
 import { ERROR_IDS } from '../../src/constants/errorIds'
-import * as realClient from '../../src/lib/asana-client'
-import * as realConfig from '../../src/lib/config'
-
-// Bun's `mock.restore()` does NOT revert `mock.module()` registrations —
-// re-install the real modules when this file finishes.
-const REAL_CLIENT = { ...realClient }
-const REAL_CONFIG = { ...realConfig }
+import { useTaskCliHarness } from './helpers/task-cli-harness'
 
 const EXIT_FAILURE = 1
 const EXIT_USAGE = 2
@@ -18,68 +10,36 @@ const JOB_PENDING = { gid: '900', status: 'in_progress', new_task: null }
 /** `task duplicate <gid> --name <name> [--include <fields>]` (issue #106). */
 describe('task duplicate', () => {
   let calls: Array<{ gid: string, data: any }>
-  let exitSpy: ReturnType<typeof spyOn>
-  let errorSpy: ReturnType<typeof spyOn>
-  let writeSpy: ReturnType<typeof spyOn>
-  let logs: string[]
-  const originalLog = console.log
+  const harness = useTaskCliHarness()
 
   beforeEach(() => {
     calls = []
-    logs = []
-    console.log = (...args: any[]) => {
-      logs.push(args.join(' '))
-    }
-    exitSpy = spyOn(process, 'exit').mockImplementation((() => {
-      throw new Error('__exit__')
-    }) as never)
-    errorSpy = spyOn(console, 'error').mockImplementation(() => {})
-    writeSpy = spyOn(nodeFs, 'writeSync').mockImplementation(() => 0)
-  })
-
-  afterEach(() => {
-    console.log = originalLog
-    exitSpy.mockRestore()
-    errorSpy.mockRestore()
-    writeSpy.mockRestore()
-    mock.restore()
-  })
-
-  afterAll(() => {
-    mock.module('../../src/lib/asana-client', () => REAL_CLIENT)
-    mock.module('../../src/lib/config', () => REAL_CONFIG)
   })
 
   async function runDuplicate(args: string[], opts: { job?: any, failWith?: any, format?: string } = {}): Promise<string> {
-    mock.module('../../src/lib/asana-client', () => ({
-      getAsanaClient: () => ({
-        tasks: {
-          duplicate: async (gid: string, data: any) => {
-            calls.push({ gid, data })
-            if (opts.failWith) {
-              throw opts.failWith
-            }
-            return opts.job ?? JOB_WITH_TASK
+    harness.mockModules(
+      {
+        getAsanaClient: () => ({
+          tasks: {
+            duplicate: async (gid: string, data: any) => {
+              calls.push({ gid, data })
+              if (opts.failWith) {
+                throw opts.failWith
+              }
+              return opts.job ?? JOB_WITH_TASK
+            },
           },
-        },
-      }),
-    }))
-    mock.module('../../src/lib/config', () => ({
-      loadConfig: () => ({ workspace: '123' }),
-    }))
+        }),
+      },
+      {
+        loadConfig: () => ({ workspace: '123' }),
+      },
+    )
 
-    const { createTaskCommand } = await import('../../src/commands/task')
-    const program = new Command()
-    program.name('asana').option('-f, --format <type>', 'Output format', 'toon')
-    program.addCommand(createTaskCommand())
-
-    await program.parseAsync(['--format', opts.format ?? 'json', 'task', 'duplicate', ...args], { from: 'user' })
-    return logs.join('\n')
+    return harness.runTask(['duplicate', ...args], opts.format)
   }
 
-  function stdoutError(): any {
-    return JSON.parse(String(writeSpy.mock.calls[0]?.[1]))
-  }
+  const stdoutError = () => harness.stdoutError()
 
   test('is registered with --name as a regular option', async () => {
     const { createTaskCommand } = await import('../../src/commands/task')
@@ -92,7 +52,7 @@ describe('task duplicate', () => {
   test('a missing --name is a structured usage error before any API call', async () => {
     await expect(runDuplicate(['42'])).rejects.toThrow('__exit__')
 
-    expect(exitSpy).toHaveBeenCalledWith(EXIT_USAGE)
+    expect(harness.exitSpy).toHaveBeenCalledWith(EXIT_USAGE)
     const payload = stdoutError()
     expect(payload.code).toBe(ERROR_IDS.MISSING_REQUIRED_OPTION)
     expect(payload.context.option).toBe('--name')
@@ -144,7 +104,7 @@ describe('task duplicate', () => {
   ])('%s in --include is a usage error before any API call', async (_label, include) => {
     await expect(runDuplicate(['42', '--name', 'Copy', '--include', include])).rejects.toThrow('__exit__')
 
-    expect(exitSpy).toHaveBeenCalledWith(EXIT_USAGE)
+    expect(harness.exitSpy).toHaveBeenCalledWith(EXIT_USAGE)
     const payload = stdoutError()
     expect(payload.code).toBe(ERROR_IDS.INVALID_FIELD_NAME)
     expect(payload.context.allowed).toContain('subtasks')
@@ -154,7 +114,7 @@ describe('task duplicate', () => {
   test('a non-numeric gid exits 1 before any API call', async () => {
     await expect(runDuplicate(['abc', '--name', 'Copy'])).rejects.toThrow('__exit__')
 
-    expect(exitSpy).toHaveBeenCalledWith(EXIT_FAILURE)
+    expect(harness.exitSpy).toHaveBeenCalledWith(EXIT_FAILURE)
     expect(stdoutError().code).toBe(ERROR_IDS.INVALID_TASK_GID)
     expect(calls).toHaveLength(0)
   })
@@ -162,7 +122,7 @@ describe('task duplicate', () => {
   test('an API error is reported as a structured Task duplication failure', async () => {
     await expect(runDuplicate(['42', '--name', 'Copy'], { failWith: { status: 403 } })).rejects.toThrow('__exit__')
 
-    expect(exitSpy).toHaveBeenCalledWith(EXIT_FAILURE)
+    expect(harness.exitSpy).toHaveBeenCalledWith(EXIT_FAILURE)
     const payload = stdoutError()
     expect(payload.code).toBe(ERROR_IDS.PERMISSION_DENIED)
     expect(payload.context).toEqual({ 'Task GID': '42', 'Name': 'Copy' })

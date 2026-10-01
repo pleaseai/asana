@@ -1,15 +1,6 @@
-import * as nodeFs from 'node:fs'
-import { afterAll, afterEach, beforeEach, describe, expect, mock, spyOn, test } from 'bun:test'
-import { Command } from 'commander'
+import { beforeEach, describe, expect, test } from 'bun:test'
 import { ERROR_IDS } from '../../src/constants/errorIds'
-import * as realClient from '../../src/lib/asana-client'
-import * as realConfig from '../../src/lib/config'
-
-// Bun's `mock.restore()` does NOT revert `mock.module()` registrations —
-// capture the real modules and re-install them when this file finishes
-// (same pattern as task-list-scan.test.ts).
-const REAL_CLIENT = { ...realClient }
-const REAL_CONFIG = { ...realConfig }
+import { useTaskCliHarness } from './helpers/task-cli-harness'
 
 const EXIT_USAGE = 2
 const DEFAULT_WORKSPACE = '123'
@@ -28,36 +19,10 @@ const TASKS = [
  */
 describe('task list sources', () => {
   let calls: Array<{ method: string, args: any[] }>
-  let exitSpy: ReturnType<typeof spyOn>
-  let errorSpy: ReturnType<typeof spyOn>
-  let writeSpy: ReturnType<typeof spyOn>
-  let logs: string[]
-  const originalLog = console.log
+  const harness = useTaskCliHarness()
 
   beforeEach(() => {
     calls = []
-    logs = []
-    console.log = (...args: any[]) => {
-      logs.push(args.join(' '))
-    }
-    exitSpy = spyOn(process, 'exit').mockImplementation((() => {
-      throw new Error('__exit__')
-    }) as never)
-    errorSpy = spyOn(console, 'error').mockImplementation(() => {})
-    writeSpy = spyOn(nodeFs, 'writeSync').mockImplementation(() => 0)
-  })
-
-  afterEach(() => {
-    console.log = originalLog
-    exitSpy.mockRestore()
-    errorSpy.mockRestore()
-    writeSpy.mockRestore()
-    mock.restore()
-  })
-
-  afterAll(() => {
-    mock.module('../../src/lib/asana-client', () => REAL_CLIENT)
-    mock.module('../../src/lib/config', () => REAL_CONFIG)
   })
 
   function record(method: string, result: any) {
@@ -68,39 +33,33 @@ describe('task list sources', () => {
   }
 
   async function runList(args: string[], opts: { workspace?: string, format?: string, tasks?: any[] } = {}): Promise<string> {
-    mock.module('../../src/lib/asana-client', () => ({
-      getAsanaClient: () => ({
-        tasks: {
-          findByProject: record('findByProject', { data: opts.tasks ?? TASKS }),
-          findAll: record('findAll', { data: opts.tasks ?? TASKS }),
-          findBySection: record('findBySection', { data: opts.tasks ?? TASKS }),
-          findByTag: record('findByTag', { data: opts.tasks ?? TASKS }),
-          findByUserTaskList: record('findByUserTaskList', { data: opts.tasks ?? TASKS }),
-        },
-        userTaskLists: {
-          findByUser: record('findByUser', { gid: USER_TASK_LIST_GID }),
-        },
-        users: {
-          me: async () => ({ gid: '10', name: 'Alice' }),
-        },
-      }),
-    }))
-    mock.module('../../src/lib/config', () => ({
-      loadConfig: () => ({ workspace: 'workspace' in opts ? opts.workspace : DEFAULT_WORKSPACE }),
-    }))
+    harness.mockModules(
+      {
+        getAsanaClient: () => ({
+          tasks: {
+            findByProject: record('findByProject', { data: opts.tasks ?? TASKS }),
+            findAll: record('findAll', { data: opts.tasks ?? TASKS }),
+            findBySection: record('findBySection', { data: opts.tasks ?? TASKS }),
+            findByTag: record('findByTag', { data: opts.tasks ?? TASKS }),
+            findByUserTaskList: record('findByUserTaskList', { data: opts.tasks ?? TASKS }),
+          },
+          userTaskLists: {
+            findByUser: record('findByUser', { gid: USER_TASK_LIST_GID }),
+          },
+          users: {
+            me: async () => ({ gid: '10', name: 'Alice' }),
+          },
+        }),
+      },
+      {
+        loadConfig: () => ({ workspace: 'workspace' in opts ? opts.workspace : DEFAULT_WORKSPACE }),
+      },
+    )
 
-    const { createTaskCommand } = await import('../../src/commands/task')
-    const program = new Command()
-    program.name('asana').option('-f, --format <type>', 'Output format', 'toon')
-    program.addCommand(createTaskCommand())
-
-    await program.parseAsync(['--format', opts.format ?? 'json', 'task', 'list', ...args], { from: 'user' })
-    return logs.join('\n')
+    return harness.runTask(['list', ...args], opts.format)
   }
 
-  function stdoutError(): any {
-    return JSON.parse(String(writeSpy.mock.calls[0]?.[1]))
-  }
+  const stdoutError = () => harness.stdoutError()
 
   function callOf(method: string) {
     return calls.find(call => call.method === method)
@@ -164,7 +123,7 @@ describe('task list sources', () => {
   test('--my-tasks without any workspace is a usage error before any API call', async () => {
     await expect(runList(['--my-tasks'], { workspace: undefined })).rejects.toThrow('__exit__')
 
-    expect(exitSpy).toHaveBeenCalledWith(EXIT_USAGE)
+    expect(harness.exitSpy).toHaveBeenCalledWith(EXIT_USAGE)
     expect(stdoutError().code).toBe(ERROR_IDS.MISSING_REQUIRED_OPTION)
     expect(calls).toHaveLength(0)
   })
@@ -177,7 +136,7 @@ describe('task list sources', () => {
   ])('conflicting sources %p exit 2 with CONFLICTING_OPTIONS and no API call', async (args, flags) => {
     await expect(runList(args)).rejects.toThrow('__exit__')
 
-    expect(exitSpy).toHaveBeenCalledWith(EXIT_USAGE)
+    expect(harness.exitSpy).toHaveBeenCalledWith(EXIT_USAGE)
     const payload = stdoutError()
     expect(payload.code).toBe(ERROR_IDS.CONFLICTING_OPTIONS)
     expect(payload.context.flags).toEqual(flags)
