@@ -1,0 +1,19 @@
+dev-docs/AXI-ADOPTION.md
+  s_c65f6f83136ca4::t_5fca4061688aaa 122-123
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "b54480db5770794e57085adf2240d167b418e1c7",
+  "prompts": {},
+  "sessions": {
+    "s_c65f6f83136ca4": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "940d07a2-d346-4be7-8039-1158364a7d06",
+        "model": "claude-opus-5-5"
+      },
+      "human_author": "Minsu Lee <minsu.lee@pleaseai.dev>"
+    }
+  }
+}
