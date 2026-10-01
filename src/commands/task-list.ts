@@ -131,8 +131,12 @@ async function runTaskList(
   command: Command,
   workspaceRef: { value?: string },
 ): Promise<void> {
-  const query = parseTaskListQuery(options)
   const source = resolveTaskSource(options)
+  // The tag endpoint ignores completed_since, so the deprecated -c flag must
+  // fall back to the client-side incomplete-only filter there.
+  const query = parseTaskListQuery(
+    source.kind === 'tag' && options.completed ? { ...options, incompleteOnly: true } : options,
+  )
   const config = loadConfig()
   const workspace = options.workspace || config?.workspace
   workspaceRef.value = workspace

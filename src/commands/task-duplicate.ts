@@ -68,11 +68,15 @@ export function createTaskDuplicateCommand(): Command {
   return new Command('duplicate')
     .description('Duplicate a task (runs as an asynchronous job)')
     .argument('<gid>', 'Task GID')
-    .requiredOption('-n, --name <name>', 'Name of the new task')
+    .option('-n, --name <name>', 'Name of the new task (required)')
     .option('--include <fields>', `Fields to copy, comma-separated (${DUPLICATE_INCLUDE_FIELDS.join('|')})`)
-    .action(async (gid: string, options: { name: string, include?: string }, command: Command) => {
+    .action(async (gid: string, options: { name?: string, include?: string }, command: Command) => {
       try {
         validateGid(gid, 'Task GID')
+        if (!options.name) {
+          console.error(chalk.red('✗ --name is required'))
+          throw new UsageError(ERROR_IDS.MISSING_REQUIRED_OPTION, '--name is required', { option: '--name' })
+        }
         const data: { name: string, include?: string } = { name: options.name }
         if (options.include !== undefined) {
           data.include = parseIncludeFields(options.include)

@@ -81,12 +81,22 @@ describe('task duplicate', () => {
     return JSON.parse(String(writeSpy.mock.calls[0]?.[1]))
   }
 
-  test('is registered with a required --name', async () => {
+  test('is registered with --name as a regular option', async () => {
     const { createTaskCommand } = await import('../../src/commands/task')
     const command = createTaskCommand().commands.find(cmd => cmd.name() === 'duplicate')!
 
     expect(command).toBeDefined()
-    expect(command.options.find(opt => opt.long === '--name')?.mandatory).toBe(true)
+    expect(command.options.find(opt => opt.long === '--name')?.mandatory).toBeFalsy()
+  })
+
+  test('a missing --name is a structured usage error before any API call', async () => {
+    await expect(runDuplicate(['42'])).rejects.toThrow('__exit__')
+
+    expect(exitSpy).toHaveBeenCalledWith(EXIT_USAGE)
+    const payload = stdoutError()
+    expect(payload.code).toBe(ERROR_IDS.MISSING_REQUIRED_OPTION)
+    expect(payload.context.option).toBe('--name')
+    expect(calls).toHaveLength(0)
   })
 
   test('sends name and the comma-separated include list, trimming whitespace', async () => {

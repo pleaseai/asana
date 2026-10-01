@@ -131,6 +131,15 @@ describe('task list sources', () => {
     expect(JSON.parse(out).tasks.map((t: any) => t.gid)).toEqual(['1', '3'])
   })
 
+  test('--tag with deprecated -c excludes completed tasks client-side', async () => {
+    const out = await runList(['--tag', '444', '-c'])
+
+    const params = callOf('findByTag')!.args[1]
+    expect(params.completed_since).toBeUndefined()
+    expect(params.opt_fields.split(',')).toContain('completed')
+    expect(JSON.parse(out).tasks.map((t: any) => t.gid)).toEqual(['1', '3'])
+  })
+
   test('--section --incomplete-only sends completed_since=now', async () => {
     await runList(['--section', '555', '--incomplete-only'])
 
