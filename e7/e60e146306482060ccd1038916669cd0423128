@@ -1,0 +1,35 @@
+test/commands/task-get-custom-id.test.ts
+  s_86f27022dad4e4::t_1d121697f44a7d 119
+  s_86f27022dad4e4::t_fe7512328f3164 1,42,63-65,68-76,115-118,121
+  s_86f27022dad4e4::t_be2739948734f1 4,66-67
+  s_86f27022dad4e4::t_e1465df1d15cf8 120,122
+src/commands/task-get.ts
+  s_86f27022dad4e4::t_a61f762e1f2655 11,44
+src/lib/workspace-option.ts
+  s_86f27022dad4e4::t_a61f762e1f2655 1-25
+src/commands/task-list.ts
+  s_86f27022dad4e4::t_a61f762e1f2655 23,28-56,59-61,73,76,80,172-174
+test/commands/task-duplicate.test.ts
+  s_86f27022dad4e4::t_fe7512328f3164 1,83-89
+  s_86f27022dad4e4::t_76c00713c6706e 90-91
+test/commands/task-list-source.test.ts
+  s_86f27022dad4e4::t_fe7512328f3164 35-45,52-54,141-188,191
+  s_86f27022dad4e4::t_1d121697f44a7d 189
+  s_86f27022dad4e4::t_21a64b5852a3dc 190,192
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "e7e60e146306482060ccd1038916669cd0423128",
+  "prompts": {},
+  "sessions": {
+    "s_86f27022dad4e4": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "7452c840-05da-4977-aaef-50ed5072ffc7",
+        "model": "claude-opus-5-5"
+      },
+      "human_author": "Minsu Lee <minsu.lee@pleaseai.dev>"
+    }
+  }
+}
