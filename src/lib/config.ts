@@ -3,27 +3,42 @@ import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs'
 import { homedir } from 'node:os'
 import { join } from 'node:path'
 
-const CONFIG_DIR = join(homedir(), '.asana-cli')
-const CONFIG_FILE = join(CONFIG_DIR, 'config.json')
+const DEFAULT_CONFIG_DIR_NAME = '.asana-cli'
+const CONFIG_FILE_NAME = 'config.json'
+
+/**
+ * Directory holding config.json and cache.json. Overridable via
+ * `ASANA_CONFIG_DIR` (tests, sandboxes, multiple accounts); resolved at call
+ * time so the override applies even when set after this module is imported.
+ */
+export function getConfigDir(): string {
+  return process.env.ASANA_CONFIG_DIR || join(homedir(), DEFAULT_CONFIG_DIR_NAME)
+}
+
+function getConfigFile(): string {
+  return join(getConfigDir(), CONFIG_FILE_NAME)
+}
 
 export function ensureConfigDir(): void {
-  if (!existsSync(CONFIG_DIR)) {
-    mkdirSync(CONFIG_DIR, { recursive: true })
+  const configDir = getConfigDir()
+  if (!existsSync(configDir)) {
+    mkdirSync(configDir, { recursive: true })
   }
 }
 
 export function saveConfig(config: AsanaConfig): void {
   ensureConfigDir()
-  writeFileSync(CONFIG_FILE, JSON.stringify(config, null, 2))
+  writeFileSync(getConfigFile(), JSON.stringify(config, null, 2))
 }
 
 export function loadConfig(): AsanaConfig | null {
-  if (!existsSync(CONFIG_FILE)) {
+  const configFile = getConfigFile()
+  if (!existsSync(configFile)) {
     return null
   }
 
   try {
-    const data = readFileSync(CONFIG_FILE, 'utf-8')
+    const data = readFileSync(configFile, 'utf-8')
     return JSON.parse(data)
   }
   catch (error) {
@@ -41,11 +56,12 @@ export function loadConfig(): AsanaConfig | null {
  * swallow-and-return-null contract for the CLI's degrade-gracefully paths.
  */
 export function loadConfigStrict(): AsanaConfig | null {
-  if (!existsSync(CONFIG_FILE)) {
+  const configFile = getConfigFile()
+  if (!existsSync(configFile)) {
     return null
   }
 
-  const data = readFileSync(CONFIG_FILE, 'utf-8')
+  const data = readFileSync(configFile, 'utf-8')
   return JSON.parse(data) as AsanaConfig
 }
 

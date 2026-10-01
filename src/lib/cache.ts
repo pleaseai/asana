@@ -2,12 +2,13 @@
  * File-based cache with TTL for slow-changing Asana data
  *
  * Workspace and team lists rarely change, so commands cache them on disk
- * (~/.asana-cli/cache.json) to avoid repeated API round-trips.
+ * (cache.json in the config dir, ~/.asana-cli by default) to avoid repeated
+ * API round-trips.
  */
 
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs'
-import { homedir } from 'node:os'
 import { dirname, join } from 'node:path'
+import { getConfigDir } from './config'
 
 export const DEFAULT_CACHE_TTL_MS = 5 * 60 * 1000
 
@@ -77,7 +78,7 @@ let defaultCacheInstance: FileCache | null = null
 
 export function getDefaultCache(): FileCache {
   if (!defaultCacheInstance) {
-    defaultCacheInstance = new FileCache(join(homedir(), '.asana-cli', 'cache.json'))
+    defaultCacheInstance = new FileCache(join(getConfigDir(), 'cache.json'))
   }
   return defaultCacheInstance
 }
