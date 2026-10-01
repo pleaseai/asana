@@ -1,0 +1,23 @@
+test/commands/api.test.ts
+  s_f5d31ad3c41295::t_6c44012ee82037 1-3,193,196,199-201,228-234
+test/hooks/session-start.test.ts
+  s_f5d31ad3c41295::t_6c44012ee82037 135-139
+test/lib/asana-client.test.ts
+  s_f5d31ad3c41295::t_6c44012ee82037 2-3,9-14,21-25,36-42
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "0c969d4841bca132f1dddbaab35ae39e74b16222",
+  "prompts": {},
+  "sessions": {
+    "s_f5d31ad3c41295": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "de14be95-0f1b-44c1-976e-45ed27f87a8a",
+        "model": "claude-opus-5-5"
+      },
+      "human_author": "Minsu Lee <minsu.lee@pleaseai.dev>"
+    }
+  }
+}
