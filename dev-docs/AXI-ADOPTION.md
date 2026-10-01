@@ -119,6 +119,8 @@ and code are in English (repos/ convention).
   degrade to static identity + hint.
 - Contextual next-step hints on list and mutation responses.
 - Per-subcommand `--help` reference (flags, defaults, 2–3 examples).
+- Optional: natural-language command search over the help/schema metadata, modeled
+  on cf's MiniSearch-based `cf cli search` (ADR-007). Not required for the phase.
 
 ### Phase 5 — §7 ambient session integration (optional, last)
 
