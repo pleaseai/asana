@@ -1,5 +1,6 @@
 import type { TaskListQuery, TaskSource } from '../lib/task-list-query'
 import type { TaskListOptions } from '../types'
+import type { OutputFormat } from '../utils/formatter'
 import chalk from 'chalk'
 import { Command } from 'commander'
 import { ERROR_IDS } from '../constants/errorIds'
@@ -22,8 +23,6 @@ import {
 import { UsageError, ValidationError } from '../lib/validators'
 import { resolveExplicitWorkspace } from '../lib/workspace-option'
 import { formatOutput, getOutputFormat } from '../utils/formatter'
-
-type AsanaClient = ReturnType<typeof getAsanaClient>
 
 /** Upper bound on pages followed per listing, a backstop against a misbehaving server. */
 const MAX_PAGES = 1000
@@ -65,11 +64,11 @@ async function fetchAllPages(
  * there and incomplete-only relies on the client-side completion filter.
  */
 async function fetchContainerPage(
-  client: AsanaClient,
   source: Exclude<TaskSource, { kind: 'default' }>,
   workspace: string | undefined,
   params: Record<string, any>,
 ): Promise<any[]> {
+  const client = getAsanaClient()
   switch (source.kind) {
     case 'project':
       return (await client.tasks.findByProject(source.gid, params)).data || []
@@ -83,6 +82,10 @@ async function fetchContainerPage(
       const userTaskList = await client.userTaskLists.findByUser('me', workspace!)
       return fetchAllPages(p => client.tasks.findByUserTaskList(userTaskList.gid, p), params)
     }
+    default: {
+      const unhandled: never = source
+      throw new Error(`Unhandled task source: ${JSON.stringify(unhandled)}`)
+    }
   }
 }
 
@@ -92,7 +95,6 @@ async function fetchContainerPage(
  * listings and `--assignee none` filter client-side (clientAssignee=true).
  */
 async function fetchTaskPage(
-  client: AsanaClient,
   source: TaskSource,
   options: TaskListOptions,
   workspace: string | undefined,
@@ -100,8 +102,9 @@ async function fetchTaskPage(
   clientAssignee: boolean,
 ): Promise<any[]> {
   if (source.kind !== 'default') {
-    return fetchContainerPage(client, source, workspace, params)
+    return fetchContainerPage(source, workspace, params)
   }
+  const client = getAsanaClient()
   if (options.assignee && !clientAssignee) {
     const result = await client.tasks.findAll({ ...params, assignee: options.assignee, workspace })
     return result.data || []
@@ -148,14 +151,13 @@ function buildListParams(
 
 /** Apply the client-side assignee and completion filters. */
 async function filterTasks(
-  client: AsanaClient,
   taskList: any[],
   query: TaskListQuery,
   clientAssignee: boolean,
 ): Promise<any[]> {
   let filtered = taskList
   if (clientAssignee && query.assignee) {
-    const assignee = query.assignee === 'me' ? (await client.users.me()).gid : query.assignee
+    const assignee = query.assignee === 'me' ? (await getAsanaClient().users.me()).gid : query.assignee
     filtered = applyAssigneeFilter(filtered, assignee)
   }
   return applyCompletionFilter(filtered, query)
@@ -172,28 +174,32 @@ async function runTaskList(
   const query = parseTaskListQuery(
     source.kind === 'tag' && options.completed ? { ...options, incompleteOnly: true } : options,
   )
-  const config = loadConfig()
-  const workspace = source.kind === 'myTasks'
-    ? resolveExplicitWorkspace(options.workspace, config?.workspace)
-    : options.workspace || config?.workspace
+  const workspace = resolveExplicitWorkspace(options.workspace, loadConfig()?.workspace)
   workspaceRef.value = workspace
   if (source.kind === 'myTasks') {
     requireMyTasksWorkspace(workspace)
   }
-  const client = getAsanaClient()
 
   const clientAssignee = needsClientAssigneeFilter(query, source.kind !== 'default')
   const params = buildListParams(query, options, clientAssignee)
 
-  const fetched = await fetchTaskPage(client, source, options, workspace, params, clientAssignee)
-  const taskList = await filterTasks(client, fetched, query, clientAssignee)
+  const fetched = await fetchTaskPage(source, options, workspace, params, clientAssignee)
+  const taskList = await filterTasks(fetched, query, clientAssignee)
 
   // Resolve --format from the global options. Use getOutputFormat
   // (optsWithGlobals) rather than walking the parent chain by hand — the
   // global option lives on the root command, and the hand-walked lookup
   // here previously stopped one level short and silently ignored --format.
-  const format = getOutputFormat(command)
+  printTaskList(taskList, query, getOutputFormat(command), clientAssignee)
+}
 
+/** Print the summary, the definitive empty state, or the task rows. */
+function printTaskList(
+  taskList: any[],
+  query: TaskListQuery,
+  format: OutputFormat,
+  clientAssignee: boolean,
+): void {
   if (query.count || query.groupBy) {
     const summary = summarizeTasks(taskList, query.groupBy)
     console.log(formatOutput({ summary }, { format, colors: process.stdout.isTTY }))

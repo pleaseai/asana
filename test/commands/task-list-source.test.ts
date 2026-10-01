@@ -203,6 +203,14 @@ describe('task list sources', () => {
     expect(calls).toHaveLength(0)
   })
 
+  test('a workspace listing with an explicitly empty --workspace is a usage error, not a default-workspace listing', async () => {
+    await expect(runList(['--workspace', ''])).rejects.toThrow('__exit__')
+
+    expect(harness.exitSpy).toHaveBeenCalledWith(EXIT_USAGE)
+    expect(stdoutError()).toMatchObject({ code: ERROR_IDS.MISSING_REQUIRED_OPTION, context: { option: '--workspace' } })
+    expect(calls).toHaveLength(0)
+  })
+
   test.each([
     [['--project', '1', '--section', '2'], ['--project', '--section']],
     [['--section', '2', '--tag', '3'], ['--section', '--tag']],
