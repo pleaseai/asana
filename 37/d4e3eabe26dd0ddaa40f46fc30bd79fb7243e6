@@ -1,0 +1,22 @@
+src/lib/cache.ts
+  s_ab4775333d0a73::t_63378be0b0b4c9 77,81
+  s_ab4775333d0a73::t_aa64a56d91aa0b 78-80,83
+test/lib/config-dir.test.ts
+  s_ab4775333d0a73::t_44bc20a5b410b9 5,56-88
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "37d4e3eabe26dd0ddaa40f46fc30bd79fb7243e6",
+  "prompts": {},
+  "sessions": {
+    "s_ab4775333d0a73": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "e914462a-9433-42a5-a91e-8716dd6496e8",
+        "model": "claude-opus-5-5"
+      },
+      "human_author": "Minsu Lee <minsu.lee@pleaseai.dev>"
+    }
+  }
+}
