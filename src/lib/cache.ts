@@ -74,11 +74,11 @@ export class FileCache {
   }
 }
 
-let defaultCacheInstance: FileCache | null = null
-
+/**
+ * Cache in the current config dir. Resolved on every call so it follows
+ * `ASANA_CONFIG_DIR` changes, matching config.json; FileCache holds no
+ * in-memory state, so a fresh instance is cheap.
+ */
 export function getDefaultCache(): FileCache {
-  if (!defaultCacheInstance) {
-    defaultCacheInstance = new FileCache(join(getConfigDir(), 'cache.json'))
-  }
-  return defaultCacheInstance
+  return new FileCache(join(getConfigDir(), 'cache.json'))
 }
