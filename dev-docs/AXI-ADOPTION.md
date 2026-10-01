@@ -119,6 +119,8 @@ and code are in English (repos/ convention).
   degrade to static identity + hint.
 - Contextual next-step hints on list and mutation responses.
 - Per-subcommand `--help` reference (flags, defaults, 2–3 examples).
+- Optional: natural-language command search over the help/schema metadata, modeled
+  on cf's MiniSearch-based `cf cli search` (ADR-007). Not required for the phase.
 
 ### Phase 5 — §7 ambient session integration (optional, last)
 
@@ -142,17 +144,26 @@ low-risk and may be pulled forward right after Phase 1.**
   via `--json '<obj>'` or stdin, mapping directly to the Asana API schema (the
   `batch-update --file` passthrough in `toTaskData` is the existing precedent).
   Convenience flags remain; raw payload is additive (no translation loss).
+  Reference: cf's `--body '<json>'` / `--body @path` and `--file` convention
+  (ADR-007).
 
 ### Phase 7 — Schema introspection (axis 3, D7)
 
 - Expose a machine-readable schema: `asana <cmd> --help --json` or an
   `asana describe` command emitting params, types, required fields, enums as JSON.
 - Lets agents discover the surface at runtime instead of relying on pre-stuffed docs.
+- Reference (ADR-007): cf ships a per-operation `_meta/schemas.json` sidecar behind
+  `cf schema <cmd>`. Derive ours from the Asana OpenAPI spec (251 operations, all
+  with `operationId` + tag); the same metadata later feeds D9 and an optional
+  in-house generator.
 
 ### Phase 8 — Safety rails: dry-run (axis 6, D8)
 
 - `--dry-run` on every mutating command: validate and echo the resolved request
   without side effects, exit 0. High ROI, low risk.
+- Avoid cf's known defects (ADR-007): redact tokens in dry-run output ([cf#103](https://github.com/cloudflare/cf/issues/103));
+  cover **every** mutating command, hand-written or not ([cf#104](https://github.com/cloudflare/cf/issues/104)); a
+  non-interactive confirmation abort exits non-zero ([cf#94](https://github.com/cloudflare/cf/issues/94)).
 - Consider response sanitization against prompt injection in API data (axis 6 → 3)
   as a later, separate step.
 
@@ -161,6 +172,8 @@ low-risk and may be pulled forward right after Phase 1.**
 - An MCP (stdio JSON-RPC) server exposing the same operations as typed tools is the
   largest multi-surface win but a significant architectural decision → its own ADR,
   not folded into these phases.
+- Reference (ADR-007): cf's `cf tools` emits MCP tool definitions from the same
+  schema metadata as D7 — a cheap first step once Phase 7 lands.
 
 ## Risks & safety net
 
@@ -179,3 +192,4 @@ low-risk and may be pulled forward right after Phase 1.**
 - [ADR-002: TOON Output Format](./adr/002-toon-output-format.md)
 - [ADR-003: AXI Agent eXperience Conventions](./adr/003-axi-agent-experience.md)
 - [ADR-004: AXI Home View and Output-Formatter Boundary](./adr/004-axi-home-view-and-formatter.md)
+- [ADR-007: Cloudflare Forge Evaluation](./adr/007-cloudflare-forge-evaluation.md)
