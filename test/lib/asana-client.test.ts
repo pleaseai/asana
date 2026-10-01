@@ -423,4 +423,28 @@ describe('asana-client module', () => {
       }
     })
   })
+
+  describe('single-story wrappers', () => {
+    test('forward get/update/delete to StoriesApi and unwrap data', async () => {
+      process.env.ASANA_ACCESS_TOKEN = 'brokered'
+      const spies = {
+        get: spyOn(Asana.StoriesApi.prototype, 'getStory').mockResolvedValue({ data: { gid: '5', text: 'Hi' } }),
+        update: spyOn(Asana.StoriesApi.prototype, 'updateStory').mockResolvedValue({ data: { gid: '5', text: 'Edited' } }),
+        delete: spyOn(Asana.StoriesApi.prototype, 'deleteStory').mockResolvedValue({ data: {} }),
+      }
+      try {
+        const client = getAsanaClient()
+
+        expect(await client.stories.findById('5', { opt_fields: 'text' })).toEqual({ gid: '5', text: 'Hi' })
+        expect(spies.get).toHaveBeenCalledWith('5', { opt_fields: 'text' })
+        expect(await client.stories.update('5', { text: 'Edited' })).toEqual({ gid: '5', text: 'Edited' })
+        expect(spies.update).toHaveBeenCalledWith({ data: { text: 'Edited' } }, '5', {})
+        expect(await client.stories.delete('5')).toEqual({})
+        expect(spies.delete).toHaveBeenCalledWith('5')
+      }
+      finally {
+        Object.values(spies).forEach(spy => spy.mockRestore())
+      }
+    })
+  })
 })
