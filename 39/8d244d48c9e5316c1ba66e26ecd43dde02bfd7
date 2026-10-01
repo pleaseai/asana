@@ -1,0 +1,19 @@
+.markdown-link-check.json
+  s_9261f900978583::t_e3f1e2a54bb98b 11
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "398d244d48c9e5316c1ba66e26ecd43dde02bfd7",
+  "prompts": {},
+  "sessions": {
+    "s_9261f900978583": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "c47334d1-910c-4f2b-aae5-e5518a0f704f",
+        "model": "claude-opus-5-5"
+      },
+      "human_author": "Minsu Lee <minsu.lee@pleaseai.dev>"
+    }
+  }
+}
