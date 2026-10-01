@@ -1,0 +1,24 @@
+skills/asana-cli/references/commands.md
+  s_f5d31ad3c41295::t_c50058c25421a9 255
+docs/content/en/2.features/3.configuration.md
+  s_f5d31ad3c41295::t_c50058c25421a9 29-34,61-68
+  s_f5d31ad3c41295::t_4da8a68b1b1a19 69
+.env.example
+  s_f5d31ad3c41295::t_c50058c25421a9 8-11
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "67144c7bad0df3438d9435d6548559f8b87c7798",
+  "prompts": {},
+  "sessions": {
+    "s_f5d31ad3c41295": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "de14be95-0f1b-44c1-976e-45ed27f87a8a",
+        "model": "claude-opus-5-5"
+      },
+      "human_author": "Minsu Lee <minsu.lee@pleaseai.dev>"
+    }
+  }
+}
