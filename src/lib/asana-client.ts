@@ -14,6 +14,7 @@ let attachmentsApiInstance: Asana.AttachmentsApi | null = null
 let customFieldsApiInstance: Asana.CustomFieldsApi | null = null
 let typeaheadApiInstance: Asana.TypeaheadApi | null = null
 let teamsApiInstance: Asana.TeamsApi | null = null
+let userTaskListsApiInstance: Asana.UserTaskListsApi | null = null
 
 function initializeApiClient(): typeof Asana.ApiClient.instance {
   if (apiClientInstance) {
@@ -86,6 +87,9 @@ export function getAsanaClient() {
   if (!teamsApiInstance) {
     teamsApiInstance = new Asana.TeamsApi()
   }
+  if (!userTaskListsApiInstance) {
+    userTaskListsApiInstance = new Asana.UserTaskListsApi()
+  }
 
   // Return a wrapper object that matches the old API structure
   return {
@@ -109,6 +113,29 @@ export function getAsanaClient() {
       findByProject: async (projectGid: string, opts: any = {}) => {
         const result = await tasksApiInstance!.getTasksForProject(projectGid, opts)
         return result
+      },
+      findBySection: async (sectionGid: string, opts: any = {}) => {
+        const optsWithLimit = { limit: 100, ...opts }
+        const result = await tasksApiInstance!.getTasksForSection(sectionGid, optsWithLimit)
+        return result
+      },
+      findByTag: async (tagGid: string, opts: any = {}) => {
+        const optsWithLimit = { limit: 100, ...opts }
+        const result = await tasksApiInstance!.getTasksForTag(tagGid, optsWithLimit)
+        return result
+      },
+      findByUserTaskList: async (userTaskListGid: string, opts: any = {}) => {
+        const optsWithLimit = { limit: 100, ...opts }
+        const result = await tasksApiInstance!.getTasksForUserTaskList(userTaskListGid, optsWithLimit)
+        return result
+      },
+      findByCustomId: async (workspaceGid: string, customId: string) => {
+        const result = await tasksApiInstance!.getTaskForCustomID(workspaceGid, customId)
+        return result.data
+      },
+      duplicate: async (taskGid: string, data: any) => {
+        const result = await tasksApiInstance!.duplicateTask({ data }, taskGid, {})
+        return result.data
       },
       update: async (taskGid: string, updateData: any) => {
         const body = { data: updateData }
@@ -338,6 +365,12 @@ export function getAsanaClient() {
         return result.data
       },
     },
+    userTaskLists: {
+      findByUser: async (userGid: string, workspaceGid: string, opts: any = {}) => {
+        const result = await userTaskListsApiInstance!.getUserTaskListForUser(userGid, workspaceGid, opts)
+        return result.data
+      },
+    },
     users: {
       me: async () => {
         const result = await usersApiInstance!.getUser('me', {})
@@ -461,4 +494,5 @@ export function resetClient(): void {
   customFieldsApiInstance = null
   typeaheadApiInstance = null
   teamsApiInstance = null
+  userTaskListsApiInstance = null
 }

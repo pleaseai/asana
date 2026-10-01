@@ -1,4 +1,5 @@
 import { describe, expect, test } from 'bun:test'
+import { ERROR_IDS } from '../../src/constants/errorIds'
 import {
   applyAssigneeFilter,
   applyCompletionFilter,
@@ -6,10 +7,11 @@ import {
   effectiveColumns,
   needsClientAssigneeFilter,
   parseTaskListQuery,
+  resolveTaskSource,
   summarizeTasks,
   toTaskRows,
 } from '../../src/lib/task-list-query'
-import { ValidationError } from '../../src/lib/validators'
+import { UsageError, ValidationError } from '../../src/lib/validators'
 
 const TASKS = [
   { gid: '1', name: 'A', completed: false, assignee: { gid: '10', name: 'Alice' }, due_on: '2026-07-01' },
@@ -64,6 +66,32 @@ describe('needsClientAssigneeFilter', () => {
   test('workspace listing with a concrete assignee stays server-side', () => {
     const query = parseTaskListQuery({ assignee: 'me' })
     expect(needsClientAssigneeFilter(query, false)).toBe(false)
+  })
+})
+
+describe('resolveTaskSource', () => {
+  test('resolves each single source flag', () => {
+    expect(resolveTaskSource({ project: '1' })).toEqual({ kind: 'project', gid: '1' })
+    expect(resolveTaskSource({ section: '2' })).toEqual({ kind: 'section', gid: '2' })
+    expect(resolveTaskSource({ tag: '3' })).toEqual({ kind: 'tag', gid: '3' })
+    expect(resolveTaskSource({ myTasks: true })).toEqual({ kind: 'myTasks' })
+  })
+
+  test('falls back to the default (workspace) source when no flag is given', () => {
+    expect(resolveTaskSource({ assignee: 'me' })).toEqual({ kind: 'default' })
+  })
+
+  test('rejects two or more sources with a usage error listing the flags', () => {
+    let caught: unknown
+    try {
+      resolveTaskSource({ project: '1', tag: '3', myTasks: true })
+    }
+    catch (error) {
+      caught = error
+    }
+    expect(caught).toBeInstanceOf(UsageError)
+    expect((caught as UsageError).errorId).toBe(ERROR_IDS.CONFLICTING_OPTIONS)
+    expect((caught as UsageError).context.flags).toEqual(['--project', '--tag', '--my-tasks'])
   })
 })
 

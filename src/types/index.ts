@@ -22,6 +22,9 @@ export interface TaskListOptions {
   assignee?: string
   workspace?: string
   project?: string
+  section?: string
+  tag?: string
+  myTasks?: boolean
   /** Deprecated: excludes completed tasks (historical behavior). Use `incompleteOnly`. */
   completed?: boolean
   fields?: string

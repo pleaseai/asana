@@ -23,6 +23,17 @@ export class ValidationError extends Error {
 }
 
 /**
+ * A CLI usage error (conflicting, missing, or malformed flags). Exits with
+ * code 2 instead of 1, and is raised before any API call (ADR-003 D5).
+ */
+export class UsageError extends ValidationError {
+  constructor(errorId: ErrorId, message: string, context: Record<string, any> = {}) {
+    super(errorId, message, context)
+    this.name = 'UsageError'
+  }
+}
+
+/**
  * Validate Asana GID format (numeric string)
  */
 export function validateGid(gid: string, fieldName: string = 'GID'): void {

@@ -14,7 +14,7 @@
 import type { TaskListOptions } from '../types'
 import chalk from 'chalk'
 import { ERROR_IDS } from '../constants/errorIds'
-import { ValidationError } from './validators'
+import { UsageError, ValidationError } from './validators'
 
 export const GROUP_BY_FIELDS = ['assignee', 'completed'] as const
 export type GroupByField = (typeof GROUP_BY_FIELDS)[number]
@@ -88,15 +88,49 @@ export function parseTaskListQuery(options: TaskListOptions): TaskListQuery {
   }
 }
 
+export type TaskSource
+  = | { kind: 'project', gid: string }
+    | { kind: 'section', gid: string }
+    | { kind: 'tag', gid: string }
+    | { kind: 'myTasks' }
+    | { kind: 'default' }
+
 /**
- * Whether the assignee filter must run client-side: project listings have no
- * server-side assignee param, and "none" (unassigned) has no server equivalent.
+ * Pick the listing source from `--project`, `--section`, `--tag`, and
+ * `--my-tasks`. They are mutually exclusive; with none given the listing falls
+ * back to the workspace/assignee default. Pure — no API calls.
+ * @throws UsageError(CONFLICTING_OPTIONS) when two or more are combined
  */
-export function needsClientAssigneeFilter(query: TaskListQuery, hasProject: boolean): boolean {
+export function resolveTaskSource(options: TaskListOptions): TaskSource {
+  const candidates: Array<{ flag: string, source?: TaskSource }> = [
+    { flag: '--project', source: options.project ? { kind: 'project', gid: options.project } : undefined },
+    { flag: '--section', source: options.section ? { kind: 'section', gid: options.section } : undefined },
+    { flag: '--tag', source: options.tag ? { kind: 'tag', gid: options.tag } : undefined },
+    { flag: '--my-tasks', source: options.myTasks ? { kind: 'myTasks' } : undefined },
+  ]
+  const given = candidates.filter(candidate => candidate.source)
+  if (given.length > 1) {
+    const flags = given.map(candidate => candidate.flag)
+    console.error(chalk.red(`✗ ${flags.join(', ')} cannot be combined`))
+    console.error(chalk.gray('  Use only one of --project, --section, --tag, or --my-tasks'))
+    throw new UsageError(
+      ERROR_IDS.CONFLICTING_OPTIONS,
+      `${flags.join(', ')} are mutually exclusive`,
+      { flags },
+    )
+  }
+  return given[0]?.source ?? { kind: 'default' }
+}
+
+/**
+ * Whether the assignee filter must run client-side: container listings
+ * (project, section, tag, My Tasks) have no server-side assignee param, and "none" (unassigned) has no server equivalent.
+ */
+export function needsClientAssigneeFilter(query: TaskListQuery, hasContainerSource: boolean): boolean {
   if (!query.assignee) {
     return false
   }
-  return hasProject || query.assignee === 'none'
+  return hasContainerSource || query.assignee === 'none'
 }
 
 function isQueryMode(query: TaskListQuery, clientAssignee: boolean): boolean {
