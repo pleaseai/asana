@@ -3,7 +3,7 @@ import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import Asana from 'asana'
-import { afterEach, beforeEach, describe, expect, mock, test } from 'bun:test'
+import { afterEach, beforeEach, describe, expect, mock, spyOn, test } from 'bun:test'
 import { getAsanaClient, refreshTokenIfNeeded, resetClient } from '../../src/lib/asana-client'
 
 // Point the config module at a per-test temp dir via ASANA_CONFIG_DIR so these
@@ -388,6 +388,39 @@ describe('asana-client module', () => {
 
       const saved = JSON.parse(readFileSync(TEST_CONFIG_FILE, 'utf-8'))
       expect(saved.accessToken).toBe('test-token')
+    })
+  })
+
+  describe('task source and duplicate wrappers', () => {
+    test('forward to the SDK with a default limit and unwrap data where applicable', async () => {
+      process.env.ASANA_ACCESS_TOKEN = 'brokered'
+      const spies = {
+        section: spyOn(Asana.TasksApi.prototype, 'getTasksForSection').mockResolvedValue({ data: ['s'] }),
+        tag: spyOn(Asana.TasksApi.prototype, 'getTasksForTag').mockResolvedValue({ data: ['t'] }),
+        utl: spyOn(Asana.TasksApi.prototype, 'getTasksForUserTaskList').mockResolvedValue({ data: ['u'] }),
+        customId: spyOn(Asana.TasksApi.prototype, 'getTaskForCustomID').mockResolvedValue({ data: { gid: '1' } }),
+        duplicate: spyOn(Asana.TasksApi.prototype, 'duplicateTask').mockResolvedValue({ data: { gid: 'job' } }),
+        userTaskList: spyOn(Asana.UserTaskListsApi.prototype, 'getUserTaskListForUser').mockResolvedValue({ data: { gid: '9' } }),
+      }
+      try {
+        const client = getAsanaClient()
+
+        expect(await client.tasks.findBySection('5', { opt_fields: 'name' })).toEqual({ data: ['s'] })
+        expect(spies.section).toHaveBeenCalledWith('5', { limit: 100, opt_fields: 'name' })
+        expect(await client.tasks.findByTag('6')).toEqual({ data: ['t'] })
+        expect(spies.tag).toHaveBeenCalledWith('6', { limit: 100 })
+        expect(await client.tasks.findByUserTaskList('9')).toEqual({ data: ['u'] })
+        expect(spies.utl).toHaveBeenCalledWith('9', { limit: 100 })
+        expect(await client.tasks.findByCustomId('1', 'PROJ-1')).toEqual({ gid: '1' })
+        expect(spies.customId).toHaveBeenCalledWith('1', 'PROJ-1')
+        expect(await client.tasks.duplicate('7', { name: 'Copy' })).toEqual({ gid: 'job' })
+        expect(spies.duplicate).toHaveBeenCalledWith({ data: { name: 'Copy' } }, '7', {})
+        expect(await client.userTaskLists.findByUser('me', '1')).toEqual({ gid: '9' })
+        expect(spies.userTaskList).toHaveBeenCalledWith('me', '1', {})
+      }
+      finally {
+        Object.values(spies).forEach(spy => spy.mockRestore())
+      }
     })
   })
 })

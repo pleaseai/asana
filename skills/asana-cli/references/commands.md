@@ -12,7 +12,7 @@ object including its `gid` and `permalink_url`.
 - [fetch](#fetch) — resolve an app.asana.com URL to its task/project/comment
 - [auth](#auth) — login / logout / whoami
 - [workspace](#workspace)
-- [task](#task) — create / list / get / update / move / complete / delete
+- [task](#task) — create / list / get / update / move / duplicate / complete / delete
 - [task subtask](#task-subtask)
 - [task dependency / dependent](#task-dependency--dependent)
 - [task comment](#task-comment)
@@ -87,12 +87,23 @@ An `invalid_request: redirect_uri does not match` error means the app is a comma
   - `--due-on <date>` — YYYY-MM-DD (canonical; `--due` is a deprecated alias)
   - `-w, --workspace <workspace>`
   - `-p, --project <project>`
-- `asana task list` — list tasks (needs at least one of workspace/project/assignee)
-  - `-a, --assignee <assignee>` — `me` for current user
+- `asana task list` — list tasks (needs a workspace, or one of project/section/tag/my-tasks)
+  - `-a, --assignee <assignee>` — `me` for current user, `none` for unassigned
   - `-w, --workspace <workspace>`
   - `-p, --project <project>`
-  - `-c, --completed` — include completed (excluded by default)
-- `asana task get <gid>` — full details
+  - `--section <section>` — list one section's tasks
+  - `--tag <tag>` — list tasks with a tag (no server-side completion filter; `--incomplete-only` is applied client-side)
+  - `--my-tasks` — list My Tasks (workspace from `-w` or the configured default)
+  - `--project`, `--section`, `--tag`, `--my-tasks` are mutually exclusive: combining them exits 2 (`CONFLICTING_OPTIONS`) before any API call
+  - `--fields <fields>` — extra fields per task, comma-separated (e.g. `completed,assignee,due_on`)
+  - `--completed-only` / `--incomplete-only` — completion filters
+  - `--count` — output only the total
+  - `--group-by <field>` — counts grouped by `assignee` or `completed`
+  - `-c, --completed` — deprecated; excludes completed tasks (use `--incomplete-only`)
+  - empty result: `toon`/`json` print an empty `tasks` list; `plain` prints `No tasks found`
+- `asana task get [gid]` — full details
+  - `--custom-id <id>` — look up by custom ID instead of GID (give exactly one of `<gid>` / `--custom-id`; otherwise exit 2)
+  - `-w, --workspace <workspace>` — workspace for `--custom-id` (defaults to the configured workspace)
 - `asana task update <gid>` — update fields
   - `-n, --name <name>`
   - `-d, --notes <notes>`
@@ -103,6 +114,10 @@ An `invalid_request: redirect_uri does not match` error means the app is a comma
 - `asana task move <gid>` — move to another project
   - `-p, --project <project>` (required)
   - `-s, --section <section>`
+- `asana task duplicate <gid>` — duplicate a task (async job)
+  - `-n, --name <name>` (required) — name of the new task
+  - `--include <fields>` — comma-separated: `assignee`, `attachments`, `dates`, `dependencies`, `followers`, `notes`, `parent`, `projects`, `subtasks`, `tags` (invalid → exit 2, `INVALID_FIELD_NAME`)
+  - output: `job: { gid, status, new_task_gid?, new_task_name? }` (new task fields only once the job has created it)
 - `asana task complete <gid>` — mark complete
 - `asana task delete <gid>` — permanently delete (destructive)
 

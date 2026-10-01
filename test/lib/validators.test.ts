@@ -10,6 +10,7 @@ import { describe, expect, test } from 'bun:test'
 import { ERROR_IDS } from '../../src/constants/errorIds'
 import {
   MAX_DEPENDENCIES_COMBINED,
+  UsageError,
   VALID_TAG_COLORS,
   validateDependencyLimit,
   validateNoSelfDependency,
@@ -134,5 +135,15 @@ describe('validateTagColor', () => {
       expect(error).toBeInstanceOf(ValidationError)
       expect((error as ValidationError).errorId).toBe(ERROR_IDS.INVALID_TAG_COLOR)
     }
+  })
+})
+
+describe('UsageError', () => {
+  test('is a ValidationError that keeps the error id and context', () => {
+    const error = new UsageError(ERROR_IDS.CONFLICTING_OPTIONS, 'conflict', { flags: ['--a', '--b'] })
+
+    expect(error).toBeInstanceOf(ValidationError)
+    expect(error.errorId).toBe(ERROR_IDS.CONFLICTING_OPTIONS)
+    expect(error.context).toEqual({ flags: ['--a', '--b'] })
   })
 })

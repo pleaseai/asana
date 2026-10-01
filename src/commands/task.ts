@@ -1,23 +1,12 @@
-import type { TaskListOptions, TaskMoveOptions, TaskOptions, TaskUpdateOptions } from '../types'
+import type { TaskMoveOptions, TaskOptions, TaskUpdateOptions } from '../types'
 import type { OutputFormat } from '../utils/formatter'
 import chalk from 'chalk'
 import { Command } from 'commander'
 import { getAsanaClient } from '../lib/asana-client'
-import { toTaskView } from '../lib/asana-views'
-import { emitError, emitResult } from '../lib/axi-output'
+import { emitResult } from '../lib/axi-output'
 import { loadConfig } from '../lib/config'
 import { handleAsanaError, isNotFoundError } from '../lib/error-handler'
-import {
-  applyAssigneeFilter,
-  applyCompletionFilter,
-  buildOptFields,
-  effectiveColumns,
-  GROUP_BY_FIELDS,
-  needsClientAssigneeFilter,
-  parseTaskListQuery,
-  summarizeTasks,
-  toTaskRows,
-} from '../lib/task-list-query'
+import { failValidation } from '../lib/fail-validation'
 import { validateDateFormat, validateGid, validateUpdateFields, ValidationError } from '../lib/validators'
 import { formatOutput, getOutputFormat } from '../utils/formatter'
 import { createTaskCustomFieldCommand } from './custom-field'
@@ -25,52 +14,12 @@ import { createAttachCommand, createAttachmentCommand } from './task-attachment'
 import { createBatchCreateCommand, createBatchDeleteCommand, createBatchUpdateCommand } from './task-batch'
 import { createCommentCommand } from './task-comment'
 import { createDependencyCommand, createDependentCommand } from './task-dependency'
+import { createTaskDuplicateCommand } from './task-duplicate'
 import { createFollowerCommand } from './task-follower'
+import { createTaskGetCommand } from './task-get'
+import { createTaskListCommand } from './task-list'
 import { createSubtaskCommand } from './task-subtask'
 import { createTaskTagCommand } from './task-tag'
-
-/**
- * Exit on a validation failure, emitting a structured error to stdout for
- * machine formats (AXI §6). For `plain` the validator has already written a
- * human-readable message to stderr, so we avoid printing it twice.
- *
- * emitError writes the payload synchronously, so the following process.exit
- * cannot truncate it when stdout is piped.
- */
-function failValidation(error: ValidationError, command: Command): never {
-  const format = getOutputFormat(command)
-  if (format !== 'plain') {
-    emitError({ code: error.errorId, message: error.message, context: error.context }, format)
-  }
-  process.exit(1)
-}
-
-/**
- * Fetch one listing page for `task list`. Assignee filtering happens
- * server-side only in workspace mode with a concrete assignee; project
- * listings and `--assignee none` filter client-side (clientAssignee=true).
- */
-async function fetchTaskPage(
-  client: ReturnType<typeof getAsanaClient>,
-  options: TaskListOptions,
-  workspace: string | undefined,
-  params: Record<string, any>,
-  clientAssignee: boolean,
-): Promise<any[]> {
-  if (options.project) {
-    const result = await client.tasks.findByProject(options.project, params)
-    return result.data || []
-  }
-  if (options.assignee && !clientAssignee) {
-    const result = await client.tasks.findAll({ ...params, assignee: options.assignee, workspace })
-    return result.data || []
-  }
-  if (workspace) {
-    const result = await client.tasks.findAll({ ...params, workspace })
-    return result.data || []
-  }
-  throw new Error('Specify workspace, project, or assignee to list tasks')
-}
 
 export function createTaskCommand(): Command {
   const task = new Command('task')
@@ -150,101 +99,8 @@ export function createTaskCommand(): Command {
       }
     })
 
-  task
-    .command('list')
-    .description('List tasks')
-    .option('-a, --assignee <assignee>', 'Filter by assignee ("me", "none" for unassigned, or user GID)')
-    .option('-w, --workspace <workspace>', 'Workspace GID')
-    .option('-p, --project <project>', 'Project GID')
-    .option('-c, --completed', 'Deprecated: excludes completed tasks (use --incomplete-only)')
-    .option('--fields <fields>', 'Extra fields per task, comma-separated (e.g. completed,assignee,due_on)')
-    .option('--completed-only', 'Only list completed tasks')
-    .option('--incomplete-only', 'Only list incomplete tasks')
-    .option('--count', 'Output only the task count')
-    .option('--group-by <field>', `Output counts grouped by field (${GROUP_BY_FIELDS.join('|')})`)
-    .action(async (options: TaskListOptions, command: Command) => {
-      // Declared outside try so the error handler can report it
-      let workspace: string | undefined
-      try {
-        const query = parseTaskListQuery(options)
-        const client = getAsanaClient()
-        const config = loadConfig()
-        workspace = options.workspace || config?.workspace
-
-        const clientAssignee = needsClientAssigneeFilter(query, !!options.project)
-        const params: Record<string, any> = {}
-        const optFields = buildOptFields(query, clientAssignee)
-        if (optFields) {
-          params.opt_fields = optFields
-        }
-        // completed_since=now is the API's incomplete-only filter; the
-        // deprecated -c/--completed flag historically mapped to it too.
-        if (query.incompleteOnly || options.completed) {
-          params.completed_since = 'now'
-        }
-
-        let taskList = await fetchTaskPage(client, options, workspace, params, clientAssignee)
-
-        if (clientAssignee && query.assignee) {
-          const assignee = query.assignee === 'me' ? (await client.users.me()).gid : query.assignee
-          taskList = applyAssigneeFilter(taskList, assignee)
-        }
-        taskList = applyCompletionFilter(taskList, query)
-
-        // Resolve --format from the global options. Use getOutputFormat
-        // (optsWithGlobals) rather than walking the parent chain by hand — the
-        // global option lives on the root command, and the hand-walked lookup
-        // here previously stopped one level short and silently ignored --format.
-        const format = getOutputFormat(command)
-
-        if (query.count || query.groupBy) {
-          const summary = summarizeTasks(taskList, query.groupBy)
-          console.log(formatOutput({ summary }, { format, colors: process.stdout.isTTY }))
-          return
-        }
-
-        if (taskList.length === 0) {
-          console.log(chalk.yellow('No tasks found'))
-          return
-        }
-
-        const columns = effectiveColumns(query, clientAssignee)
-        const tasks = columns.length > 0 ? toTaskRows(taskList, columns) : taskList
-        const output = formatOutput({ tasks }, { format, colors: process.stdout.isTTY })
-        console.log(output)
-      }
-      catch (error) {
-        if (error instanceof ValidationError) {
-          failValidation(error, command)
-        }
-        handleAsanaError(error, 'Task listing', {
-          Workspace: workspace,
-          Project: options.project,
-          Assignee: options.assignee,
-        }, getOutputFormat(command))
-      }
-    })
-
-  task
-    .command('get')
-    .description('Get task details')
-    .argument('<gid>', 'Task GID')
-    .action(async (gid: string, options: any, command: Command) => {
-      try {
-        const client = getAsanaClient()
-        const taskDetail = await client.tasks.findById(gid)
-
-        // Get format from parent command (root program)
-        const format = (command.parent?.parent?.opts()?.format || 'toon') as OutputFormat
-
-        // Format output based on selected format
-        const output = formatOutput({ task: toTaskView(taskDetail) }, { format, colors: process.stdout.isTTY })
-        console.log(output)
-      }
-      catch (error) {
-        handleAsanaError(error, 'Task retrieval', { 'Task GID': gid }, getOutputFormat(command))
-      }
-    })
+  task.addCommand(createTaskListCommand())
+  task.addCommand(createTaskGetCommand())
 
   task
     .command('update')
@@ -450,6 +306,8 @@ export function createTaskCommand(): Command {
         handleAsanaError(error, 'Task deletion', { 'Task GID': gid }, getOutputFormat(command))
       }
     })
+
+  task.addCommand(createTaskDuplicateCommand())
 
   // Subtask and dependency relationship subcommands
   task.addCommand(createSubtaskCommand())
