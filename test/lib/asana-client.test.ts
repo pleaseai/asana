@@ -1,23 +1,28 @@
 import type { AsanaConfig } from '../../src/types'
-import { existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
-import { homedir } from 'node:os'
+import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
+import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import Asana from 'asana'
 import { afterEach, beforeEach, describe, expect, mock, test } from 'bun:test'
 import { getAsanaClient, refreshTokenIfNeeded, resetClient } from '../../src/lib/asana-client'
 
-const TEST_CONFIG_DIR = join(homedir(), '.asana-cli')
-const TEST_CONFIG_FILE = join(TEST_CONFIG_DIR, 'config.json')
+// Point the config module at a per-test temp dir via ASANA_CONFIG_DIR so these
+// tests never read or delete the developer's real ~/.asana-cli.
+let tempRoot: string | undefined
+let TEST_CONFIG_DIR: string
+let TEST_CONFIG_FILE: string
+const originalConfigDir = process.env.ASANA_CONFIG_DIR
 
 describe('asana-client module', () => {
   beforeEach(() => {
     // Reset client before each test
     resetClient()
 
-    // Clean up config
-    if (existsSync(TEST_CONFIG_DIR)) {
-      rmSync(TEST_CONFIG_DIR, { recursive: true, force: true })
-    }
+    // Config dir starts absent inside a fresh temp root; tests mkdir it on demand
+    tempRoot = mkdtempSync(join(tmpdir(), 'asana-cli-client-'))
+    TEST_CONFIG_DIR = join(tempRoot, 'config')
+    TEST_CONFIG_FILE = join(TEST_CONFIG_DIR, 'config.json')
+    process.env.ASANA_CONFIG_DIR = TEST_CONFIG_DIR
 
     // Set up OAuth credentials for tests
     process.env.ASANA_CLIENT_ID = 'test-client-id'
@@ -28,9 +33,17 @@ describe('asana-client module', () => {
   })
 
   afterEach(() => {
-    // Clean up config
-    if (existsSync(TEST_CONFIG_DIR)) {
-      rmSync(TEST_CONFIG_DIR, { recursive: true, force: true })
+    // Remove only the temp dir created in beforeEach, then restore the override.
+    // Guarded so a failed mkdtempSync surfaces its own error, not a TypeError here.
+    if (tempRoot) {
+      rmSync(tempRoot, { recursive: true, force: true })
+      tempRoot = undefined
+    }
+    if (originalConfigDir === undefined) {
+      delete process.env.ASANA_CONFIG_DIR
+    }
+    else {
+      process.env.ASANA_CONFIG_DIR = originalConfigDir
     }
     delete process.env.ASANA_CLIENT_ID
     delete process.env.ASANA_CLIENT_SECRET

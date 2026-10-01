@@ -1,3 +1,6 @@
+import { mkdtempSync, rmSync } from 'node:fs'
+import { tmpdir } from 'node:os'
+import { join } from 'node:path'
 import { afterEach, beforeEach, describe, expect, spyOn, test } from 'bun:test'
 import { Command } from 'commander'
 import {
@@ -187,10 +190,15 @@ describe('api command execution', () => {
   let logs: string[]
   let exitSpy: ReturnType<typeof spyOn>
   let errorSpy: ReturnType<typeof spyOn>
+  let configDir: string
   const originalFetch = globalThis.fetch
   const originalLog = console.log
+  const originalConfigDir = process.env.ASANA_CONFIG_DIR
 
   beforeEach(() => {
+    // Empty config dir so a real ~/.asana-cli token can't override TOKEN
+    configDir = mkdtempSync(join(tmpdir(), 'asana-cli-api-'))
+    process.env.ASANA_CONFIG_DIR = configDir
     process.env.ASANA_ACCESS_TOKEN = TOKEN
     process.env.ASANA_API_BASE_URL = BASE
     fetchCalls = []
@@ -217,6 +225,13 @@ describe('api command execution', () => {
     errorSpy.mockRestore()
     delete process.env.ASANA_ACCESS_TOKEN
     delete process.env.ASANA_API_BASE_URL
+    rmSync(configDir, { recursive: true, force: true })
+    if (originalConfigDir === undefined) {
+      delete process.env.ASANA_CONFIG_DIR
+    }
+    else {
+      process.env.ASANA_CONFIG_DIR = originalConfigDir
+    }
   })
 
   function runApi(args: string[]): Promise<Command> {
