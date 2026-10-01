@@ -1,0 +1,33 @@
+test/commands/task-comment-story.test.ts
+  s_1262cca4218fd4::t_f3a6a028762658 1-89
+src/commands/task-comment.ts
+  s_1262cca4218fd4::t_90c3a169e41658 91-92,95-117
+  s_1262cca4218fd4::t_7bdd4fb9399770 5,7
+  s_dab3d34c42e545::t_f291189f500fb8 118
+src/lib/asana-client.ts
+  s_1262cca4218fd4::t_533c22dd5a679b 246-249
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "6e5341811a79ee428cf95d61c92336876c8e32a9",
+  "prompts": {},
+  "sessions": {
+    "s_1262cca4218fd4": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "f04c7c6b-c42a-4091-b81b-a086d7fcb2b1",
+        "model": "claude-opus-5-5"
+      },
+      "human_author": "Minsu Lee <minsu.lee@pleaseai.dev>"
+    },
+    "s_dab3d34c42e545": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "3f1ca733-04e2-4664-aec0-1243ebe91abc",
+        "model": "claude-opus-5-5"
+      },
+      "human_author": "Minsu Lee <minsu.lee@pleaseai.dev>"
+    }
+  }
+}
