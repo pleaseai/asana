@@ -1,0 +1,160 @@
+import * as nodeFs from 'node:fs'
+import { afterAll, afterEach, beforeEach, describe, expect, mock, spyOn, test } from 'bun:test'
+import { Command } from 'commander'
+import { ERROR_IDS } from '../../src/constants/errorIds'
+import * as realClient from '../../src/lib/asana-client'
+import * as realConfig from '../../src/lib/config'
+
+// Bun's `mock.restore()` does NOT revert `mock.module()` registrations —
+// re-install the real modules when this file finishes.
+const REAL_CLIENT = { ...realClient }
+const REAL_CONFIG = { ...realConfig }
+
+const EXIT_FAILURE = 1
+const EXIT_USAGE = 2
+const JOB_WITH_TASK = { gid: '900', status: 'succeeded', new_task: { gid: '901', name: 'Copy' } }
+const JOB_PENDING = { gid: '900', status: 'in_progress', new_task: null }
+
+/** `task duplicate <gid> --name <name> [--include <fields>]` (issue #106). */
+describe('task duplicate', () => {
+  let calls: Array<{ gid: string, data: any }>
+  let exitSpy: ReturnType<typeof spyOn>
+  let errorSpy: ReturnType<typeof spyOn>
+  let writeSpy: ReturnType<typeof spyOn>
+  let logs: string[]
+  const originalLog = console.log
+
+  beforeEach(() => {
+    calls = []
+    logs = []
+    console.log = (...args: any[]) => {
+      logs.push(args.join(' '))
+    }
+    exitSpy = spyOn(process, 'exit').mockImplementation((() => {
+      throw new Error('__exit__')
+    }) as never)
+    errorSpy = spyOn(console, 'error').mockImplementation(() => {})
+    writeSpy = spyOn(nodeFs, 'writeSync').mockImplementation(() => 0)
+  })
+
+  afterEach(() => {
+    console.log = originalLog
+    exitSpy.mockRestore()
+    errorSpy.mockRestore()
+    writeSpy.mockRestore()
+    mock.restore()
+  })
+
+  afterAll(() => {
+    mock.module('../../src/lib/asana-client', () => REAL_CLIENT)
+    mock.module('../../src/lib/config', () => REAL_CONFIG)
+  })
+
+  async function runDuplicate(args: string[], opts: { job?: any, failWith?: any, format?: string } = {}): Promise<string> {
+    mock.module('../../src/lib/asana-client', () => ({
+      getAsanaClient: () => ({
+        tasks: {
+          duplicate: async (gid: string, data: any) => {
+            calls.push({ gid, data })
+            if (opts.failWith) {
+              throw opts.failWith
+            }
+            return opts.job ?? JOB_WITH_TASK
+          },
+        },
+      }),
+    }))
+    mock.module('../../src/lib/config', () => ({
+      loadConfig: () => ({ workspace: '123' }),
+    }))
+
+    const { createTaskCommand } = await import('../../src/commands/task')
+    const program = new Command()
+    program.name('asana').option('-f, --format <type>', 'Output format', 'toon')
+    program.addCommand(createTaskCommand())
+
+    await program.parseAsync(['--format', opts.format ?? 'json', 'task', 'duplicate', ...args], { from: 'user' })
+    return logs.join('\n')
+  }
+
+  function stdoutError(): any {
+    return JSON.parse(String(writeSpy.mock.calls[0]?.[1]))
+  }
+
+  test('is registered with a required --name', async () => {
+    const { createTaskCommand } = await import('../../src/commands/task')
+    const command = createTaskCommand().commands.find(cmd => cmd.name() === 'duplicate')!
+
+    expect(command).toBeDefined()
+    expect(command.options.find(opt => opt.long === '--name')?.mandatory).toBe(true)
+  })
+
+  test('sends name and the comma-separated include list, trimming whitespace', async () => {
+    await runDuplicate(['42', '--name', 'Copy', '--include', 'notes, subtasks ,'])
+
+    expect(calls).toEqual([{ gid: '42', data: { name: 'Copy', include: 'notes,subtasks' } }])
+  })
+
+  test('omits include when the flag is absent', async () => {
+    await runDuplicate(['42', '--name', 'Copy'])
+
+    expect(calls[0]?.data).toEqual({ name: 'Copy' })
+  })
+
+  test('emits the job with the new task for machine formats', async () => {
+    const out = await runDuplicate(['42', '--name', 'Copy'])
+
+    expect(JSON.parse(out)).toEqual({
+      job: { gid: '900', status: 'succeeded', new_task_gid: '901', new_task_name: 'Copy' },
+    })
+  })
+
+  test('omits the new task fields while the job has no new task', async () => {
+    const out = await runDuplicate(['42', '--name', 'Copy'], { job: JOB_PENDING })
+
+    expect(JSON.parse(out)).toEqual({ job: { gid: '900', status: 'in_progress' } })
+  })
+
+  test('plain output names the job and the new task', async () => {
+    const out = await runDuplicate(['42', '--name', 'Copy'], { format: 'plain' })
+
+    expect(out).toContain('Duplicate job 900 succeeded (new task 901)')
+  })
+
+  test('plain output drops the parenthetical without a new task', async () => {
+    const out = await runDuplicate(['42', '--name', 'Copy'], { format: 'plain', job: JOB_PENDING })
+
+    expect(out).toContain('Duplicate job 900 in_progress')
+    expect(out).not.toContain('new task')
+  })
+
+  test.each([
+    ['an unknown value', 'notes,bogus'],
+    ['an empty list', ' , '],
+  ])('%s in --include is a usage error before any API call', async (_label, include) => {
+    await expect(runDuplicate(['42', '--name', 'Copy', '--include', include])).rejects.toThrow('__exit__')
+
+    expect(exitSpy).toHaveBeenCalledWith(EXIT_USAGE)
+    const payload = stdoutError()
+    expect(payload.code).toBe(ERROR_IDS.INVALID_FIELD_NAME)
+    expect(payload.context.allowed).toContain('subtasks')
+    expect(calls).toHaveLength(0)
+  })
+
+  test('a non-numeric gid exits 1 before any API call', async () => {
+    await expect(runDuplicate(['abc', '--name', 'Copy'])).rejects.toThrow('__exit__')
+
+    expect(exitSpy).toHaveBeenCalledWith(EXIT_FAILURE)
+    expect(stdoutError().code).toBe(ERROR_IDS.INVALID_TASK_GID)
+    expect(calls).toHaveLength(0)
+  })
+
+  test('an API error is reported as a structured Task duplication failure', async () => {
+    await expect(runDuplicate(['42', '--name', 'Copy'], { failWith: { status: 403 } })).rejects.toThrow('__exit__')
+
+    expect(exitSpy).toHaveBeenCalledWith(EXIT_FAILURE)
+    const payload = stdoutError()
+    expect(payload.code).toBe(ERROR_IDS.PERMISSION_DENIED)
+    expect(payload.context).toEqual({ 'Task GID': '42', 'Name': 'Copy' })
+  })
+})

@@ -177,6 +177,7 @@ describe('task commands integration', () => {
       'move',
       'complete',
       'delete',
+      'duplicate',
       'subtask',
       'dependency',
       'dependent',

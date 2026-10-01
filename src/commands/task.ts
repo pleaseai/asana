@@ -14,6 +14,7 @@ import { createAttachCommand, createAttachmentCommand } from './task-attachment'
 import { createBatchCreateCommand, createBatchDeleteCommand, createBatchUpdateCommand } from './task-batch'
 import { createCommentCommand } from './task-comment'
 import { createDependencyCommand, createDependentCommand } from './task-dependency'
+import { createTaskDuplicateCommand } from './task-duplicate'
 import { createFollowerCommand } from './task-follower'
 import { createTaskGetCommand } from './task-get'
 import { createTaskListCommand } from './task-list'
@@ -305,6 +306,8 @@ export function createTaskCommand(): Command {
         handleAsanaError(error, 'Task deletion', { 'Task GID': gid }, getOutputFormat(command))
       }
     })
+
+  task.addCommand(createTaskDuplicateCommand())
 
   // Subtask and dependency relationship subcommands
   task.addCommand(createSubtaskCommand())
