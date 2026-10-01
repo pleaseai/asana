@@ -141,7 +141,7 @@ Asana caps combined dependencies + dependents at 50.
 
 - `asana task comment add <task-gid> <text>` `[--html]` (rich text; auto-wraps in `<body>`)
 - `asana task comment list <task-gid>` — user comments only (excludes system events)
-- `asana task comment get <story-gid>` — one comment by its story GID
+- `asana task comment get <story-gid>` — one comment by its story GID; a system-event story (not a user comment) → `NOT_A_COMMENT`, exit 1
 - `asana task comment update <story-gid> --text <text>` — replace the text; missing/blank `--text` → `MISSING_REQUIRED_OPTION`, exit 2
 - `asana task comment delete <story-gid>` — idempotent: already deleted → `status: already_deleted`, exit 0
 

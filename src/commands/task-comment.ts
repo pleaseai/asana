@@ -3,7 +3,7 @@ import chalk from 'chalk'
 import { Command } from 'commander'
 import { ERROR_IDS } from '../constants/errorIds'
 import { getAsanaClient } from '../lib/asana-client'
-import { COMMENT_FIELDS, toCommentView, toCommentViews } from '../lib/asana-views'
+import { COMMENT_FIELDS, COMMENT_SUBTYPE, toCommentView, toCommentViews } from '../lib/asana-views'
 import { emitResult } from '../lib/axi-output'
 import { handleAsanaError, isNotFoundError } from '../lib/error-handler'
 import { failValidation } from '../lib/fail-validation'
@@ -111,6 +111,23 @@ function requireText(text: string | undefined): string {
   return text
 }
 
+/**
+ * Stories also carry system events (assignments, status changes). Keep
+ * `comment get` consistent with `comment list` by accepting user comments only.
+ * @throws ValidationError(NOT_A_COMMENT) for any other story
+ */
+function requireCommentStory(storyGid: string, story: any): any {
+  if (story?.resource_subtype !== COMMENT_SUBTYPE) {
+    const message = `Story ${storyGid} is not a comment`
+    console.error(chalk.red(`✗ ${message}`))
+    throw new ValidationError(ERROR_IDS.NOT_A_COMMENT, message, {
+      gid: storyGid,
+      resource_subtype: story?.resource_subtype,
+    })
+  }
+  return story
+}
+
 function createCommentGetCommand(): Command {
   return new Command('get')
     .description('Get a single comment')
@@ -120,7 +137,7 @@ function createCommentGetCommand(): Command {
         validateGid(storyGid, 'Comment GID')
 
         const client = getAsanaClient()
-        const story = await client.stories.findById(storyGid, COMMENT_FIELDS)
+        const story = requireCommentStory(storyGid, await client.stories.findById(storyGid, COMMENT_FIELDS))
 
         const format = getOutputFormat(command)
         const output = formatOutput({ comment: toCommentView(story) }, { format, colors: process.stdout.isTTY })

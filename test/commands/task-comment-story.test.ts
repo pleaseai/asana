@@ -33,7 +33,7 @@ describe('task comment get/update/delete', () => {
   })
 
   /** Run `task comment <args>`; `failWith` makes every story call throw it. */
-  async function runComment(args: string[], opts: { failWith?: any, format?: string } = {}): Promise<string> {
+  async function runComment(args: string[], opts: { failWith?: any, format?: string, story?: any } = {}): Promise<string> {
     const record = (method: string, result: any) => async (...callArgs: any[]) => {
       calls.push({ method, args: callArgs })
       if (opts.failWith) {
@@ -45,7 +45,7 @@ describe('task comment get/update/delete', () => {
       {
         getAsanaClient: () => ({
           stories: {
-            findById: record('findById', STORY),
+            findById: record('findById', opts.story ?? STORY),
             update: record('update', { ...STORY, text: 'Edited' }),
             delete: record('delete', {}),
           },
@@ -87,6 +87,18 @@ describe('task comment get/update/delete', () => {
 
       expect(harness.exitSpy).toHaveBeenCalledWith(EXIT_FAILURE)
       expect(harness.stdoutError().error).toBe('Resource not found')
+    })
+
+    test('a non-comment (system) story is a structured error, not a comment', async () => {
+      const systemStory = { ...STORY, text: 'Ada assigned to you', resource_subtype: 'assigned' }
+
+      await expect(runComment(['get', STORY_GID], { story: systemStory })).rejects.toThrow('__exit__')
+
+      expect(harness.exitSpy).toHaveBeenCalledWith(EXIT_FAILURE)
+      const payload = harness.stdoutError()
+      expect(payload.code).toBe(ERROR_IDS.NOT_A_COMMENT)
+      expect(payload.context).toEqual({ gid: STORY_GID, resource_subtype: 'assigned' })
+      expect(harness.logs).toHaveLength(0)
     })
   })
 
