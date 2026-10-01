@@ -132,9 +132,11 @@ describe('main() error path (subprocess)', () => {
 
     try {
       const proc = Bun.spawn(['bun', HOOK_PATH], {
-        // HOME points loadConfigStrict at the corrupt file; cwd avoids the repo
-        // .env; empty token keeps the credential path from masking the error.
-        env: { ...process.env, HOME: home, ASANA_ACCESS_TOKEN: '' },
+        // HOME and ASANA_CONFIG_DIR point loadConfigStrict at the corrupt file
+        // (an inherited ASANA_CONFIG_DIR would otherwise win over HOME); cwd
+        // avoids the repo .env; empty token keeps the credential path from
+        // masking the error.
+        env: { ...process.env, HOME: home, ASANA_CONFIG_DIR: join(home, '.asana-cli'), ASANA_ACCESS_TOKEN: '' },
         cwd: tmpdir(),
         stdin: 'ignore',
         stdout: 'pipe',
