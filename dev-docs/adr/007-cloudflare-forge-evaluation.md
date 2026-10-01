@@ -12,9 +12,9 @@ Accepted
 
 Cloudflare open-sourced [Forge](https://github.com/cloudflare/forge)
 (2026-09-28), a schema-first OpenAPI code-generation framework whose first
-output is the `cf` CLI ([blog](https://blog.cloudflare.com/forge-open-source-generation-pipeline)).
+output is the `cf` CLI ([blog](https://blog.cloudflare.com/forge-open-source-generation-pipeline/)).
 Asana publishes an OpenAPI 3.0 spec
-([`Asana/openapi` `defs/asana_oas.yaml`](https://github.com/Asana/openapi)) with
+([`Asana/openapi` `defs/asana_oas.yaml` @ `a200645`](https://github.com/Asana/openapi/blob/a200645f70c76df4a8f1a2915caaea0bfcbcb146/defs/asana_oas.yaml)) with
 **251 operations over 177 paths**, every operation carrying an `operationId` and
 a tag. This CLI hand-writes ~14 commander command modules and reaches the
 remaining endpoints only through `asana api` ([ADR-006](./006-raw-api-passthrough-command.md)).
@@ -125,8 +125,8 @@ and at least one non-Cloudflare spec example exists.
 
 - [Forge repository](https://github.com/cloudflare/forge) ·
   [cf repository](https://github.com/cloudflare/cf)
-- [Forge: open-source generation pipeline (blog)](https://blog.cloudflare.com/forge-open-source-generation-pipeline)
-- [cf CLI launch (blog)](https://blog.cloudflare.com/cloudflare-cf-cli-launch)
-- [Asana OpenAPI spec](https://github.com/Asana/openapi)
+- [Forge: open-source generation pipeline (blog)](https://blog.cloudflare.com/forge-open-source-generation-pipeline/)
+- [cf CLI launch (blog)](https://blog.cloudflare.com/cloudflare-cf-cli-launch/)
+- [Asana OpenAPI spec @ `a200645`](https://github.com/Asana/openapi/blob/a200645f70c76df4a8f1a2915caaea0bfcbcb146/defs/asana_oas.yaml)
 - [AXI Adoption Plan](../AXI-ADOPTION.md)
 - [ADR-003](./003-axi-agent-experience.md) · [ADR-006](./006-raw-api-passthrough-command.md)
