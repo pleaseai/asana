@@ -95,7 +95,7 @@ Known cf defects to avoid explicitly:
 - cf#100 — `<unknown> --help` exits 0 → unknown command is a usage error (exit 2, D5).
 - cf#105 — empty stdout with exit 0 → definitive empty states (Phase 2).
 - cf#156 — `FORCE_COLOR` wraps JSON in ANSI → machine formats must never emit
-  colour codes, regardless of colour env vars.
+  color codes, regardless of color env vars.
 
 ## Consequences
 
