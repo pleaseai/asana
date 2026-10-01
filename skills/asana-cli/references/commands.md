@@ -252,6 +252,7 @@ All batch commands print a summary: total / succeeded / failed (+ failure detail
 - `ASANA_ACCESS_TOKEN` — PAT; used instead of config file if set
 - `ASANA_WORKSPACE` — default workspace GID
 - `ASANA_CLIENT_ID` / `ASANA_CLIENT_SECRET` — OAuth app credentials (for `auth login` OAuth flow)
+- `ASANA_CONFIG_DIR` — directory holding `config.json` and `cache.json` (default `~/.asana-cli`)
 
 **Workspace resolution priority:** `-w` option → config default → `ASANA_WORKSPACE`.
 If none set, commands needing a workspace fail with:
