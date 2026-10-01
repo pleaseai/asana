@@ -2,8 +2,9 @@ import type { CommentAddOptions } from '../types'
 import chalk from 'chalk'
 import { Command } from 'commander'
 import { getAsanaClient } from '../lib/asana-client'
-import { COMMENT_FIELDS, toCommentViews } from '../lib/asana-views'
+import { COMMENT_FIELDS, toCommentView, toCommentViews } from '../lib/asana-views'
 import { handleAsanaError } from '../lib/error-handler'
+import { failValidation } from '../lib/fail-validation'
 import { validateGid, ValidationError } from '../lib/validators'
 import { formatOutput, getOutputFormat } from '../utils/formatter'
 
@@ -87,5 +88,31 @@ export function createCommentCommand(): Command {
       }
     })
 
+  comment.addCommand(createCommentGetCommand())
+
   return comment
+}
+
+function createCommentGetCommand(): Command {
+  return new Command('get')
+    .description('Get a single comment')
+    .argument('<story-gid>', 'Comment (story) GID')
+    .action(async (storyGid: string, _options: any, command: Command) => {
+      try {
+        validateGid(storyGid, 'Comment GID')
+
+        const client = getAsanaClient()
+        const story = await client.stories.findById(storyGid, COMMENT_FIELDS)
+
+        const format = getOutputFormat(command)
+        const output = formatOutput({ comment: toCommentView(story) }, { format, colors: process.stdout.isTTY })
+        console.log(output)
+      }
+      catch (error) {
+        if (error instanceof ValidationError) {
+          failValidation(error, command)
+        }
+        handleAsanaError(error, 'Comment retrieval', { 'Comment GID': storyGid }, getOutputFormat(command))
+      }
+    })
 }

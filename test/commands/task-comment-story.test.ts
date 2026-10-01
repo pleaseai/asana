@@ -1,0 +1,89 @@
+import { encodeToon } from '@pleaseai/cli-toolkit/output'
+import { beforeEach, describe, expect, test } from 'bun:test'
+import { ERROR_IDS } from '../../src/constants/errorIds'
+import { useTaskCliHarness } from './helpers/task-cli-harness'
+
+const EXIT_FAILURE = 1
+const STORY_GID = '555'
+const STORY = {
+  gid: STORY_GID,
+  text: 'Looks good',
+  created_at: '2026-10-01T00:00:00.000Z',
+  created_by: { name: 'Ada' },
+  resource_subtype: 'comment_added',
+}
+const COMMENT_VIEW = {
+  gid: STORY_GID,
+  created_at: '2026-10-01T00:00:00.000Z',
+  created_by: 'Ada',
+  text: 'Looks good',
+}
+const NOT_FOUND = { status: 404 }
+
+interface StoryCall { method: string, args: any[] }
+
+/** `task comment get|update|delete <story-gid>` (issue #108). */
+describe('task comment get/update/delete', () => {
+  let calls: StoryCall[]
+  const harness = useTaskCliHarness()
+
+  beforeEach(() => {
+    calls = []
+  })
+
+  /** Run `task comment <args>`; `failWith` makes every story call throw it. */
+  async function runComment(args: string[], opts: { failWith?: any, format?: string } = {}): Promise<string> {
+    const record = (method: string, result: any) => async (...callArgs: any[]) => {
+      calls.push({ method, args: callArgs })
+      if (opts.failWith) {
+        throw opts.failWith
+      }
+      return result
+    }
+    harness.mockModules(
+      {
+        getAsanaClient: () => ({
+          stories: {
+            findById: record('findById', STORY),
+          },
+        }),
+      },
+      { loadConfig: () => ({ workspace: '123' }) },
+    )
+
+    return harness.runTask(['comment', ...args], opts.format)
+  }
+
+  describe('get', () => {
+    test('fetches the story with comment fields and emits the comment view', async () => {
+      const out = await runComment(['get', STORY_GID])
+
+      expect(calls).toHaveLength(1)
+      expect(calls[0]?.method).toBe('findById')
+      expect(calls[0]?.args[0]).toBe(STORY_GID)
+      expect(calls[0]?.args[1]?.opt_fields).toContain('created_by.name')
+      expect(JSON.parse(out)).toEqual({ comment: COMMENT_VIEW })
+    })
+
+    test('emits TOON identical to the encoded payload', async () => {
+      const out = await runComment(['get', STORY_GID], { format: 'toon' })
+
+      expect(out).toBe(encodeToon({ comment: COMMENT_VIEW }))
+    })
+
+    test('an invalid story GID fails before any API call', async () => {
+      await expect(runComment(['get', 'abc'])).rejects.toThrow('__exit__')
+
+      expect(harness.exitSpy).toHaveBeenCalledWith(EXIT_FAILURE)
+      expect(harness.stdoutError().code).toBe(ERROR_IDS.INVALID_TASK_GID)
+      expect(calls).toHaveLength(0)
+    })
+
+    test('a missing story is a structured not-found error', async () => {
+      await expect(runComment(['get', STORY_GID], { failWith: NOT_FOUND })).rejects.toThrow('__exit__')
+
+      expect(harness.exitSpy).toHaveBeenCalledWith(EXIT_FAILURE)
+      expect(harness.stdoutError().error).toBe('Resource not found')
+    })
+  })
+})

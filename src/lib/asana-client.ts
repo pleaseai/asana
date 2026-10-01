@@ -243,6 +243,10 @@ export function getAsanaClient() {
         const result = await storiesApiInstance!.getStoriesForTask(taskGid, optsWithLimit)
         return result
       },
+      findById: async (storyGid: string, opts: any = {}) => {
+        const result = await storiesApiInstance!.getStory(storyGid, opts)
+        return result.data
+      },
     },
     tags: {
       create: async (tagData: Record<string, any>) => {
