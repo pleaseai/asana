@@ -149,7 +149,7 @@ function createCommentUpdateCommand(): Command {
         const result = await client.stories.update(storyGid, { text })
 
         emitResult(
-          { comment: { status: 'success', gid: result.gid ?? storyGid, text: result.text ?? text } },
+          { comment: { status: 'success', gid: storyGid, text: result.text } },
           `✓ Comment ${storyGid} updated`,
           getOutputFormat(command),
         )
