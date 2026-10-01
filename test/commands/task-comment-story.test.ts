@@ -47,6 +47,7 @@ describe('task comment get/update/delete', () => {
           stories: {
             findById: record('findById', STORY),
             update: record('update', { ...STORY, text: 'Edited' }),
+            delete: record('delete', {}),
           },
         }),
       },
@@ -131,6 +132,42 @@ describe('task comment get/update/delete', () => {
 
       expect(harness.exitSpy).toHaveBeenCalledWith(EXIT_FAILURE)
       expect(harness.stdoutError().error).toBe('Resource not found')
+    })
+  })
+
+  describe('delete', () => {
+    test('deletes the story and reports success', async () => {
+      const out = await runComment(['delete', STORY_GID])
+
+      expect(calls).toEqual([{ method: 'delete', args: [STORY_GID] }])
+      expect(JSON.parse(out)).toEqual({ comment: { status: 'success', gid: STORY_GID, deleted: true } })
+    })
+
+    test('an already-deleted story is a no-op success (exit 0)', async () => {
+      const out = await runComment(['delete', STORY_GID], { failWith: NOT_FOUND })
+
+      expect(harness.exitSpy).not.toHaveBeenCalled()
+      expect(JSON.parse(out)).toEqual({ comment: { status: 'already_deleted', gid: STORY_GID } })
+    })
+
+    test('plain output names the no-op', async () => {
+      const out = await runComment(['delete', STORY_GID], { failWith: NOT_FOUND, format: 'plain' })
+
+      expect(out).toContain(`Comment ${STORY_GID} already deleted (no-op)`)
+    })
+
+    test('other API errors still fail', async () => {
+      await expect(runComment(['delete', STORY_GID], { failWith: { status: 403 } })).rejects.toThrow('__exit__')
+
+      expect(harness.exitSpy).toHaveBeenCalledWith(EXIT_FAILURE)
+      expect(harness.stdoutError().code).toBe(ERROR_IDS.PERMISSION_DENIED)
+    })
+
+    test('an invalid story GID fails before any API call', async () => {
+      await expect(runComment(['delete', 'abc'])).rejects.toThrow('__exit__')
+
+      expect(harness.exitSpy).toHaveBeenCalledWith(EXIT_FAILURE)
+      expect(calls).toHaveLength(0)
     })
   })
 })

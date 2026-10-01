@@ -5,7 +5,7 @@ import { ERROR_IDS } from '../constants/errorIds'
 import { getAsanaClient } from '../lib/asana-client'
 import { COMMENT_FIELDS, toCommentView, toCommentViews } from '../lib/asana-views'
 import { emitResult } from '../lib/axi-output'
-import { handleAsanaError } from '../lib/error-handler'
+import { handleAsanaError, isNotFoundError } from '../lib/error-handler'
 import { failValidation } from '../lib/fail-validation'
 import { UsageError, validateGid, ValidationError } from '../lib/validators'
 import { formatOutput, getOutputFormat } from '../utils/formatter'
@@ -92,6 +92,7 @@ export function createCommentCommand(): Command {
 
   comment.addCommand(createCommentGetCommand())
   comment.addCommand(createCommentUpdateCommand())
+  comment.addCommand(createCommentDeleteCommand())
 
   return comment
 }
@@ -158,6 +159,40 @@ function createCommentUpdateCommand(): Command {
           failValidation(error, command)
         }
         handleAsanaError(error, 'Comment update', { 'Comment GID': storyGid }, getOutputFormat(command))
+      }
+    })
+}
+
+function createCommentDeleteCommand(): Command {
+  return new Command('delete')
+    .description('Delete a comment')
+    .argument('<story-gid>', 'Comment (story) GID')
+    .action(async (storyGid: string, _options: any, command: Command) => {
+      try {
+        validateGid(storyGid, 'Comment GID')
+        const client = getAsanaClient()
+        await client.stories.delete(storyGid)
+
+        emitResult(
+          { comment: { status: 'success', gid: storyGid, deleted: true } },
+          `✓ Comment ${storyGid} deleted`,
+          getOutputFormat(command),
+        )
+      }
+      catch (error) {
+        if (error instanceof ValidationError) {
+          failValidation(error, command)
+        }
+        // Idempotent delete: an already-gone comment is a no-op success (AXI §6).
+        if (isNotFoundError(error)) {
+          emitResult(
+            { comment: { status: 'already_deleted', gid: storyGid } },
+            `✓ Comment ${storyGid} already deleted (no-op)`,
+            getOutputFormat(command),
+          )
+          return
+        }
+        handleAsanaError(error, 'Comment deletion', { 'Comment GID': storyGid }, getOutputFormat(command))
       }
     })
 }
