@@ -1,0 +1,19 @@
+dev-docs/adr/007-cloudflare-forge-evaluation.md
+  s_c65f6f83136ca4::t_6a22d8b61c0ee6 98
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "fc8cd861951baec56ec2215a93b2495fca272e2f",
+  "prompts": {},
+  "sessions": {
+    "s_c65f6f83136ca4": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "940d07a2-d346-4be7-8039-1158364a7d06",
+        "model": "claude-opus-5-5"
+      },
+      "human_author": "Minsu Lee <minsu.lee@pleaseai.dev>"
+    }
+  }
+}
