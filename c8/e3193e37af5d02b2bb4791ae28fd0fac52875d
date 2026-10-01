@@ -1,0 +1,37 @@
+.env.example
+  s_c65f6f83136ca4::t_8c243fd5c8ff92 8-11
+test/lib/asana-client.test.ts
+  s_c65f6f83136ca4::t_8c243fd5c8ff92 2-3,9-14,21-25,36-46
+src/lib/config.ts
+  s_c65f6f83136ca4::t_8c243fd5c8ff92 6-20,23-25,31,35-36,41,59-60,64
+docs/content/en/2.features/3.configuration.md
+  s_c65f6f83136ca4::t_8c243fd5c8ff92 29-34,61-69,295-301
+test/commands/api.test.ts
+  s_c65f6f83136ca4::t_8c243fd5c8ff92 1-3,193,196,199-201,228-234
+skills/asana-cli/references/commands.md
+  s_c65f6f83136ca4::t_8c243fd5c8ff92 255
+test/hooks/session-start.test.ts
+  s_c65f6f83136ca4::t_8c243fd5c8ff92 135-139
+test/lib/config-dir.test.ts
+  s_c65f6f83136ca4::t_8c243fd5c8ff92 1-88
+.markdown-link-check.json
+  s_c65f6f83136ca4::t_8c243fd5c8ff92 11
+src/lib/cache.ts
+  s_c65f6f83136ca4::t_8c243fd5c8ff92 5-6,11,77-81,83
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "c8e3193e37af5d02b2bb4791ae28fd0fac52875d",
+  "prompts": {},
+  "sessions": {
+    "s_c65f6f83136ca4": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "940d07a2-d346-4be7-8039-1158364a7d06",
+        "model": "claude-opus-5-5"
+      },
+      "human_author": "Minsu Lee <minsu.lee@pleaseai.dev>"
+    }
+  }
+}
