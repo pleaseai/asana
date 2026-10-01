@@ -1,10 +1,13 @@
 import type { CommentAddOptions } from '../types'
 import chalk from 'chalk'
 import { Command } from 'commander'
+import { ERROR_IDS } from '../constants/errorIds'
 import { getAsanaClient } from '../lib/asana-client'
-import { COMMENT_FIELDS, toCommentViews } from '../lib/asana-views'
-import { handleAsanaError } from '../lib/error-handler'
-import { validateGid, ValidationError } from '../lib/validators'
+import { COMMENT_FIELDS, COMMENT_SUBTYPE, toCommentView, toCommentViews } from '../lib/asana-views'
+import { emitResult } from '../lib/axi-output'
+import { handleAsanaError, isNotFoundError } from '../lib/error-handler'
+import { failValidation } from '../lib/fail-validation'
+import { UsageError, validateGid, ValidationError } from '../lib/validators'
 import { formatOutput, getOutputFormat } from '../utils/formatter'
 
 /**
@@ -87,5 +90,126 @@ export function createCommentCommand(): Command {
       }
     })
 
+  comment.addCommand(createCommentGetCommand())
+  comment.addCommand(createCommentUpdateCommand())
+  comment.addCommand(createCommentDeleteCommand())
+
   return comment
+}
+
+/**
+ * Require a non-blank `--text` value. Runs before any API call.
+ * @throws UsageError(MISSING_REQUIRED_OPTION) when the value is absent or blank
+ */
+function requireText(text: string | undefined): string {
+  if (text === undefined || text.trim().length === 0) {
+    console.error(chalk.red('✗ --text is required and must not be empty'))
+    throw new UsageError(ERROR_IDS.MISSING_REQUIRED_OPTION, '--text is required and must not be empty', {
+      option: '--text',
+    })
+  }
+  return text
+}
+
+/**
+ * Stories also carry system events (assignments, status changes). Keep
+ * `comment get` consistent with `comment list` by accepting user comments only.
+ * @throws ValidationError(NOT_A_COMMENT) for any other story
+ */
+function requireCommentStory(storyGid: string, story: any): any {
+  if (story?.resource_subtype !== COMMENT_SUBTYPE) {
+    const message = `Story ${storyGid} is not a comment`
+    console.error(chalk.red(`✗ ${message}`))
+    throw new ValidationError(ERROR_IDS.NOT_A_COMMENT, message, {
+      gid: storyGid,
+      resource_subtype: story?.resource_subtype,
+    })
+  }
+  return story
+}
+
+function createCommentGetCommand(): Command {
+  return new Command('get')
+    .description('Get a single comment')
+    .argument('<story-gid>', 'Comment (story) GID')
+    .action(async (storyGid: string, _options: any, command: Command) => {
+      try {
+        validateGid(storyGid, 'Comment GID')
+
+        const client = getAsanaClient()
+        const story = requireCommentStory(storyGid, await client.stories.findById(storyGid, COMMENT_FIELDS))
+
+        const format = getOutputFormat(command)
+        const output = formatOutput({ comment: toCommentView(story) }, { format, colors: process.stdout.isTTY })
+        console.log(output)
+      }
+      catch (error) {
+        if (error instanceof ValidationError) {
+          failValidation(error, command)
+        }
+        handleAsanaError(error, 'Comment retrieval', { 'Comment GID': storyGid }, getOutputFormat(command))
+      }
+    })
+}
+
+function createCommentUpdateCommand(): Command {
+  return new Command('update')
+    .description('Edit the text of a comment')
+    .argument('<story-gid>', 'Comment (story) GID')
+    .option('--text <text>', 'New comment text (required)')
+    .action(async (storyGid: string, options: { text?: string }, command: Command) => {
+      try {
+        validateGid(storyGid, 'Comment GID')
+        const text = requireText(options.text)
+
+        const client = getAsanaClient()
+        const result = await client.stories.update(storyGid, { text })
+
+        emitResult(
+          { comment: { status: 'success', gid: storyGid, text: result.text } },
+          `✓ Comment ${storyGid} updated`,
+          getOutputFormat(command),
+        )
+      }
+      catch (error) {
+        if (error instanceof ValidationError) {
+          failValidation(error, command)
+        }
+        handleAsanaError(error, 'Comment update', { 'Comment GID': storyGid }, getOutputFormat(command))
+      }
+    })
+}
+
+function createCommentDeleteCommand(): Command {
+  return new Command('delete')
+    .description('Delete a comment')
+    .argument('<story-gid>', 'Comment (story) GID')
+    .action(async (storyGid: string, _options: any, command: Command) => {
+      try {
+        validateGid(storyGid, 'Comment GID')
+        const client = getAsanaClient()
+        await client.stories.delete(storyGid)
+
+        emitResult(
+          { comment: { status: 'success', gid: storyGid, deleted: true } },
+          `✓ Comment ${storyGid} deleted`,
+          getOutputFormat(command),
+        )
+      }
+      catch (error) {
+        if (error instanceof ValidationError) {
+          failValidation(error, command)
+        }
+        // Idempotent delete: an already-gone comment is a no-op success (AXI §6).
+        if (isNotFoundError(error)) {
+          emitResult(
+            { comment: { status: 'already_deleted', gid: storyGid } },
+            `✓ Comment ${storyGid} already deleted (no-op)`,
+            getOutputFormat(command),
+          )
+          return
+        }
+        handleAsanaError(error, 'Comment deletion', { 'Comment GID': storyGid }, getOutputFormat(command))
+      }
+    })
 }

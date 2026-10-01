@@ -46,7 +46,7 @@ object including its `gid` and `permalink_url`.
 - `asana fetch <url>` — resolve an `app.asana.com` URL to its underlying resource and fetch it. Pass a pasted Asana link verbatim instead of extracting the gid and choosing a subcommand.
   - A task URL (V0 `…/0/{project}/{task}` or V1 `…/1/{ws}/task/{task}`, with or without a trailing `/f` focus suffix) → the task (same output as `task get`).
   - A project URL → the project (same as `project get`).
-  - A comment URL (`…/task/{task}/comment/{comment}`) → that task's comment list (same as `task comment list`; there is no single-comment fetch).
+  - A comment URL (`…/task/{task}/comment/{comment}`) → that task's comment list (same as `task comment list`; use `task comment get <story-gid>` for a single comment).
   - An unrecognized or non-Asana URL → `INVALID_ASANA_URL` error, exit 1.
 
 ---
@@ -141,6 +141,9 @@ Asana caps combined dependencies + dependents at 50.
 
 - `asana task comment add <task-gid> <text>` `[--html]` (rich text; auto-wraps in `<body>`)
 - `asana task comment list <task-gid>` — user comments only (excludes system events)
+- `asana task comment get <story-gid>` — one comment by its story GID; a system-event story (not a user comment) → `NOT_A_COMMENT`, exit 1
+- `asana task comment update <story-gid> --text <text>` — replace the text; missing/blank `--text` → `MISSING_REQUIRED_OPTION`, exit 2
+- `asana task comment delete <story-gid>` — idempotent: already deleted → `status: already_deleted`, exit 0
 
 ## task follower
 

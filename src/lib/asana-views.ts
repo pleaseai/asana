@@ -71,15 +71,22 @@ export const COMMENT_FIELDS = {
 export const COMMENT_SUBTYPE = 'comment_added'
 
 /**
+ * Shape a single comment story for output.
+ */
+export function toCommentView(story: any): CommentView {
+  return {
+    gid: story.gid,
+    created_at: story.created_at,
+    created_by: story.created_by?.name,
+    text: story.text,
+  }
+}
+
+/**
  * Keep only user comments from a task's stories and shape them for output.
  */
 export function toCommentViews(stories: any[]): CommentView[] {
   return (stories || [])
     .filter(story => story?.resource_subtype === COMMENT_SUBTYPE)
-    .map(story => ({
-      gid: story.gid,
-      created_at: story.created_at,
-      created_by: story.created_by?.name,
-      text: story.text,
-    }))
+    .map(toCommentView)
 }
