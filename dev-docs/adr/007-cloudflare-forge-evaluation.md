@@ -12,7 +12,7 @@ Accepted
 
 Cloudflare open-sourced [Forge](https://github.com/cloudflare/forge)
 (2026-09-28), a schema-first OpenAPI code-generation framework whose first
-output is the `cf` CLI ([blog](https://blog.cloudflare.com/forge-open-source-generation-pipeline/)).
+output is the `cf` CLI ([Cloudflare Forge blog post](https://blog.cloudflare.com/forge-open-source-generation-pipeline/)).
 Asana publishes an OpenAPI 3.0 spec
 ([`Asana/openapi` `defs/asana_oas.yaml` @ `a200645`](https://github.com/Asana/openapi/blob/a200645f70c76df4a8f1a2915caaea0bfcbcb146/defs/asana_oas.yaml)) with
 **251 operations over 177 paths**, every operation carrying an `operationId` and
@@ -25,7 +25,8 @@ spec, and if not, what should it take from it?
 Findings (forge @ `056b13e`, cf @ `f258c29`, both 2026-09-29/10-01):
 
 - **Not on npm.** `@cloudflare/forge` returns 404; `cf` vendors it as a tarball
-  (`vendor/cloudflare-forge-0.1.0.tgz`). forge#6 says publishing is deferred.
+  (`vendor/cloudflare-forge-0.1.0.tgz`). [forge#6](https://github.com/cloudflare/forge/issues/6)
+  says publishing is deferred.
 - **No CLI generator in Forge.** The CLI generator lives in `cloudflare/cf`
   (`packages/cli/generator/`, `packages/cli/generate.ts`); maintainers say parts
   will move back into Forge later, with no date.
@@ -88,13 +89,13 @@ existing AXI / Agent DX phases:
 
 Known cf defects to avoid explicitly:
 
-- cf#103 — `--dry-run` prints secret values → dry-run output must redact tokens.
-- cf#104 — hand-written mutating commands lack `--dry-run` → apply to **every**
+- [cf#103](https://github.com/cloudflare/cf/issues/103) — `--dry-run` prints secret values → dry-run output must redact tokens.
+- [cf#104](https://github.com/cloudflare/cf/issues/104) — hand-written mutating commands lack `--dry-run` → apply to **every**
   mutating command, not a subset.
-- cf#94 — non-interactive confirmation abort exits 0 → abort must exit non-zero.
-- cf#100 — `<unknown> --help` exits 0 → unknown command is a usage error (exit 2, D5).
-- cf#105 — empty stdout with exit 0 → definitive empty states (Phase 2).
-- cf#156 — `FORCE_COLOR` wraps JSON in ANSI → machine formats must never emit
+- [cf#94](https://github.com/cloudflare/cf/issues/94) — non-interactive confirmation abort exits 0 → abort must exit non-zero.
+- [cf#100](https://github.com/cloudflare/cf/issues/100) — `<unknown> --help` exits 0 → unknown command is a usage error (exit 2, D5).
+- [cf#105](https://github.com/cloudflare/cf/issues/105) — empty stdout with exit 0 → definitive empty states (Phase 2).
+- [cf#156](https://github.com/cloudflare/cf/issues/156) — `FORCE_COLOR` wraps JSON in ANSI → machine formats must never emit
   color codes, regardless of color env vars.
 
 ## Consequences

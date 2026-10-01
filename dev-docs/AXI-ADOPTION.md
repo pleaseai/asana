@@ -161,9 +161,9 @@ low-risk and may be pulled forward right after Phase 1.**
 
 - `--dry-run` on every mutating command: validate and echo the resolved request
   without side effects, exit 0. High ROI, low risk.
-- Avoid cf's known defects (ADR-007): redact tokens in dry-run output (cf#103);
-  cover **every** mutating command, hand-written or not (cf#104); a
-  non-interactive confirmation abort exits non-zero (cf#94).
+- Avoid cf's known defects (ADR-007): redact tokens in dry-run output ([cf#103](https://github.com/cloudflare/cf/issues/103));
+  cover **every** mutating command, hand-written or not ([cf#104](https://github.com/cloudflare/cf/issues/104)); a
+  non-interactive confirmation abort exits non-zero ([cf#94](https://github.com/cloudflare/cf/issues/94)).
 - Consider response sanitization against prompt injection in API data (axis 6 → 3)
   as a later, separate step.
 
