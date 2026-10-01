@@ -1,0 +1,26 @@
+test/commands/task-comment-story.test.ts
+  s_1262cca4218fd4::t_96218bb0e87ff7 137-172
+  s_1262cca4218fd4::t_52b437cd162c6c 50
+src/lib/asana-client.ts
+  s_1262cca4218fd4::t_558389ba75be3b 255-258
+src/commands/task-comment.ts
+  s_1262cca4218fd4::t_18e98986a566d4 95
+  s_1262cca4218fd4::t_3e53885fdf3d71 165-198
+  s_1262cca4218fd4::t_f3c6f6c0c9cf7d 8
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "cc42d484240e70f128f0a249fcf8af3ae3d1b96d",
+  "prompts": {},
+  "sessions": {
+    "s_1262cca4218fd4": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "f04c7c6b-c42a-4091-b81b-a086d7fcb2b1",
+        "model": "claude-opus-5-5"
+      },
+      "human_author": "Minsu Lee <minsu.lee@pleaseai.dev>"
+    }
+  }
+}
