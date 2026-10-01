@@ -1,0 +1,21 @@
+test/commands/task-list-assignee.test.ts
+  s_e0ea663d317d7e::t_63304dbbea6cf2 1-72
+src/commands/task-list.ts
+  s_e0ea663d317d7e::t_42e89a84734dbf 183-187
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "ed9e032f65ca84011e2c0486238457ca36badae9",
+  "prompts": {},
+  "sessions": {
+    "s_e0ea663d317d7e": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "42c81646-930b-46d1-b9bd-60c59a86ba98",
+        "model": "claude-opus-5-5"
+      },
+      "human_author": "Minsu Lee <minsu.lee@pleaseai.dev>"
+    }
+  }
+}
