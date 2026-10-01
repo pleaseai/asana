@@ -62,6 +62,8 @@ export function useTaskCliHarness(): TaskCliHarness {
   }
 
   harness.runTask = async (args, format = 'json') => {
+    // Each invocation returns only its own stdout.
+    harness.logs.length = 0
     const { createTaskCommand } = await import('../../../src/commands/task')
     const program = new Command()
     program.name('asana').option('-f, --format <type>', 'Output format', 'toon')
