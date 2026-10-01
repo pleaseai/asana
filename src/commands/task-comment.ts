@@ -1,11 +1,13 @@
 import type { CommentAddOptions } from '../types'
 import chalk from 'chalk'
 import { Command } from 'commander'
+import { ERROR_IDS } from '../constants/errorIds'
 import { getAsanaClient } from '../lib/asana-client'
 import { COMMENT_FIELDS, toCommentView, toCommentViews } from '../lib/asana-views'
+import { emitResult } from '../lib/axi-output'
 import { handleAsanaError } from '../lib/error-handler'
 import { failValidation } from '../lib/fail-validation'
-import { validateGid, ValidationError } from '../lib/validators'
+import { UsageError, validateGid, ValidationError } from '../lib/validators'
 import { formatOutput, getOutputFormat } from '../utils/formatter'
 
 /**
@@ -89,8 +91,23 @@ export function createCommentCommand(): Command {
     })
 
   comment.addCommand(createCommentGetCommand())
+  comment.addCommand(createCommentUpdateCommand())
 
   return comment
+}
+
+/**
+ * Require a non-blank `--text` value. Runs before any API call.
+ * @throws UsageError(MISSING_REQUIRED_OPTION) when the value is absent or blank
+ */
+function requireText(text: string | undefined): string {
+  if (text === undefined || text.trim().length === 0) {
+    console.error(chalk.red('✗ --text is required and must not be empty'))
+    throw new UsageError(ERROR_IDS.MISSING_REQUIRED_OPTION, '--text is required and must not be empty', {
+      option: '--text',
+    })
+  }
+  return text
 }
 
 function createCommentGetCommand(): Command {
@@ -113,6 +130,34 @@ function createCommentGetCommand(): Command {
           failValidation(error, command)
         }
         handleAsanaError(error, 'Comment retrieval', { 'Comment GID': storyGid }, getOutputFormat(command))
+      }
+    })
+}
+
+function createCommentUpdateCommand(): Command {
+  return new Command('update')
+    .description('Edit the text of a comment')
+    .argument('<story-gid>', 'Comment (story) GID')
+    .option('--text <text>', 'New comment text (required)')
+    .action(async (storyGid: string, options: { text?: string }, command: Command) => {
+      try {
+        validateGid(storyGid, 'Comment GID')
+        const text = requireText(options.text)
+
+        const client = getAsanaClient()
+        const result = await client.stories.update(storyGid, { text })
+
+        emitResult(
+          { comment: { status: 'success', gid: result.gid ?? storyGid, text: result.text ?? text } },
+          `✓ Comment ${storyGid} updated`,
+          getOutputFormat(command),
+        )
+      }
+      catch (error) {
+        if (error instanceof ValidationError) {
+          failValidation(error, command)
+        }
+        handleAsanaError(error, 'Comment update', { 'Comment GID': storyGid }, getOutputFormat(command))
       }
     })
 }

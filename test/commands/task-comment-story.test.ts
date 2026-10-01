@@ -4,6 +4,7 @@ import { ERROR_IDS } from '../../src/constants/errorIds'
 import { useTaskCliHarness } from './helpers/task-cli-harness'
 
 const EXIT_FAILURE = 1
+const EXIT_USAGE = 2
 const STORY_GID = '555'
 const STORY = {
   gid: STORY_GID,
@@ -45,6 +46,7 @@ describe('task comment get/update/delete', () => {
         getAsanaClient: () => ({
           stories: {
             findById: record('findById', STORY),
+            update: record('update', { ...STORY, text: 'Edited' }),
           },
         }),
       },
@@ -81,6 +83,51 @@ describe('task comment get/update/delete', () => {
 
     test('a missing story is a structured not-found error', async () => {
       await expect(runComment(['get', STORY_GID], { failWith: NOT_FOUND })).rejects.toThrow('__exit__')
+
+      expect(harness.exitSpy).toHaveBeenCalledWith(EXIT_FAILURE)
+      expect(harness.stdoutError().error).toBe('Resource not found')
+    })
+  })
+
+  describe('update', () => {
+    test('sends the new text and emits the updated comment', async () => {
+      const out = await runComment(['update', STORY_GID, '--text', 'Edited'])
+
+      expect(calls).toEqual([{ method: 'update', args: [STORY_GID, { text: 'Edited' }] }])
+      expect(JSON.parse(out)).toEqual({ comment: { status: 'success', gid: STORY_GID, text: 'Edited' } })
+    })
+
+    test('plain output confirms the update', async () => {
+      const out = await runComment(['update', STORY_GID, '--text', 'Edited'], { format: 'plain' })
+
+      expect(out).toContain(`Comment ${STORY_GID} updated`)
+    })
+
+    test.each([
+      ['a missing --text', []],
+      ['an empty --text', ['--text', '']],
+      ['a whitespace-only --text', ['--text', '   ']],
+    ])('%s is a usage error before any API call', async (_label, textArgs) => {
+      await expect(runComment(['update', STORY_GID, ...textArgs])).rejects.toThrow('__exit__')
+
+      expect(harness.exitSpy).toHaveBeenCalledWith(EXIT_USAGE)
+      const payload = harness.stdoutError()
+      expect(payload.code).toBe(ERROR_IDS.MISSING_REQUIRED_OPTION)
+      expect(payload.context.option).toBe('--text')
+      expect(calls).toHaveLength(0)
+    })
+
+    test('an invalid story GID fails before any API call', async () => {
+      await expect(runComment(['update', 'abc', '--text', 'Edited'])).rejects.toThrow('__exit__')
+
+      expect(harness.exitSpy).toHaveBeenCalledWith(EXIT_FAILURE)
+      expect(calls).toHaveLength(0)
+    })
+
+    test('a missing story is a structured not-found error', async () => {
+      await expect(runComment(['update', STORY_GID, '--text', 'Edited'], { failWith: NOT_FOUND }))
+        .rejects
+        .toThrow('__exit__')
 
       expect(harness.exitSpy).toHaveBeenCalledWith(EXIT_FAILURE)
       expect(harness.stdoutError().error).toBe('Resource not found')

@@ -247,6 +247,11 @@ export function getAsanaClient() {
         const result = await storiesApiInstance!.getStory(storyGid, opts)
         return result.data
       },
+      update: async (storyGid: string, updateData: Record<string, any>) => {
+        const body = { data: updateData }
+        const result = await storiesApiInstance!.updateStory(body, storyGid, {})
+        return result.data
+      },
     },
     tags: {
       create: async (tagData: Record<string, any>) => {
