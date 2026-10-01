@@ -116,16 +116,16 @@ async function fetchTaskPage(
   throw new Error('Specify workspace, project, or assignee to list tasks')
 }
 
-/** `--my-tasks` needs a workspace to locate the user task list. */
-function requireMyTasksWorkspace(workspace: string | undefined): void {
+/** Reject `flag` as a usage error when no workspace was resolved. */
+function requireWorkspace(flag: string, workspace: string | undefined): void {
   if (workspace) {
     return
   }
-  console.error(chalk.red('✗ --my-tasks requires a workspace'))
+  console.error(chalk.red(`✗ ${flag} requires a workspace`))
   console.error(chalk.gray('  Use --workspace <gid> or set a default workspace'))
   throw new UsageError(
     ERROR_IDS.MISSING_REQUIRED_OPTION,
-    '--my-tasks requires a workspace (use --workspace or set a default workspace)',
+    `${flag} requires a workspace (use --workspace or set a default workspace)`,
     { option: '--workspace' },
   )
 }
@@ -176,8 +176,9 @@ async function runTaskList(
   )
   const workspace = resolveExplicitWorkspace(options.workspace, loadConfig()?.workspace)
   workspaceRef.value = workspace
+  // --my-tasks needs a workspace to locate the user task list.
   if (source.kind === 'myTasks') {
-    requireMyTasksWorkspace(workspace)
+    requireWorkspace('--my-tasks', workspace)
   }
 
   const clientAssignee = needsClientAssigneeFilter(query, source.kind !== 'default')
