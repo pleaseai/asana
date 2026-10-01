@@ -1,0 +1,22 @@
+test/lib/task-list-query.test.ts
+  s_86f27022dad4e4::t_d29d7eb1bea6c4 96-108
+src/lib/task-list-query.ts
+  s_86f27022dad4e4::t_ac77a36b208c26 99-118,127-129
+  s_86f27022dad4e4::t_94ce7bbd205a84 98
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "3cd5b912172f07738332c7b47a57ffe92e1ad577",
+  "prompts": {},
+  "sessions": {
+    "s_86f27022dad4e4": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "7452c840-05da-4977-aaef-50ed5072ffc7",
+        "model": "claude-opus-5-5"
+      },
+      "human_author": "Minsu Lee <minsu.lee@pleaseai.dev>"
+    }
+  }
+}
