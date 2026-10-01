@@ -1,0 +1,21 @@
+docs/content/en/2.features/1.task-management.md
+  s_86f27022dad4e4::t_dcb1aba97f9ec6 202-231,258-296,433-444
+skills/asana-cli/references/commands.md
+  s_86f27022dad4e4::t_565d562d17bfb7 15,90-91,94-106,117-120
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "70639a88d8e7c916048fe904d4ac9a1dba520f41",
+  "prompts": {},
+  "sessions": {
+    "s_86f27022dad4e4": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "7452c840-05da-4977-aaef-50ed5072ffc7",
+        "model": "claude-opus-5-5"
+      },
+      "human_author": "Minsu Lee <minsu.lee@pleaseai.dev>"
+    }
+  }
+}
