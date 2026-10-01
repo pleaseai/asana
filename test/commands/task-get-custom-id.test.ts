@@ -1,5 +1,7 @@
+import { encodeToon } from '@pleaseai/cli-toolkit/output'
 import { beforeEach, describe, expect, test } from 'bun:test'
 import { ERROR_IDS } from '../../src/constants/errorIds'
+import { toTaskView } from '../../src/lib/asana-views'
 import { useTaskCliHarness } from './helpers/task-cli-harness'
 
 const EXIT_USAGE = 2
@@ -37,7 +39,7 @@ describe('task get', () => {
     )
 
     const out = await harness.runTask(['get', ...args], opts.format)
-    return JSON.parse(out)
+    return opts.format && opts.format !== 'json' ? out : JSON.parse(out)
   }
 
   const stdoutError = () => harness.stdoutError()
@@ -56,6 +58,20 @@ describe('task get', () => {
     expect(out).toEqual({
       task: { gid: '42', name: 'Fix login', completed: false, assignee: 'Alice', due_on: null, notes: 'n' },
     })
+  })
+
+  test('--custom-id emits the same task view as TOON', async () => {
+    const out = await runGet(['--custom-id', 'PROJ-7'], { format: 'toon' })
+
+    expect(() => JSON.parse(out)).toThrow()
+    expect(out).toBe(encodeToon({ task: toTaskView(TASK) }))
+  })
+
+  test('--custom-id prints human-readable plain output', async () => {
+    const out = await runGet(['--custom-id', 'PROJ-7'], { format: 'plain' })
+
+    expect(out).toContain('Fix login')
+    expect(out.trimStart().startsWith('{')).toBe(false)
   })
 
   test('--workspace overrides the configured default', async () => {
@@ -93,6 +109,14 @@ describe('task get', () => {
 
     expect(harness.exitSpy).toHaveBeenCalledWith(1)
     expect(stdoutError().context.fieldName).toBe('Workspace GID')
+    expect(calls).toHaveLength(0)
+  })
+
+  test('--custom-id with an explicitly empty --workspace is a usage error, not a default-workspace lookup', async () => {
+    await expect(runGet(['--custom-id', 'PROJ-7', '--workspace', ''])).rejects.toThrow('__exit__')
+
+    expect(harness.exitSpy).toHaveBeenCalledWith(EXIT_USAGE)
+    expect(stdoutError()).toMatchObject({ code: ERROR_IDS.MISSING_REQUIRED_OPTION, context: { option: '--workspace' } })
     expect(calls).toHaveLength(0)
   })
 

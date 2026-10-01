@@ -8,6 +8,7 @@ import { loadConfig } from '../lib/config'
 import { handleAsanaError } from '../lib/error-handler'
 import { failValidation } from '../lib/fail-validation'
 import { UsageError, validateGid, ValidationError } from '../lib/validators'
+import { resolveExplicitWorkspace } from '../lib/workspace-option'
 import { formatOutput, getOutputFormat } from '../utils/formatter'
 
 interface TaskGetOptions {
@@ -40,7 +41,7 @@ function resolveWorkspaceForLookup(gid: string | undefined, options: TaskGetOpti
   if (gid) {
     return undefined
   }
-  const workspace = options.workspace || loadConfig()?.workspace
+  const workspace = resolveExplicitWorkspace(options.workspace, loadConfig()?.workspace)
   if (!workspace) {
     throw usageError(
       ERROR_IDS.MISSING_REQUIRED_OPTION,

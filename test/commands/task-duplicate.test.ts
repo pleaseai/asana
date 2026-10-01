@@ -1,3 +1,4 @@
+import { encodeToon } from '@pleaseai/cli-toolkit/output'
 import { beforeEach, describe, expect, test } from 'bun:test'
 import { ERROR_IDS } from '../../src/constants/errorIds'
 import { useTaskCliHarness } from './helpers/task-cli-harness'
@@ -77,6 +78,15 @@ describe('task duplicate', () => {
     expect(JSON.parse(out)).toEqual({
       job: { gid: '900', status: 'succeeded', new_task_gid: '901', new_task_name: 'Copy' },
     })
+  })
+
+  test('emits the job as TOON, identical to the encoded machine payload', async () => {
+    const out = await runDuplicate(['42', '--name', 'Copy'], { format: 'toon' })
+
+    expect(() => JSON.parse(out)).toThrow()
+    expect(out).toBe(encodeToon({
+      job: { gid: '900', status: 'succeeded', new_task_gid: '901', new_task_name: 'Copy' },
+    }))
   })
 
   test('omits the new task fields while the job has no new task', async () => {

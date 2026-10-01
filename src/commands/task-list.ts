@@ -20,14 +20,45 @@ import {
   toTaskRows,
 } from '../lib/task-list-query'
 import { UsageError, ValidationError } from '../lib/validators'
+import { resolveExplicitWorkspace } from '../lib/workspace-option'
 import { formatOutput, getOutputFormat } from '../utils/formatter'
 
 type AsanaClient = ReturnType<typeof getAsanaClient>
 
+/** Upper bound on pages followed per listing, a backstop against a misbehaving server. */
+const MAX_PAGES = 1000
+
+/**
+ * Collect every page of an offset-paginated listing. The SDK resolves list
+ * calls to a `Collection` (`.data` plus `._response.next_page`); the raw
+ * `{ data, next_page }` body is accepted too. Stops when there is no next
+ * page or the server repeats an offset.
+ */
+async function fetchAllPages(
+  fetchPage: (params: Record<string, any>) => Promise<any>,
+  params: Record<string, any>,
+): Promise<any[]> {
+  const tasks: any[] = []
+  const seenOffsets = new Set<string>()
+  let pageParams = params
+  for (let page = 0; page < MAX_PAGES; page++) {
+    const result = await fetchPage(pageParams)
+    tasks.push(...(result.data || []))
+    const offset = (result._response?.next_page ?? result.next_page)?.offset
+    if (!offset || seenOffsets.has(offset)) {
+      break
+    }
+    seenOffsets.add(offset)
+    pageParams = { ...params, offset }
+  }
+  return tasks
+}
+
 /**
  * Fetch the tasks of a container source (project, section, tag, My Tasks).
- * The tag endpoint has no `completed_since` filter, so it is dropped there and
- * incomplete-only relies on the client-side completion filter.
+ * Section, tag, and My Tasks follow every page; project keeps its single
+ * request. The tag endpoint has no `completed_since` filter, so it is dropped
+ * there and incomplete-only relies on the client-side completion filter.
  */
 async function fetchContainerPage(
   client: AsanaClient,
@@ -39,14 +70,14 @@ async function fetchContainerPage(
     case 'project':
       return (await client.tasks.findByProject(source.gid, params)).data || []
     case 'section':
-      return (await client.tasks.findBySection(source.gid, params)).data || []
+      return fetchAllPages(p => client.tasks.findBySection(source.gid, p), params)
     case 'tag': {
       const { completed_since: _unsupported, ...tagParams } = params
-      return (await client.tasks.findByTag(source.gid, tagParams)).data || []
+      return fetchAllPages(p => client.tasks.findByTag(source.gid, p), tagParams)
     }
     case 'myTasks': {
       const userTaskList = await client.userTaskLists.findByUser('me', workspace!)
-      return (await client.tasks.findByUserTaskList(userTaskList.gid, params)).data || []
+      return fetchAllPages(p => client.tasks.findByUserTaskList(userTaskList.gid, p), params)
     }
   }
 }
@@ -138,7 +169,9 @@ async function runTaskList(
     source.kind === 'tag' && options.completed ? { ...options, incompleteOnly: true } : options,
   )
   const config = loadConfig()
-  const workspace = options.workspace || config?.workspace
+  const workspace = source.kind === 'myTasks'
+    ? resolveExplicitWorkspace(options.workspace, config?.workspace)
+    : options.workspace || config?.workspace
   workspaceRef.value = workspace
   if (source.kind === 'myTasks') {
     requireMyTasksWorkspace(workspace)

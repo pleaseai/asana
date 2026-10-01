@@ -32,16 +32,26 @@ describe('task list sources', () => {
     }
   }
 
-  async function runList(args: string[], opts: { workspace?: string, format?: string, tasks?: any[] } = {}): Promise<string> {
+  async function runList(
+    args: string[],
+    opts: { workspace?: string, format?: string, tasks?: any[], pages?: Record<string, any> } = {},
+  ): Promise<string> {
+    // `pages` maps an offset ('' = first page) to a Collection-shaped result,
+    // so multi-page sources can be exercised through the same wrapper.
+    const paged = (method: string) => async (...args: any[]) => {
+      calls.push({ method, args })
+      return opts.pages![args[1]?.offset ?? '']
+    }
+    const source = (method: string) => opts.pages ? paged(method) : record(method, { data: opts.tasks ?? TASKS })
     harness.mockModules(
       {
         getAsanaClient: () => ({
           tasks: {
             findByProject: record('findByProject', { data: opts.tasks ?? TASKS }),
             findAll: record('findAll', { data: opts.tasks ?? TASKS }),
-            findBySection: record('findBySection', { data: opts.tasks ?? TASKS }),
-            findByTag: record('findByTag', { data: opts.tasks ?? TASKS }),
-            findByUserTaskList: record('findByUserTaskList', { data: opts.tasks ?? TASKS }),
+            findBySection: source('findBySection'),
+            findByTag: source('findByTag'),
+            findByUserTaskList: source('findByUserTaskList'),
           },
           userTaskLists: {
             findByUser: record('findByUser', { gid: USER_TASK_LIST_GID }),
@@ -125,6 +135,58 @@ describe('task list sources', () => {
 
     expect(harness.exitSpy).toHaveBeenCalledWith(EXIT_USAGE)
     expect(stdoutError().code).toBe(ERROR_IDS.MISSING_REQUIRED_OPTION)
+    expect(calls).toHaveLength(0)
+  })
+
+  const page = (tasks: any[], nextOffset?: string) => ({
+    data: tasks,
+    _response: { next_page: nextOffset ? { offset: nextOffset } : null },
+  })
+
+  test('--section follows next_page.offset and returns the tasks of every page', async () => {
+    const out = await runList(['--section', '555'], {
+      pages: { '': page([TASKS[0]!], 'o2'), 'o2': page([TASKS[1]!, TASKS[2]!]) },
+    })
+
+    expect(calls.map(call => call.method)).toEqual(['findBySection', 'findBySection'])
+    expect(calls[1]!.args[0]).toBe('555')
+    expect(calls[1]!.args[1].offset).toBe('o2')
+    expect(JSON.parse(out).tasks.map((t: any) => t.gid)).toEqual(['1', '2', '3'])
+  })
+
+  test('--count on a multi-page tag counts every page', async () => {
+    const out = await runList(['--tag', '444', '--count'], {
+      pages: { '': page([TASKS[0]!], 'o2'), 'o2': page([TASKS[1]!], 'o3'), 'o3': page([TASKS[2]!]) },
+    })
+
+    expect(calls.map(call => call.method)).toEqual(['findByTag', 'findByTag', 'findByTag'])
+    expect(JSON.parse(out)).toEqual({ summary: { total: 3 } })
+  })
+
+  test('--my-tasks pages through the user task list and filters client-side across pages', async () => {
+    const out = await runList(['--my-tasks', '--assignee', 'none'], {
+      pages: { '': page([TASKS[0]!], 'o2'), 'o2': page([TASKS[2]!]) },
+    })
+
+    expect(calls.map(call => call.method)).toEqual(['findByUser', 'findByUserTaskList', 'findByUserTaskList'])
+    expect(calls[2]!.args[1].offset).toBe('o2')
+    expect(JSON.parse(out).tasks.map((t: any) => t.gid)).toEqual(['3'])
+  })
+
+  test('a server repeating the same offset stops paging instead of looping forever', async () => {
+    const out = await runList(['--section', '555'], {
+      pages: { '': page([TASKS[0]!], 'o2'), 'o2': page([TASKS[1]!], 'o2') },
+    })
+
+    expect(calls).toHaveLength(2)
+    expect(JSON.parse(out).tasks.map((t: any) => t.gid)).toEqual(['1', '2'])
+  })
+
+  test('--my-tasks with an explicitly empty --workspace is a usage error, not a default-workspace lookup', async () => {
+    await expect(runList(['--my-tasks', '--workspace', ''])).rejects.toThrow('__exit__')
+
+    expect(harness.exitSpy).toHaveBeenCalledWith(EXIT_USAGE)
+    expect(stdoutError()).toMatchObject({ code: ERROR_IDS.MISSING_REQUIRED_OPTION, context: { option: '--workspace' } })
     expect(calls).toHaveLength(0)
   })
 
