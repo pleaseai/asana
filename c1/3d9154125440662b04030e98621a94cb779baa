@@ -1,0 +1,21 @@
+test/commands/task-get-custom-id.test.ts
+  s_86f27022dad4e4::t_54e6b35da52cb6 122-129
+src/commands/task-get.ts
+  s_86f27022dad4e4::t_47c681b589edbf 10,63-65,71
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "c13d9154125440662b04030e98621a94cb779baa",
+  "prompts": {},
+  "sessions": {
+    "s_86f27022dad4e4": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "7452c840-05da-4977-aaef-50ed5072ffc7",
+        "model": "claude-opus-5-5"
+      },
+      "human_author": "Minsu Lee <minsu.lee@pleaseai.dev>"
+    }
+  }
+}
