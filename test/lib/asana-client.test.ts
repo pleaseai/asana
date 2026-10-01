@@ -8,7 +8,7 @@ import { getAsanaClient, refreshTokenIfNeeded, resetClient } from '../../src/lib
 
 // Point the config module at a per-test temp dir via ASANA_CONFIG_DIR so these
 // tests never read or delete the developer's real ~/.asana-cli.
-let tempRoot: string
+let tempRoot: string | undefined
 let TEST_CONFIG_DIR: string
 let TEST_CONFIG_FILE: string
 const originalConfigDir = process.env.ASANA_CONFIG_DIR
@@ -33,8 +33,12 @@ describe('asana-client module', () => {
   })
 
   afterEach(() => {
-    // Remove only the temp dir created in beforeEach, then restore the override
-    rmSync(tempRoot, { recursive: true, force: true })
+    // Remove only the temp dir created in beforeEach, then restore the override.
+    // Guarded so a failed mkdtempSync surfaces its own error, not a TypeError here.
+    if (tempRoot) {
+      rmSync(tempRoot, { recursive: true, force: true })
+      tempRoot = undefined
+    }
     if (originalConfigDir === undefined) {
       delete process.env.ASANA_CONFIG_DIR
     }
