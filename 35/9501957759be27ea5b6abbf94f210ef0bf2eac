@@ -1,0 +1,19 @@
+src/commands/task-comment.ts
+  s_1262cca4218fd4::t_079f1730b9a913 152
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "359501957759be27ea5b6abbf94f210ef0bf2eac",
+  "prompts": {},
+  "sessions": {
+    "s_1262cca4218fd4": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "f04c7c6b-c42a-4091-b81b-a086d7fcb2b1",
+        "model": "claude-opus-5-5"
+      },
+      "human_author": "Minsu Lee <minsu.lee@pleaseai.dev>"
+    }
+  }
+}
