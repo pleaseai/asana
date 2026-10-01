@@ -160,7 +160,10 @@ async function runTaskList(
   }
 
   if (taskList.length === 0) {
-    console.log(chalk.yellow('No tasks found'))
+    // Machine formats get a definitive empty list (AXI §5); plain keeps the message.
+    console.log(format === 'plain'
+      ? chalk.yellow('No tasks found')
+      : formatOutput({ tasks: [] }, { format, colors: process.stdout.isTTY }))
     return
   }
 

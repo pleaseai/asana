@@ -67,15 +67,15 @@ describe('task list sources', () => {
     }
   }
 
-  async function runList(args: string[], opts: { workspace?: string, format?: string } = {}): Promise<string> {
+  async function runList(args: string[], opts: { workspace?: string, format?: string, tasks?: any[] } = {}): Promise<string> {
     mock.module('../../src/lib/asana-client', () => ({
       getAsanaClient: () => ({
         tasks: {
-          findByProject: record('findByProject', { data: TASKS }),
-          findAll: record('findAll', { data: TASKS }),
-          findBySection: record('findBySection', { data: TASKS }),
-          findByTag: record('findByTag', { data: TASKS }),
-          findByUserTaskList: record('findByUserTaskList', { data: TASKS }),
+          findByProject: record('findByProject', { data: opts.tasks ?? TASKS }),
+          findAll: record('findAll', { data: opts.tasks ?? TASKS }),
+          findBySection: record('findBySection', { data: opts.tasks ?? TASKS }),
+          findByTag: record('findByTag', { data: opts.tasks ?? TASKS }),
+          findByUserTaskList: record('findByUserTaskList', { data: opts.tasks ?? TASKS }),
         },
         userTaskLists: {
           findByUser: record('findByUser', { gid: USER_TASK_LIST_GID }),
@@ -221,5 +221,24 @@ describe('task list sources', () => {
 
     expect(() => JSON.parse(out)).toThrow()
     expect(out).toContain('gid')
+  })
+
+  test('an empty result is a definitive empty list for json', async () => {
+    const out = await runList(['--section', '555'], { tasks: [] })
+
+    expect(JSON.parse(out)).toEqual({ tasks: [] })
+  })
+
+  test('an empty result is a structured empty list for toon', async () => {
+    const out = await runList(['--tag', '444'], { format: 'toon', tasks: [] })
+
+    expect(out).toContain('tasks[0')
+    expect(out).not.toContain('No tasks found')
+  })
+
+  test('an empty result keeps the human message for plain', async () => {
+    const out = await runList(['--section', '555'], { format: 'plain', tasks: [] })
+
+    expect(out).toContain('No tasks found')
   })
 })
