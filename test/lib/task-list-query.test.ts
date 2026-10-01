@@ -93,6 +93,19 @@ describe('resolveTaskSource', () => {
     expect((caught as UsageError).errorId).toBe(ERROR_IDS.CONFLICTING_OPTIONS)
     expect((caught as UsageError).context.flags).toEqual(['--project', '--tag', '--my-tasks'])
   })
+
+  test('rejects an explicitly empty source GID instead of falling back to the workspace', () => {
+    let caught: unknown
+    try {
+      resolveTaskSource({ section: '' })
+    }
+    catch (error) {
+      caught = error
+    }
+    expect(caught).toBeInstanceOf(UsageError)
+    expect((caught as UsageError).errorId).toBe(ERROR_IDS.MISSING_REQUIRED_OPTION)
+    expect((caught as UsageError).context.option).toBe('--section')
+  })
 })
 
 describe('buildOptFields', () => {

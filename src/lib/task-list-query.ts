@@ -96,6 +96,27 @@ export type TaskSource
     | { kind: 'default' }
 
 /**
+ * Build a container source from a GID flag. Presence is checked, not
+ * truthiness: an explicitly empty value (e.g. a shell variable that expanded to
+ * nothing) must fail instead of silently widening to the workspace listing.
+ * @throws UsageError(MISSING_REQUIRED_OPTION) for an empty GID
+ */
+function containerSource(
+  kind: 'project' | 'section' | 'tag',
+  flag: string,
+  gid: string | undefined,
+): TaskSource | undefined {
+  if (gid === undefined) {
+    return undefined
+  }
+  if (gid.trim() === '') {
+    console.error(chalk.red(`✗ ${flag} requires a GID`))
+    throw new UsageError(ERROR_IDS.MISSING_REQUIRED_OPTION, `${flag} requires a GID`, { option: flag })
+  }
+  return { kind, gid }
+}
+
+/**
  * Pick the listing source from `--project`, `--section`, `--tag`, and
  * `--my-tasks`. They are mutually exclusive; with none given the listing falls
  * back to the workspace/assignee default. Pure — no API calls.
@@ -103,9 +124,9 @@ export type TaskSource
  */
 export function resolveTaskSource(options: TaskListOptions): TaskSource {
   const candidates: Array<{ flag: string, source?: TaskSource }> = [
-    { flag: '--project', source: options.project ? { kind: 'project', gid: options.project } : undefined },
-    { flag: '--section', source: options.section ? { kind: 'section', gid: options.section } : undefined },
-    { flag: '--tag', source: options.tag ? { kind: 'tag', gid: options.tag } : undefined },
+    { flag: '--project', source: containerSource('project', '--project', options.project) },
+    { flag: '--section', source: containerSource('section', '--section', options.section) },
+    { flag: '--tag', source: containerSource('tag', '--tag', options.tag) },
     { flag: '--my-tasks', source: options.myTasks ? { kind: 'myTasks' } : undefined },
   ]
   const given = candidates.filter(candidate => candidate.source)
