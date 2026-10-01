@@ -33,6 +33,8 @@ const MAX_PAGES = 1000
  * calls to a `Collection` (`.data` plus `._response.next_page`); the raw
  * `{ data, next_page }` body is accepted too. Stops when there is no next
  * page or the server repeats an offset.
+ * @throws Error when more pages remain after MAX_PAGES, so a truncated
+ * listing never reaches the output or the --count/--group-by summary
  */
 async function fetchAllPages(
   fetchPage: (params: Record<string, any>) => Promise<any>,
@@ -41,17 +43,19 @@ async function fetchAllPages(
   const tasks: any[] = []
   const seenOffsets = new Set<string>()
   let pageParams = params
-  for (let page = 0; page < MAX_PAGES; page++) {
+  for (let page = 1; ; page++) {
     const result = await fetchPage(pageParams)
     tasks.push(...(result.data || []))
     const offset = (result._response?.next_page ?? result.next_page)?.offset
     if (!offset || seenOffsets.has(offset)) {
-      break
+      return tasks
+    }
+    if (page >= MAX_PAGES) {
+      throw new Error(`Listing exceeds the page limit (${MAX_PAGES} pages); results would be incomplete`)
     }
     seenOffsets.add(offset)
     pageParams = { ...params, offset }
   }
-  return tasks
 }
 
 /**

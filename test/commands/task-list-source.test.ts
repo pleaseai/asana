@@ -182,6 +182,19 @@ describe('task list sources', () => {
     expect(JSON.parse(out).tasks.map((t: any) => t.gid)).toEqual(['1', '2'])
   })
 
+  test('hitting the page cap fails loudly instead of returning a truncated listing', async () => {
+    // Every page points at a fresh offset, so paging never ends on its own.
+    const endless = new Proxy({}, {
+      get: (_target, offset) => page([TASKS[0]!], `p${Number(String(offset).slice(1) || 0) + 1}`),
+    })
+
+    await expect(runList(['--tag', '444', '--count'], { pages: endless })).rejects.toThrow('__exit__')
+
+    expect(harness.exitSpy).toHaveBeenCalledWith(1)
+    expect(stdoutError().context.error).toContain('page limit')
+    expect(harness.logs).toEqual([])
+  })
+
   test('--my-tasks with an explicitly empty --workspace is a usage error, not a default-workspace lookup', async () => {
     await expect(runList(['--my-tasks', '--workspace', ''])).rejects.toThrow('__exit__')
 
