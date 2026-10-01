@@ -180,6 +180,11 @@ async function runTaskList(
   if (source.kind === 'myTasks') {
     requireWorkspace('--my-tasks', workspace)
   }
+  // Without a container, --assignee lists through the workspace endpoint
+  // (server-side filter, or client-side for "none"), which needs a workspace.
+  if (source.kind === 'default' && query.assignee) {
+    requireWorkspace('--assignee', workspace)
+  }
 
   const clientAssignee = needsClientAssigneeFilter(query, source.kind !== 'default')
   const params = buildListParams(query, options, clientAssignee)
