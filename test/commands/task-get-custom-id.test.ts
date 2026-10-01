@@ -88,6 +88,14 @@ describe('task get', () => {
     expect(calls).toHaveLength(0)
   })
 
+  test('--custom-id with a non-numeric workspace is rejected before any API call', async () => {
+    await expect(runGet(['--custom-id', 'PROJ-7', '--workspace', 'acme'])).rejects.toThrow('__exit__')
+
+    expect(harness.exitSpy).toHaveBeenCalledWith(1)
+    expect(stdoutError().context.fieldName).toBe('Workspace GID')
+    expect(calls).toHaveLength(0)
+  })
+
   test('--custom-id without any workspace is a usage error before any API call', async () => {
     await expect(runGet(['--custom-id', 'PROJ-7'], { workspace: undefined })).rejects.toThrow('__exit__')
 

@@ -63,6 +63,9 @@ export function createTaskGetCommand(): Command {
         if (gid) {
           validateGid(gid, 'Task GID')
         }
+        else {
+          validateGid(workspace!, 'Workspace GID')
+        }
         const client = getAsanaClient()
         const taskDetail = options.customId
           ? await client.tasks.findByCustomId(workspace!, options.customId)
