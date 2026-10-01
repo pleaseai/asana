@@ -1,0 +1,28 @@
+src/lib/asana-views.ts
+  s_1262cca4218fd4::t_eb24c936486047 74-84,91
+  s_e0ea663d317d7e::t_d1cbff7118b6e0 73
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "ef3d54ddadad53fb6ae73b51e6ab589e9927b3c7",
+  "prompts": {},
+  "sessions": {
+    "s_1262cca4218fd4": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "f04c7c6b-c42a-4091-b81b-a086d7fcb2b1",
+        "model": "claude-opus-5-5"
+      },
+      "human_author": "Minsu Lee <minsu.lee@pleaseai.dev>"
+    },
+    "s_e0ea663d317d7e": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "42c81646-930b-46d1-b9bd-60c59a86ba98",
+        "model": "claude-opus-5-5"
+      },
+      "human_author": "Minsu Lee <minsu.lee@pleaseai.dev>"
+    }
+  }
+}
