@@ -1,0 +1,19 @@
+docs/content/en/2.features/3.configuration.md
+  s_ab4775333d0a73::t_6169a1cd17194c 295-301
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "b6a2a0527c96fae7082ecd24e43625c51d3fcab9",
+  "prompts": {},
+  "sessions": {
+    "s_ab4775333d0a73": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "e914462a-9433-42a5-a91e-8716dd6496e8",
+        "model": "claude-opus-5-5"
+      },
+      "human_author": "Minsu Lee <minsu.lee@pleaseai.dev>"
+    }
+  }
+}
