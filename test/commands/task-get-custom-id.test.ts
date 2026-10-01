@@ -119,6 +119,14 @@ describe('task get', () => {
     expect(calls).toHaveLength(0)
   })
 
+  test('a non-numeric gid is rejected before any API call', async () => {
+    await expect(runGet(['not-a-gid'])).rejects.toThrow('__exit__')
+
+    expect(exitSpy).toHaveBeenCalledWith(1)
+    expect(stdoutError().code).toBe(ERROR_IDS.INVALID_TASK_GID)
+    expect(calls).toHaveLength(0)
+  })
+
   test('--custom-id without any workspace is a usage error before any API call', async () => {
     await expect(runGet(['--custom-id', 'PROJ-7'], { workspace: undefined })).rejects.toThrow('__exit__')
 

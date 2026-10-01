@@ -1,5 +1,4 @@
 import type { ErrorId } from '../constants/errorIds'
-import type { OutputFormat } from '../utils/formatter'
 import chalk from 'chalk'
 import { Command } from 'commander'
 import { ERROR_IDS } from '../constants/errorIds'
@@ -8,7 +7,7 @@ import { toTaskView } from '../lib/asana-views'
 import { loadConfig } from '../lib/config'
 import { handleAsanaError } from '../lib/error-handler'
 import { failValidation } from '../lib/fail-validation'
-import { UsageError, ValidationError } from '../lib/validators'
+import { UsageError, validateGid, ValidationError } from '../lib/validators'
 import { formatOutput, getOutputFormat } from '../utils/formatter'
 
 interface TaskGetOptions {
@@ -61,13 +60,15 @@ export function createTaskGetCommand(): Command {
     .action(async (gid: string | undefined, options: TaskGetOptions, command: Command) => {
       try {
         const workspace = resolveWorkspaceForLookup(gid, options)
+        if (gid) {
+          validateGid(gid, 'Task GID')
+        }
         const client = getAsanaClient()
         const taskDetail = options.customId
           ? await client.tasks.findByCustomId(workspace!, options.customId)
           : await client.tasks.findById(gid!)
 
-        // Get format from parent command (root program)
-        const format = (command.parent?.parent?.opts()?.format || 'toon') as OutputFormat
+        const format = getOutputFormat(command)
 
         // Format output based on selected format
         const output = formatOutput({ task: toTaskView(taskDetail) }, { format, colors: process.stdout.isTTY })
