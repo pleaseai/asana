@@ -7,7 +7,8 @@
     { "comment": "Asana 앱 페이지는 인증이 필요해 봇 요청을 403으로 차단", "pattern": "^https?://app\\.asana\\.com/" },
     { "comment": "npm 패키지 페이지는 봇 요청을 403으로 차단", "pattern": "^https?://(www\\.)?npmjs\\.com/" },
     { "comment": "npm.im 단축 URL은 봇 요청을 403으로 차단", "pattern": "^https?://npm\\.im/" },
-    { "comment": "Socket.dev 배지/패키지 페이지는 봇 요청을 403으로 차단", "pattern": "^https?://socket\\.dev/" }
+    { "comment": "Socket.dev 배지/패키지 페이지는 봇 요청을 403으로 차단", "pattern": "^https?://socket\\.dev/" },
+    { "comment": "Medium (including *.medium.com author subdomains) blocks bot requests with 403", "pattern": "^https?://([a-z0-9-]+\\.)*medium\\.com(:\\d+)?([/?#]|$)" }
   ],
   "httpHeaders": [
     {
